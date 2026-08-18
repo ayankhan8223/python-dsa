@@ -1,0 +1,689 @@
+import './style.css'
+import { module4Topics, module4QuestionCount } from './practice4.js'
+
+const pyqs=[
+ {year:'2025',q:'Q27',kind:'DIRECT LINKED-LIST PYQ',title:'Binary search prerequisite',answer:'Option C',question:'For which input does binary search take O(log n) time in the worst case?',options:['A. Array of n integers in any order','B. Linked list of n integers in any order','C. Array of n integers in increasing order','D. Linked list of n integers in increasing order'],steps:'Binary search needs ordering plus O(1) middle access. Sorted array has both. Sorted linked list can compare ordered values, but reaching a chosen midpoint from head is not O(1), so standard worst-case is not O(log n).',trap:'“Sorted” alone sufficient nahi. Underlying structure ke access operation ka cost include karo.',pattern:'Algorithm complexity = number of logical steps × supporting data-structure operation cost.'},
+ {year:'2024',q:'Q41',kind:'TRANSFER PYQ',title:'Recursive reversal',answer:'Option C',question:'fun(D,s1,s2) endpoint values swap karke boundaries inward recursively move karta hai. Function kya karti hai?',options:['A. Minimum find','B. Merge sort','C. Inclusive segment reverse','D. Only endpoints swap'],steps:'Each recursive level one symmetric pair swap karta hai until boundaries meet/cross.',trap:'Question Python array/list par hai, linked list par nahi. Linked list reversal values swap karne ke bajay next links reverse karke O(n) time, O(1) iterative auxiliary space mein hota hai.',pattern:'Reversal invariant transfer; implementation representation-dependent.'}
+]
+const pyqMarkup=pyqs.map(x=>`<details class="pyq-card searchable" data-year="${x.year}"><summary><span class="year">${x.year}</span><span><b>${x.q} · ${x.title}</b><small>${x.kind}</small></span><i>＋</i></summary><div class="pyq-body"><div class="answer"><span>Correct answer</span><strong>${x.answer}</strong></div><div class="pyq-question"><h4>Original question · clean transcript</h4><p>${x.question}</p><ul>${x.options.map(o=>`<li>${o}</li>`).join('')}</ul></div><div><h4>Step-by-step reasoning</h4><p>${x.steps}</p></div><aside><strong>GATE trap</strong><p>${x.trap}</p></aside><aside class="transfer"><strong>Reusable pattern</strong><p>${x.pattern}</p></aside></div></details>`).join('')
+const topicOptions=module4Topics.map(t=>`<option value="${t.id}">${t.number} · ${t.label} (${t.questions.length})</option>`).join('')
+const chapterHead=(n,label,title,sub)=>`<div class="chapter-head"><div class="chapter-no"><span>${n}</span><small>${label}</small></div><div><h2>${title}</h2><p>${sub}</p></div></div>`
+
+document.querySelector('#app').innerHTML=`
+<div class="read-progress"><span></span></div><header class="topbar"><a class="brand" href="#top"><b>DA</b><span><strong>Python + DSA</strong><small>GATE 2027 Notebook</small></span></a><nav><button class="tab active" data-view="notes">Detailed Notes</button><button class="tab" data-view="pyq">PYQ Evidence <i>1+1</i></button><button class="tab" data-view="practice">Practice <i>${module4QuestionCount}</i></button><button class="tab" data-view="revision">Revision</button></nav><div class="actions"><button id="searchButton" aria-label="Search">⌕</button><button id="themeButton" aria-label="Theme">◐</button></div></header>
+<div class="searchbox"><input id="search" type="search" placeholder="Search: head, tail, cycle, reverse, O(1)…"><span id="searchResult">Search current view</span></div>
+<div class="layout" id="top"><aside class="sidebar"><p class="overline">Module 04</p><h2>Linked Lists</h2><div class="module-switch"><a href="./index.html">M01</a><a href="./module2.html">M02</a><a href="./module3.html">M03</a><a class="active" href="./module4.html">M04</a></div><div class="completion"><span><b>Lecture progress</b><i id="count">0/11</i></span><div><i id="bar"></i></div></div><nav id="toc"></nav><p class="source"><b>Sources</b>CampusX PDF + five linked-list notebooks + GATE DA 2024–2026 papers</p></aside><main>
+<div class="view active" data-panel="notes">
+ <section class="hero module4-hero searchable" data-title="Overview"><p class="eyebrow"><i></i> Module 04 · references build order</p><h1>Boxes nahi—<em>links ka invariant</em> trace karo.</h1><p>Linked-list question mein data secondary hai. Head, tail, next, prev aur reachability ka before/after diagram answer deta hai.</p><div class="metrics"><span><b>1</b>direct DA PYQ</span><span><b>1</b>transfer PYQ</span><span><b>${module4QuestionCount}</b>practice drills</span></div><div class="syllabus"><b>2027 syllabus map</b>Basic data structures · linked lists · foundation for stacks, queues and graph adjacency lists</div></section>
+
+ <section class="lecture-track searchable" id="lecture-track" data-title="Module 4 lecture tracker"><div class="track-head"><div><p class="eyebrow"><i></i> CampusX + GATE bridges</p><h2>Module 4 · Lecture Tracker</h2><p>Pointer code ko lecture order mein master karo; complexity mein “node known?” explicitly check karo.</p></div><strong id="lecturePercent">0%</strong></div><div class="lecture-list"><label><input type="checkbox" data-lecture="4.1"><span><b>4.1</b><i>Introduction</i><small>Node, head, links</small></span></label><label><input type="checkbox" data-lecture="4.2"><span><b>4.2</b><i>Memory model</i><small>Non-contiguous reachability</small></span></label><label><input type="checkbox" data-lecture="4.3"><span><b>4.3</b><i>Lists vs arrays</i><small>Trade-offs</small></span></label><label><input type="checkbox" data-lecture="4.4"><span><b>4.4</b><i>Types</i><small>SLL, CSLL, DLL, CDLL</small></span></label><label><input type="checkbox" data-lecture="4.5A"><span><b>4.5A</b><i>SLL setup</i><small>Traversal and length</small></span></label><label><input type="checkbox" data-lecture="4.5B"><span><b>4.5B</b><i>SLL insertion</i><small>Pointer order</small></span></label><label><input type="checkbox" data-lecture="4.5C"><span><b>4.5C</b><i>SLL search/delete</i><small>Complexity</small></span></label><label><input type="checkbox" data-lecture="4.6"><span><b>4.6</b><i>Circular SLL</i><small>Return-to-head stop</small></span></label><label><input type="checkbox" data-lecture="4.7"><span><b>4.7</b><i>Doubly LL</i><small>Two-way invariants</small></span></label><label><input type="checkbox" data-lecture="4.8"><span><b>4.8</b><i>Circular DLL</i><small>Four boundary links</small></span></label><label><input type="checkbox" data-lecture="4.9"><span><b>4.9</b><i>Problems + GATE</i><small>Middle, cycle, reverse</small></span></label></div></section>
+
+ <section class="beginner-start searchable" id="zero-start" data-title="Zero-start mental model"><div class="zero-title"><span>ZERO START</span><h2>Har node ek ghar hai; next us ghar se agle ghar ka address.</h2><p>Head ke paas first address hai. Jis node tak head se links follow karke nahi pahunch sakte, woh logical list ka part nahi.</p></div><div class="glossary-grid"><article><b>Node</b><p>Data + one or more link fields.</p></article><article><b>Head</b><p>First node ka reference; empty mein None.</p></article><article><b>Tail</b><p>Last node reference, agar maintain kiya ho.</p></article><article><b>Next</b><p>Successor node ka reference.</p></article><article><b>Prev</b><p>DLL mein predecessor reference.</p></article><article><b>Reachable</b><p>Head se link path follow karke milne wala node.</p></article></div><div class="linked-chain"><span><b>10</b><i>next</i></span><em>→</em><span><b>20</b><i>next</i></span><em>→</em><span><b>30</b><i>None</i></span></div><div class="reading-method"><h3>Pointer question protocol</h3><div><span><b>1</b>Draw nodes</span><span><b>2</b>Label refs</span><span><b>3</b>Save links</span><span><b>4</b>Recheck invariants</span></div></div></section>
+
+ <section class="beginner-start searchable" id="pointer-vocabulary" data-title="Next current and reachable"><div class="zero-title"><span>READ THIS SLOWLY</span><h2><code>next</code>, <code>current</code> aur <code>reachable</code> alag concepts hain.</h2><p>Linked list ko samajhne ke liye pehle node ke andar ka reference aur traversal ke temporary reference ko alag dekho.</p></div><div class="linked-chain"><span><b>Node A</b><i>next → B</i></span><em>→</em><span><b>Node B</b><i>next → C</i></span><em>→</em><span><b>Node C</b><i>next → None</i></span></div><div class="two-grid"><article><h3><code>next</code> kya hai?</h3><p><code>next</code> har node ke andar rakha hua link/reference hai. Diagram mein Node A ka <code>next</code> Node B ka address rakhta hai; Node B ka <code>next</code> Node C ka address rakhta hai. Last node ke baad koi node nahi, isliye Node C ka <code>next = None</code>.</p></article><article><h3><code>current</code> kya hai?</h3><p><code>current</code> node ka field nahi hota. Ye traversal ke liye banaya gaya temporary naam hai, jo ek waqt mein ek node ka reference hold karta hai. Pehle current → A, phir current → B, phir current → C.</p></article></div><div class="callout"><b><code>reachable</code> ka meaning</b><p><code>reachable</code> koi pointer ya variable nahi, balki node ki property hai. Head se arrows follow karke jis node tak pahunch sakte ho, woh node reachable hai. Upar ke diagram mein A, B aur C teeno head se reachable hain. Agar C ka address head se follow karke nahi milta, toh C reachable nahi hoga—even agar C memory mein exist karta ho.</p></div><div class="equation"><span>Traversal ka simple idea</span><b>current = current.next</b></div><p>Iska meaning: current jis node par hai, us node ke <code>next</code> link ko follow karo aur current ko agle node par shift karo. Jab current <code>None</code> ho jaaye, aage koi reachable node nahi bacha.</p></section>
+
+ <section class="chapter searchable" id="intro" data-title="4.1–4.2 · Introduction and memory">${chapterHead('4.1–4.2','FOUNDATION','Introduction and Memory','Linked list kya hai aur logical order references se kaise banta hai.')}
+  <div class="two-grid"><article><h3>Node anatomy</h3><p>SLL node: <code>data</code> and <code>next</code>. Python “pointer” practically object reference hai; raw address arithmetic nahi.</p></article><article><h3>Memory</h3><p>Nodes memory mein alag-alag jagah par ho sakte hain. Isse insertion/deletion flexible hota hai, lekin har node ke liye extra <code>next</code> reference aur object memory lagti hai. Array/list mein data comparatively compact hota hai. Alag-alag jagah hone ki wajah se CPU ko nearby data ka cache benefit bhi kam milta hai, isliye traversal practically slower ho sakta hai.</p></article></div><div class="codebox"><div><span>Minimal node</span><button>Copy</button></div><pre><code>class Node:
+    def __init__(self, data):
+        self.data = data
+        self.next = None
+
+head = Node(10)</code></pre></div><div class="danger"><b>Reachability trap</b><p>Head ka old reference overwrite karne se pehle required link save karo. Otherwise remaining chain logically lose ho sakti hai.</p></div>
+ </section>
+
+ <section class="chapter searchable" id="compare" data-title="4.3 · Linked lists vs arrays">${chapterHead('4.3','TRADE-OFF','Linked Lists vs Arrays','Indexing, insertion, memory aur cache locality ka trade-off.')}
+  <div class="table-wrap"><table><thead><tr><th>Property</th><th>Array/Python list</th><th>Linked list</th></tr></thead><tbody><tr><td>Index access</td><td>O(1)</td><td>O(n) worst</td></tr><tr><td>Search unsorted</td><td>O(n)</td><td>O(n)</td></tr><tr><td>Insert at known place</td><td>may shift O(n)</td><td>rewire O(1)*</td></tr><tr><td>Find position</td><td>index direct</td><td>traverse O(n)</td></tr><tr><td>Memory</td><td>compact/reference slots</td><td>per-node links/objects</td></tr><tr><td>Cache locality</td><td>generally better</td><td>generally weaker</td></tr></tbody></table></div><div class="callout"><b>*“Known place” ka exact meaning</b><p>Agar predecessor node <code>prev</code> ka reference pehle se available hai, toh singly linked list mein do links update hote hain: <code>new.next = prev.next</code>, phir <code>prev.next = new</code>. Isliye insertion/rewiring O(1) hai. Lekin agar sirf “position 500 par insert karo” diya hai, toh pehle position 500 tak traverse karke <code>prev</code> dhoondna O(n) hoga; total cost O(n) + O(1) = O(n). DLL mein previous aur next dono directions ke links update karne padte hain, par constant count hone ki wajah se rewiring phir bhi O(1) rehti hai.</p></div><div class="danger"><b>GATE 2025 lesson</b><p>Sorted linked list standard binary search ko O(log n) nahi banati because middle node direct O(1) access nahi.</p></div>
+ </section>
+
+ <section class="chapter searchable" id="types" data-title="4.4 · Types of linked lists">${chapterHead('4.4','FOUR TYPES','Types of Linked Lists','SLL, CSLL, DLL aur CDLL ko termination aur direction se identify karo.')}
+  <div class="table-wrap"><table><thead><tr><th>Type</th><th>Links/node</th><th>End condition</th><th>Direction</th></tr></thead><tbody><tr><td>SLL</td><td>next</td><td>tail.next=None</td><td>forward</td></tr><tr><td>CSLL</td><td>next</td><td>tail.next=head</td><td>forward circular</td></tr><tr><td>DLL</td><td>prev,next</td><td>head.prev/tail.next=None</td><td>both</td></tr><tr><td>CDLL</td><td>prev,next</td><td>head.prev=tail; tail.next=head</td><td>both circular</td></tr></tbody></table></div>
+  <div class="ll-type-grid">
+   <article class="ll-type-card"><header><h3>SLL</h3><span>sirf forward</span></header><div class="mini-list"><span class="mini-node head"><b>A</b><i>next</i></span><em>→</em><span class="mini-node"><b>B</b><i>next</i></span><em>→</em><span class="mini-node tail"><b>C</b><i>None</i></span></div><p>Har node mein ek <code>next</code> link. Tail ke baad <code>None</code>.</p></article>
+   <article class="ll-type-card"><header><h3>CSLL</h3><span>forward circular</span></header><div class="mini-list"><span class="mini-node head"><b>A</b><i>next</i></span><em>→</em><span class="mini-node"><b>B</b><i>next</i></span><em>→</em><span class="mini-node tail"><b>C</b><i>next</i></span></div><span class="circular-return">TAIL.next wapas HEAD ko point karta hai</span><p>Tail ka <code>next</code> None nahi; wapas head ko point karta hai.</p></article>
+   <article class="ll-type-card"><header><h3>DLL</h3><span>forward + backward</span></header><div class="mini-list double"><span class="mini-node head"><i>None</i><b>A</b><i>next</i></span><em>⇄</em><span class="mini-node"><i>prev</i><b>B</b><i>next</i></span><em>⇄</em><span class="mini-node tail"><i>prev</i><b>C</b><i>None</i></span></div><p>Har node mein <code>prev</code> aur <code>next</code>. Dono ends par <code>None</code>.</p></article>
+   <article class="ll-type-card"><header><h3>CDLL</h3><span>both directions circular</span></header><div class="mini-list double"><span class="mini-node head"><i>prev</i><b>A</b><i>next</i></span><em>⇄</em><span class="mini-node"><i>prev</i><b>B</b><i>next</i></span><em>⇄</em><span class="mini-node tail"><i>prev</i><b>C</b><i>next</i></span></div><span class="circular-return">HEAD.prev = TAIL aur TAIL.next = HEAD</span><p>First aur last node dono directions mein connected hain; koi end <code>None</code> nahi.</p></article>
+  </div><div class="danger"><b>Circular loop</b><p><code>while current:</code> valid circular list mein terminate nahi karega. Start node par return ya exactly length nodes ke baad stop.</p></div>
+ </section>
+
+ <section class="chapter searchable" id="sll-setup" data-title="4.5 · SLL setup and traversal">${chapterHead('4.5A','SINGLY LL','Head se None tak forward walk','Every iteration progress statement required.')}
+  <div class="codebox"><div><span>Complete beginner implementation</span><button>Copy</button></div><pre><code>class Node:
+    def __init__(self, data):
+        self.data = data
+        self.next = None
+
+
+class LinkedList:
+    def __init__(self):
+        self.head = None
+
+    def append(self, data):
+        new_node = Node(data)
+
+        if self.head is None:
+            self.head = new_node
+            return
+
+        current = self.head
+
+        while current.next:
+            current = current.next
+
+        current.next = new_node
+
+    def get_length(self):
+        length = 0
+        current = self.head
+
+        while current:
+            length += 1
+            current = current.next
+
+        return length
+
+    def print_list(self):
+        current = self.head
+
+        while current:
+            print(current.data)
+            current = current.next</code></pre></div>
+
+  <div class="zero-title"><span>PART 1 · NODE</span><h2><code>Node</code> ek data box aur next address box banata hai.</h2></div>
+  <div class="two-grid"><article><h3><code>class Node</code></h3><p>Ye blueprint hai. Har baar <code>Node(value)</code> call karne par ek naya node object banta hai.</p></article><article><h3><code>self.data = data</code></h3><p>Node ke andar actual value save hoti hai. Agar <code>Node(10)</code> banaya, toh is node ka <code>data = 10</code>.</p></article><article><h3><code>self.next = None</code></h3><p>Naya node abhi kisi agle node se connected nahi hai. Isliye uska next reference initially <code>None</code> rakha gaya.</p></article><article><h3>Initial picture</h3><p><code>new_node = Node(10)</code> ke baad node memory mein exist karta hai, lekin jab tak head ya kisi existing node ka next use point na kare, woh list se connected nahi hai.</p></article></div>
+  <div class="linked-chain"><span><b>10</b><i>next → None</i></span></div>
+
+  <div class="zero-title"><span>PART 2 · LIST</span><h2><code>head</code> poori linked list ka entry point hai.</h2></div>
+  <div class="two-grid"><article><h3><code>class LinkedList</code></h3><p>Ye poori list ka blueprint hai. Nodes alag objects hain; LinkedList un tak pahunchne ke liye head reference rakhti hai.</p></article><article><h3><code>self.head = None</code></h3><p>New list mein abhi koi node nahi, isliye head kisi object ko point nahi karta. Diagram: <code>HEAD → None</code>. Isi ko empty linked list kehte hain.</p></article></div>
+
+  <div class="zero-title"><span>PART 3 · APPEND</span><h2>Append ka goal: naya node list ke bilkul end mein jodna.</h2></div>
+  <div class="steps"><article><b>1</b><h3>Node banao</h3><p><code>new_node = Node(data)</code> se new node banta hai. Abhi iska <code>next = None</code>.</p></article><article><b>2</b><h3>Empty check</h3><p><code>if self.head is None</code> check karta hai ki list khaali hai ya nahi.</p></article><article><b>3</b><h3>First insertion</h3><p>Empty list mein <code>self.head = new_node</code>. Head ab first node ko point karta hai. <code>return</code> function ko yahin rokta hai.</p></article><article><b>4</b><h3>Last node find</h3><p>Non-empty list mein current ko head par rakho aur next links follow karo.</p></article><article><b>5</b><h3>Connect</h3><p>Jis node ka next None mila wahi old tail hai. <code>current.next = new_node</code> usko new node se connect karta hai.</p></article></div>
+  <div class="callout"><b><code>while current.next</code> kyun?</b><p>Loop tab tak chalta hai jab current ke baad koi node present hai. Loop stop hote waqt <code>current</code> last node par hota hai. Agar yahan <code>while current</code> use karke current ko aage badhate, toh loop ke baad current <code>None</code> hota aur uska <code>next</code> update nahi kar sakte.</p></div>
+  <div class="linked-chain"><span><b>HEAD → 10</b><i>next</i></span><em>→</em><span><b>20</b><i>next</i></span><em>→</em><span><b>30</b><i>None</i></span></div>
+  <div class="equation"><span>Append without stored tail</span><b>last node locate O(n) + link update O(1) = O(n)</b></div>
+
+  <div class="zero-title"><span>PART 4 · LENGTH</span><h2><code>get_length()</code> head se walk karke nodes count karta hai.</h2></div>
+  <div class="steps"><article><b>1</b><h3>Counter zero</h3><p><code>length = 0</code>, kyunki traversal start hone se pehle zero nodes count hue hain.</p></article><article><b>2</b><h3>Start at head</h3><p><code>current = self.head</code>. Empty list mein current None; non-empty mein first node.</p></article><article><b>3</b><h3>Node present?</h3><p><code>while current</code> tab tak true hai jab current kisi real node ko reference karta hai.</p></article><article><b>4</b><h3>Count and move</h3><p><code>length += 1</code> current node count karta hai; <code>current = current.next</code> agle node par le jaata hai.</p></article><article><b>5</b><h3>Return result</h3><p>Last node ke baad current None hota hai. Loop stop aur final count return.</p></article></div>
+  <div class="callout"><b>Dry run: 10 → 20 → 30</b><p>Start: length 0, current 10. First round: length 1, current 20. Second: length 2, current 30. Third: length 3, current None. Function <code>3</code> return karega.</p></div>
+  <div class="two-grid"><article><h3>Stored length nahi</h3><p>Har query mein saare n nodes count karne padte hain, isliye <code>get_length()</code> O(n) time leta hai aur sirf counter/current use karne se O(1) auxiliary space.</p></article><article><h3>Length variable maintain karo toh</h3><p><code>self.length</code> store karke query O(1) ho sakti hai. Lekin har successful insertion par exactly ek increment aur deletion par exactly ek decrement karna hoga.</p></article></div>
+
+  <div class="zero-title"><span>PART 5 · PRINT</span><h2><code>print_list()</code> har reachable node ko visit karta hai.</h2></div>
+  <div class="two-grid"><article><h3>Traversal</h3><p>Current head se start hota hai. Har iteration mein pehle current node ka data print hota hai, phir current next node par move karta hai.</p></article><article><h3>Termination</h3><p>Tail ka next None hota hai. Tail visit karne ke baad current None ban jaata hai, condition false hoti hai aur loop safely stop.</p></article></div>
+  <div class="danger"><b>Progress line kabhi mat bhoolna</b><p>Agar <code>current = current.next</code> remove kar diya, current same node par rahega aur <code>while current</code> infinite loop ban jayega.</p></div>
+
+  <div class="zero-title"><span>BOUNDARY CASES</span><h2>Empty aur singleton ko separately trace karo.</h2></div>
+  <div class="two-grid"><article><h3>Empty list</h3><p><code>head = None</code>. Length loop zero baar chalega aur 0 return karega. Print loop bhi zero baar chalega. First append head ko new node par set karega.</p></article><article><h3>Singleton list</h3><p>Exactly one node: head us node ko point karta hai aur <code>head.next = None</code>. Length 1; print once; append ke traversal loop ki condition immediately false, so new node directly connect hota hai.</p></article></div>
+ </section>
+
+ <section class="chapter searchable" id="sll-insert" data-title="4.5 · SLL insertion">${chapterHead('4.5B','POINTER ORDER','Old successor lose hone se pehle save karo','Rewiring O(1), locating may be O(n).')}
+  <div class="zero-title"><span>PEHLE WORDS SAMAJHO</span><h2>Successor, locating aur rewiring teen alag cheezein hain.</h2></div>
+  <div class="three-grid"><article><span>Current</span><h3>Jis node par hum khade hain</h3><p>Agar <code>current → A</code>, toh current A node ka reference hold karta hai.</p></article><article><span>Successor</span><h3>Current ke immediately baad wala node</h3><p>List A → B mein A ka successor B hai; code mein <code>current.next</code>.</p></article><article><span>Rewiring</span><h3>Stored references change karna</h3><p>Nodes move nahi hote. Sirf unke <code>next</code> references ko naye addresses diye jaate hain.</p></article></div>
+
+  <div class="zero-title"><span>CASE 1 · BEGINNING</span><h2>New node ko head se pehle insert karna.</h2><p>Original list mein head A ko point karta hai. X insert karne ke baad X new first node banega.</p></div>
+  <div class="linked-chain"><span><b>HEAD → A</b><i>next</i></span><em>→</em><span><b>B</b><i>None</i></span></div>
+  <div class="codebox green"><div><span>Correct pointer order</span><button>Copy</button></div><pre><code>node.next = self.head
+self.head = node</code></pre></div>
+  <div class="steps"><article><b>1</b><h3><code>node.next = self.head</code></h3><p>Head abhi A ko point karta hai, isliye X ka next A banega. Temporary picture: <code>X → A → B</code>, lekin head abhi A par hai.</p></article><article><b>2</b><h3><code>self.head = node</code></h3><p>Ab head ko X par shift karte hain. Final list: <code>HEAD → X → A → B → None</code>.</p></article></div>
+  <div class="linked-chain"><span><b>HEAD → X</b><i>next</i></span><em>→</em><span><b>A</b><i>next</i></span><em>→</em><span><b>B</b><i>None</i></span></div>
+  <div class="callout"><b>Beginning insertion O(1) kyun?</b><p>List mein 2 nodes hon ya 20 lakh, exactly do references update hote hain. Koi traversal nahi, isliye time O(1).</p></div>
+
+  <div class="danger"><b>Beginning mein order reverse mat karo</b><p>Agar pehle <code>self.head = node</code> kar diya, head X ho jayega. Uske baad <code>node.next = self.head</code> ka meaning X.next = X hoga. X khud ko point karega aur old list A → B head se unreachable ho jayegi.</p></div>
+  <div class="equation"><span>Wrong result</span><b>HEAD → X ↻ X &nbsp; | &nbsp; A → B lost from head</b></div>
+
+  <div class="zero-title"><span>CASE 2 · AFTER KNOWN CURRENT</span><h2>Aur B ke beech X insert karna.</h2><p>Maan lo actual A node ka reference already available hai: <code>current → A</code>. A ka old successor B hai.</p></div>
+  <div class="linked-chain"><span><b>current → A</b><i>next → B</i></span><em>→</em><span><b>B</b><i>next → C</i></span><em>→</em><span><b>C</b><i>None</i></span></div>
+  <div class="codebox"><div><span>Correct pointer order</span><button>Copy</button></div><pre><code>node.next = current.next
+current.next = node</code></pre></div>
+  <div class="steps"><article><b>1</b><h3>Old successor preserve karo</h3><p><code>node.next = current.next</code>. Current A hai aur A.next B hai, isliye X.next B banega. Ab X se remaining B → C chain safe hai.</p></article><article><b>2</b><h3>Current ko new node se jodo</h3><p><code>current.next = node</code>. A ka next ab X hai. Final chain A → X → B → C.</p></article></div>
+  <div class="linked-chain"><span><b>current → A</b><i>next → X</i></span><em>→</em><span><b>X</b><i>next → B</i></span><em>→</em><span><b>B</b><i>next → C</i></span><em>→</em><span><b>C</b><i>None</i></span></div>
+
+  <div class="danger"><b>Update-order bug: self-loop kaise banta hai?</b><p>Wrong order mein pehle <code>current.next = node</code> karne se A.next ka old B reference overwrite ho jaata hai aur A.next X ban jaata hai. Ab <code>node.next = current.next</code> mein current.next already X hai, isliye X.next = X. Result: A → X ↻ X; B → C chain head se unreachable.</p></div>
+  <div class="callout"><b>Yaad rakhne ka rule</b><p><strong>Pehle naye node ko aage wale node ka haath pakdao; phir peeche wale node ko naye node se jodo.</strong> Isi liye old successor lose hone se pehle preserve karte hain.</p></div>
+
+  <div class="zero-title"><span>COMPLEXITY TRAP</span><h2>“Known current” position number nahi—actual node reference hai.</h2></div>
+  <div class="two-grid"><article><h3>Current already available</h3><p>Agar <code>current → A</code> pehle se diya hai, toh sirf do link assignments. Locate O(1), rewire O(1), total O(1).</p></article><article><h3>Sirf position di hai</h3><p>“Position 500 ke baad insert karo” mein head se 500 tak traverse karna padega. Locate O(n), rewire O(1), total O(n).</p></article></div>
+  <div class="equation"><span>Total insertion cost</span><b>locating cost + rewiring cost</b></div>
+
+  <div class="zero-title"><span>CASE 3 · END</span><h2>Tail reference maintain karne se append O(1) ho sakta hai.</h2></div>
+  <div class="two-grid"><article><h3>Sirf head available</h3><p>Head se next links follow karke last node find karna padega. Last locate O(n), final link update O(1), total O(n).</p></article><article><h3>Tail maintained</h3><p>Tail already last node ko point karta hai. <code>tail.next = node</code> se new node connect karo, phir <code>tail = node</code> se tail shift karo. Total O(1).</p></article></div>
+  <div class="codebox"><div><span>Append when tail is maintained</span><button>Copy</button></div><pre><code>tail.next = node
+tail = node</code></pre></div>
+  <div class="linked-chain"><span><b>HEAD → A</b><i>next</i></span><em>→</em><span><b>B</b><i>next</i></span><em>→</em><span><b>TAIL → X</b><i>None</i></span></div>
+  <div class="danger"><b>Empty-list boundary</b><p>Empty list mein old tail nahi hota. First insertion ke baad head aur tail dono same new node ko point karenge, aur new node ka next None rahega.</p></div>
+ </section>
+
+ <section class="chapter searchable" id="sll-ops" data-title="4.5 · SLL search, deletion and complexity">${chapterHead('4.5C','DELETE','Node ko bypass karo','Deletion cost ko locate + rewire mein decompose karo.')}
+  <div class="codebox"><div><span>Delete p when predecessor q known</span><button>Copy</button></div><pre><code>q.next = p.next
+p.next = None  # optional explicit detach
+# rewiring O(1); finding q/p may be O(n)</code></pre></div><div class="table-wrap"><table><thead><tr><th>Operation</th><th>Only head</th><th>With tail / known node</th></tr></thead><tbody><tr><td>Traverse/search</td><td>O(n)</td><td>O(n)</td></tr><tr><td>Insert/delete beginning</td><td>O(1)</td><td>O(1)</td></tr><tr><td>Insert end</td><td>O(n)</td><td>O(1) with tail</td></tr><tr><td>Delete end SLL</td><td>O(n)</td><td>still O(n) with tail alone*</td></tr><tr><td>Insert after known node</td><td>O(1)</td><td>O(1)</td></tr><tr><td>Delete after known predecessor</td><td>O(1)</td><td>O(1)</td></tr></tbody></table></div><small>*Tail predecessor directly available nahi in SLL.</small>
+ </section>
+
+ <section class="chapter searchable" id="csll" data-title="4.6 · Circular singly linked list">${chapterHead('4.6','CSLL','Circular Singly Linked List','Tail ka next None nahi; wapas head ko point karta hai.')}
+  <div class="linked-chain"><span><b>H:10</b><i>next</i></span><em>→</em><span><b>20</b><i>next</i></span><em>→</em><span><b>T:30</b><i>→ H</i></span></div><div class="codebox"><div><span>Safe traversal</span><button>Copy</button></div><pre><code>if self.head is None:
+    return
+current = self.head
+while True:
+    visit(current)
+    current = current.next
+    if current is self.head:
+        break</code></pre></div><div class="callout"><b>Lecture vs optimized</b><p>Notebook tail store nahi karta, isliye beginning/end insertion ke liye last node scan O(n). Tail maintain karke both O(1) kiye ja sakte hain.</p></div>
+ </section>
+
+ <section class="chapter searchable" id="dll" data-title="4.7 · Doubly linked list">${chapterHead('4.7','DLL','Doubly Linked List','Prev aur next links ko har operation ke baad dono directions se verify karo.')}
+  <div class="linked-chain"><span><i>None</i><b>10</b></span><em>⇄</em><span><i>prev</i><b>20</b></span><em>⇄</em><span><i>prev</i><b>30</b></span></div><div class="codebox"><div><span>Insert node between q and p</span><button>Copy</button></div><pre><code>q.next = node
+node.prev = q
+node.next = p
+p.prev = node</code></pre></div><div class="danger"><b>Half-update bug</b><p>Only next chain correct dikh sakti hai while prev chain broken ho. After operation verify: <code>x.next.prev is x</code> and <code>x.prev.next is x</code> wherever neighbors exist.</p></div><div class="callout"><b>Complexity nuance</b><p>Known node deletion O(1). Position-based deletion O(n) to locate + O(1) rewire. Head/tail insert/delete O(1).</p></div>
+ </section>
+
+ <section class="chapter searchable" id="cdll" data-title="4.8 · Circular doubly linked list">${chapterHead('4.8','CDLL','Circular Doubly Linked List','Head aur tail prev/next dono directions mein cycle close karte hain.')}
+  <div class="equation"><span>Boundary invariant</span><b>head.prev = tail · tail.next = head</b></div><div class="two-grid"><article><h3>One node</h3><p><code>head is tail</code> and both <code>next</code>/<code>prev</code> point to itself.</p></article><article><h3>Delete boundary</h3><p>New head/tail choose karne ke baad both circular boundary links reconnect.</p></article></div><div class="codebox"><div><span>Insert at end</span><button>Copy</button></div><pre><code>node.prev = tail
+node.next = head
+tail.next = node
+head.prev = node
+tail = node</code></pre></div>
+ </section>
+
+ <section class="chapter searchable" id="coding" data-title="4.9 · Lecture coding problems">${chapterHead('4.9','PROBLEMS','Lecture Coding Problems','Aggregation, middle convention aur circular termination ko trace karo.')}
+  <div class="practice-list"><article><span>01</span><div><b>Middle element</b><p>Stored length n//2 second-middle policy; fast/slow one-pass alternative.</p></div><strong>O(n) · O(1)</strong></article><article><span>02</span><div><b>Count circular nodes</b><p>Empty→0; non-empty head count then until return.</p></div><strong>O(n) · O(1)</strong></article><article><span>03</span><div><b>Sum nodes</b><p>Additive identity empty→0; one traversal.</p></div><strong>O(n) · O(1)</strong></article><article><span>04</span><div><b>Max/min</b><p>Initialize head.data, not 0; empty returns agreed sentinel.</p></div><strong>O(n) · O(1)</strong></article></div><div class="danger"><b>Even-length middle</b><p>Two middle nodes hote hain. Algorithm first ya second middle return karta hai—question convention explicit karo.</p></div>
+ </section>
+
+ <section class="chapter searchable" id="gate-patterns" data-title="GATE bridge · Fast/slow, cycle and reverse">${chapterHead('GATE','ADD-ON','Fast/Slow, Cycle and Reverse','Lecture coding set ke baad GATE ke reusable pointer patterns.')}
+  <div class="three-grid"><article><span>Fast/slow</span><h3>Middle and cycle</h3><p>Slow 1 step, fast 2. Cycle mein eventually meet; O(n) time O(1) space.</p></article><article><span>Gap pointers</span><h3>Kth from end</h3><p>Fast ko k gap do, then both move until fast reaches end.</p></article><article><span>Three refs</span><h3>Reverse SLL</h3><p>prev, current, saved next. Link reverse before advancing.</p></article></div><div class="codebox"><div><span>Iterative reverse</span><button>Copy</button></div><pre><code>prev, current = None, head
+while current:
+    nxt = current.next
+    current.next = prev
+    prev = current
+    current = nxt
+head = prev
+# O(n) time, O(1) auxiliary space</code></pre></div><div class="danger"><b>Identity vs value</b><p>Two lists intersect tab kehte hain jab same node object share karein; equal data values intersection prove nahi karte.</p></div>
+ </section>
+
+ <section class="chapter searchable" id="protocol" data-title="GATE solving protocol">${chapterHead('GATE','FINAL CHECK','GATE Solving Protocol','Har pointer mutation ke baad reachability aur boundary invariants recheck karo.')}
+  <div class="steps"><article><b>1</b><h3>Draw</h3><p>Distinct node boxes.</p></article><article><b>2</b><h3>Label</h3><p>head/tail/current.</p></article><article><b>3</b><h3>Save</h3><p>Old next before overwrite.</p></article><article><b>4</b><h3>Rewire</h3><p>One statement at a time.</p></article><article><b>5</b><h3>Audit</h3><p>Ends/cycle/reachability.</p></article></div><div class="final"><h3>Module 4 mastery</h3><p>Empty, singleton, head, tail, middle and circular cases ka exact pointer diagram bana sako.</p><button data-jump="practice">Practice Lab open karo →</button></div>
+ </section>
+</div>
+
+<div class="view" data-panel="pyq"><section class="page-hero searchable" data-title="Evidence summary"><p class="eyebrow"><i></i> 2024–2026 honest analysis</p><h1>Linked List PYQ Evidence</h1><p>One direct linked-list question mila; one sequence-reversal question concept transfer ke liye separately labelled hai.</p><div class="paper-grid"><span><b>1</b>direct PYQ</span><span><b>1</b>transfer PYQ</span><span><b>2025</b>access-cost signal</span></div></section><section class="trend searchable" data-title="Inference"><h2>Paper kya signal deta hai?</h2><div><p><span>Access model</span><i style="--w:100%"></i><b>Directly tested</b></p><p><span>Complexity nuance</span><i style="--w:95%"></i><b>High value</b></p><p><span>Pointer tracing</span><i style="--w:75%"></i><b>Future-ready</b></p><p><span>Direct frequency</span><i style="--w:34%"></i><b>1 of 3 papers</b></p></div><small>Only three DA papers exist; low count ko omission guarantee mat samjho.</small></section><div class="filters"><button class="filter active" data-year="all">All</button><button class="filter" data-year="2024">2024 transfer</button><button class="filter" data-year="2025">2025 direct</button><button id="expand">Expand all</button></div><section class="pyqs">${pyqMarkup}</section></div>
+
+<div class="view" data-panel="practice"><section class="page-hero practice-head searchable" data-title="Practice Lab"><p class="eyebrow"><i></i> Pointer-state drills</p><h1>Module 4 Practice</h1><p>${module4QuestionCount} questions; har operation ke saath pointer diagram banao.</p><div class="practice-summary"><span><b>11</b>topic sets</span><span><b>50–60</b>each</span><span><b>saved</b>attempt progress</span></div></section><section class="practice-controls searchable" data-title="Choose topic"><div><label for="practiceTopic">Lecture topic</label><select id="practiceTopic">${topicOptions}</select></div><div><label for="practiceDifficulty">Difficulty</label><select id="practiceDifficulty"><option value="all">All levels</option><option>Foundation</option><option>Core</option><option>Practice</option></select></div><div class="practice-score"><span>Attempted</span><b id="practiceScore">0/50</b></div></section><section class="practice-context" id="practiceContext"></section><section class="question-list" id="questionList"></section></div>
+
+<div class="view" data-panel="revision"><section class="page-hero revision-head searchable" data-title="Revision sheet"><p class="eyebrow"><i></i> Last-day recall</p><h1>Module 4 Revision</h1><p>Invariants and complexity in one sheet.</p><button id="print">Print sheet</button></section><section class="revision-grid"><article class="rev"><span>01</span><h2>SLL</h2><ul><li>tail.next=None</li><li>forward only</li><li>head insert/delete O(1)</li><li>end delete O(n)</li></ul></article><article class="rev"><span>02</span><h2>CSLL</h2><ul><li>tail.next=head</li><li>no None termination</li><li>stop on return to head</li><li>tail enables O(1) end ops</li></ul></article><article class="rev"><span>03</span><h2>DLL</h2><ul><li>prev + next</li><li>head.prev=None</li><li>tail.next=None</li><li>known-node deletion O(1)</li></ul></article><article class="rev"><span>04</span><h2>CDLL</h2><ul><li>head.prev=tail</li><li>tail.next=head</li><li>singleton links self</li><li>audit both directions</li></ul></article><article class="rev"><span>05</span><h2>Complexity</h2><ul><li>index/search O(n)</li><li>rewire O(1) if node known</li><li>locate by position O(n)</li><li>overall space O(n)</li></ul></article><article class="rev"><span>06</span><h2>Patterns</h2><ul><li>slow/fast middle-cycle</li><li>gap pointers kth from end</li><li>reverse with saved next</li><li>intersection uses identity</li></ul></article><article class="rev warning"><span>07</span><h2>Never assume</h2><ul><li>all insertion O(1)</li><li>sorted LL binary search O(log n)</li><li>circular loop reaches None</li><li>tail makes SLL delete-end O(1)</li><li>same value means same node</li></ul></article></section></div>
+</main></div><button class="menu" id="menu">☰</button><div class="toast">Copied</div>`
+
+const sllLectureMarkup=`
+<section class="chapter searchable" id="sll-setup" data-title="4.5.1 · SLL Initial Setup">${chapterHead('4.5.1','INITIAL SETUP','SLL Initial Setup','Node, head, length aur display ka base structure.')}
+ <div class="codebox"><div><span>Node + empty SLL + helpers</span><button>Copy</button></div><pre><code>class Node:
+    def __init__(self, data):
+        self.data = data
+        self.next = None
+
+
+class SinglyLinkedList:
+    def __init__(self):
+        self.head = None
+
+    def get_length(self):
+        length = 0
+        current = self.head
+        while current:
+            length += 1
+            current = current.next
+        return length
+
+    def display(self):
+        if not self.head:
+            print('Empty list')
+        else:
+            current = self.head
+            while current:
+                print(current.data, end=' ')
+                current = current.next
+            print()</code></pre></div>
+ <div class="steps"><article><b>1</b><h3>Node blueprint</h3><p>Har node ke andar <code>data</code> aur agle node ka <code>next</code> reference. Naya node initially kisi se connected nahi, isliye next None.</p></article><article><b>2</b><h3>List blueprint</h3><p><code>self.head</code> first node ka reference hai. New list empty hai, isliye head None.</p></article><article><b>3</b><h3>Length</h3><p>Current head se start karke har reachable node par counter ek badhta hai. None milte hi return. O(n) time.</p></article><article><b>4</b><h3>Display</h3><p>Empty case pehle check. Otherwise current har node ka data print karke next par move karta hai.</p></article></div>
+ <div class="linked-chain"><span><b>HEAD → A</b><i>next</i></span><em>→</em><span><b>B</b><i>next</i></span><em>→</em><span><b>C</b><i>None</i></span></div>
+ <div class="danger"><b>Progress statement</b><p><code>current = current.next</code> missing hua toh current same node par rahega aur loop infinite ho jayega.</p></div>
+</section>
+
+<section class="chapter searchable" id="sll-insert-beginning" data-title="4.5.2 · Insertion At Beginning">${chapterHead('4.5.2','INSERT BEGINNING','Insertion At Beginning','Old head ka reference new node mein save karke HEAD shift karo.')}
+ <div class="codebox green"><div><span>insert_at_beginning</span><button>Copy</button></div><pre><code>def insert_at_beginning(self, value):
+    new_node = Node(value)
+    if self.head:
+        new_node.next = self.head  # self.head first node ka reference rakhta hai;
+                                   # old first node ka reference new node mein save kiya
+    self.head = new_node           # HEAD ko old first node se new node par shift kiya</code></pre></div>
+ <div class="linked-chain"><span><b>Before: HEAD → A</b><i>next → B</i></span><em>→</em><span><b>B</b><i>None</i></span></div>
+ <div class="steps"><article><b>1</b><h3>New node</h3><p><code>Node(value)</code> se X banta hai; X.next initially None.</p></article><article><b>2</b><h3>Old first node ka reference lo</h3><p><code>self.head</code> old first node A ka reference rakhta hai. <code>new_node.next = self.head</code> se wahi reference X ke next mein save hota hai; ab X.next A hai.</p></article><article><b>3</b><h3>HEAD shift karo</h3><p><code>self.head = new_node</code> se HEAD old first node A se shift hokar X ko point karta hai. Ab X new first node hai aur A uske baad safe connected hai.</p></article></div>
+ <div class="linked-chain"><span><b>After: HEAD → X</b><i>next → A</i></span><em>→</em><span><b>A</b><i>next → B</i></span><em>→</em><span><b>B</b><i>None</i></span></div>
+ <div class="danger"><b>Order reverse mat karo</b><p>Pehle head = node aur phir node.next = head karoge toh X.next X banega: self-loop. Correct rule: pehle X ko old head se jodo, phir head shift karo.</p></div>
+ <div class="equation"><span>Complexity</span><b>fixed reference updates = O(1) time</b></div>
+</section>
+
+<section class="chapter searchable" id="sll-insert-end" data-title="4.5.3 · Insertion At End">${chapterHead('4.5.3','INSERT END','Insertion At End','Last node find karke new node ko end mein connect karo.')}
+ <div class="codebox"><div><span>append / insert_at_end</span><button>Copy</button></div><pre><code>def append(self, data):
+    new_node = Node(data)
+
+    if self.head is None:
+        self.head = new_node
+        return
+
+    current = self.head
+    while current.next:
+        current = current.next
+
+    current.next = new_node</code></pre></div>
+ <div class="steps"><article><b>1</b><h3>Node create</h3><p>New node ka next None, isliye end node banne ke liye ready.</p></article><article><b>2</b><h3>Empty case</h3><p>Head None hai toh new node first aur last dono hai. Head set karke return.</p></article><article><b>3</b><h3>Traversal</h3><p>Current head se start. <code>while current.next</code> tab tak move karta hai jab next node exist kare.</p></article><article><b>4</b><h3>Stop at tail</h3><p>Loop ke baad current wahi node hai jiska next None. <code>current.next = new_node</code> new tail connect karta hai.</p></article></div>
+ <div class="linked-chain"><span><b>HEAD → A</b><i>next</i></span><em>→</em><span><b>B</b><i>next</i></span><em>→</em><span><b>old tail C</b><i>next → X</i></span><em>→</em><span><b>new tail X</b><i>None</i></span></div>
+ <div class="callout"><b><code>while current.next</code> kyun?</b><p>Humein last real node par rukna hai taaki uska next update kar saken. <code>while current</code> ke baad current None ho jaata.</p></div>
+ <div class="equation"><span>Only head</span><b>tail locate O(n) + link O(1) = O(n)</b></div>
+ <div class="callout"><b>Tail maintain ho toh</b><p><code>tail.next = new_node</code>, phir <code>tail = new_node</code>. Direct last node available hone se O(1), lekin empty insertion mein head aur tail dono set karo.</p></div>
+</section>
+
+<section class="chapter searchable" id="sll-insert-middle" data-title="4.5.4 · Insertion In Middle">${chapterHead('4.5.4','INSERT MIDDLE','Insertion In Middle','Requested position ke previous node tak jaakar links rewire karo.')}
+ <div class="codebox"><div><span>insert_at_position — simple version</span><button>Copy</button></div><pre><code>def insert_at_position(self, position, data):
+    new_node = Node(data)
+
+    current = self.head
+
+    for _ in range(position - 1):
+        current = current.next
+
+    new_node.next = current.next
+    current.next = new_node</code></pre></div>
+
+ <div class="callout"><b>Position convention</b><p>Is code mein positions zero-based maani gayi hain: first node index 0, second index 1, third index 2. Ye simplified function position 1 ya uske baad insertion ke liye hai. Position 0 ke liye separately <code>insert_at_beginning()</code> use hoga.</p></div>
+
+ <div class="zero-title"><span>EXAMPLE</span><h2>Four-node list mein position 2 par value 99 insert karni hai.</h2><p>Insertion se pehle position 2 par old node 30 hai. New node 99 position 2 lega; old 30 aur uske baad wala 40 safely aage connected rahenge.</p></div>
+ <div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>→</em><span><b>20</b><i>next → 30</i></span><em>→</em><span><b>position 2 → 30</b><i>next → 40</i></span><em>→</em><span><b>40</b><i>None</i></span></div>
+
+ <div class="steps"><article><b>1</b><h3><code>new_node = Node(data)</code></h3><p>Data 99 ke saath naya node banta hai. Abhi new_node.next None hai aur node list se connected nahi.</p></article><article><b>2</b><h3><code>current = self.head</code></h3><p>HEAD first node 10 ka reference rakhta hai. Wahi reference current mein copy hota hai, isliye current bhi 10 ko point karta hai. Head change nahi hota.</p></article><article><b>3</b><h3><code>range(position - 1)</code></h3><p>Position 2 ke liye range(1), so loop ek baar chalta hai. Current 10 se 20 par aata hai. Position 2 wala old node 30 hai, lekin insertion ke liye current ko uske ek previous node 20 par hi rukna hai.</p></article></div>
+
+ <div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>→</em><span><b>current → 20</b><i>next → 30</i></span><em>→</em><span><b>position 2 → 30</b><i>next → 40</i></span><em>→</em><span><b>40</b><i>None</i></span></div>
+
+ <div class="two-grid"><article><h3><code>new_node.next = current.next</code></h3><p>Current 20 par hai aur current.next 30 ka reference rakhta hai. Ye reference new_node.next mein save hota hai. Ab 99.next → 30. Is step se remaining chain 30 → 40 safe rehti hai.</p></article><article><h3><code>current.next = new_node</code></h3><p>Ab 20 ka next, jo pehle 30 tha, new node 99 ko point karega. Isse 99, 20 aur 30 ke beech connect ho jaata hai.</p></article></div>
+
+ <div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>→</em><span><b>current → 20</b><i>next → 99</i></span><em>→</em><span><b>position 2 → 99</b><i>next → 30</i></span><em>→</em><span><b>30</b><i>next → 40</i></span><em>→</em><span><b>40</b><i>None</i></span></div>
+
+ <div class="callout"><b><code>position - 1</code> kyun?</b><p>Bilkul: position 2 insertion se pehle old node 30 ki position hai. Lekin link change old 30 par nahi, uske previous node 20 ke <code>next</code> mein karna hai. Isliye current index 1 wale 20 par rukta hai; phir 99 index 2 par insert hota hai.</p></div>
+ <div class="danger"><b>Is simple version ki boundaries</b><p>Empty list mein current None hoga. Position 0 ko ye code correctly handle nahi karta. Position list se badi hui toh traversal ke dauraan current None ho sakta hai. Complete implementation mein empty check, position validation aur position 0 ko separately handle karna zaroori hai.</p></div>
+ <div class="equation"><span>Complexity</span><b>previous node tak traversal O(position), worst O(n) · link updates O(1) · extra space O(1)</b></div>
+</section>
+
+<section class="chapter searchable" id="sll-search" data-title="4.5.5 · SLL Searching">${chapterHead('4.5.5','SEARCH','SLL Searching','Current ko head se start karke har node ka data key se compare karo.')}
+ <div class="codebox"><div><span>Simple search</span><button>Copy</button></div><pre><code>def search(self, key):
+    current = self.head
+
+    position = 0
+
+    while current:
+        if current.data == key:
+            print(f'{key} found at position {position}')
+            return
+
+        position += 1
+        current = current.next</code></pre></div>
+
+ <div class="zero-title"><span>EXAMPLE</span><h2>List mein key 20 search karni hai.</h2><p>Position zero-based hai: 10 ki position 0, 20 ki position 1 aur 30 ki position 2.</p></div>
+ <div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>→</em><span><b>20</b><i>next → 30</i></span><em>→</em><span><b>30</b><i>None</i></span></div>
+
+ <div class="steps"><article><b>1</b><h3><code>current = self.head</code></h3><p>HEAD first node 10 ka reference rakhta hai. Wahi reference current ko milta hai, so traversal first node se start.</p></article><article><b>2</b><h3><code>position = 0</code></h3><p>Current ab first node par hai, aur zero-based indexing mein first node ki position 0 hoti hai.</p></article><article><b>3</b><h3><code>while current</code></h3><p>Jab tak current kisi real node ko point karta hai, loop chalega. Last node ke baad current None hoga aur loop stop.</p></article></div>
+
+ <div class="linked-chain"><span><b>current → 10</b><i>next → 20</i></span><em>→</em><span><b>20</b><i>next → 30</i></span><em>→</em><span><b>30</b><i>None</i></span></div>
+
+ <div class="two-grid"><article><h3><code>if current.data == key</code></h3><p>Current node ka data requested key se compare hota hai. Pehli iteration mein 10 == 20 false, so print nahi hoga.</p></article><article><h3>Position aur current update</h3><p><code>position += 1</code> next node ki position ready karta hai. <code>current = current.next</code> current ko 10 se 20 par shift karta hai.</p></article></div>
+
+ <div class="linked-chain"><span><b>10</b><i>next → 20</i></span><em>→</em><span><b>current → 20</b><i>next → 30</i></span><em>→</em><span><b>30</b><i>None</i></span></div>
+
+ <div class="callout"><b>Match wali iteration</b><p>Ab current.data 20 aur key 20 hain, so condition true. Output: <code>20 found at position 1</code>. Agli line <code>return</code> poore search function ko turant stop kar deti hai. Is matching iteration mein position increment aur current movement execute nahi honge.</p></div>
+
+ <div class="two-grid"><article><h3>Duplicate key</h3><p>Agar list <code>10 → 20 → 20</code> hai, first 20 milte hi return hoga. Sirf first matching position 1 print hogi.</p></article><article><h3>Key nahi mili</h3><p>Current next links follow karte hue None tak pahunch jayega. Is simple version mein separate “not found” message nahi hai, isliye function silently finish hoga.</p></article></div>
+ <div class="danger"><b>Indentation important hai</b><p><code>return</code> if-block ke andar hai, isliye sirf match par function stop hota hai. <code>position += 1</code> aur <code>current = current.next</code> if-block ke bahar lekin while-loop ke andar hain, isliye non-matching node ke baad traversal aage badhta hai.</p></div>
+ <div class="equation"><span>Complexity</span><b>best O(1) when head matches · worst O(n) · O(1) extra space</b></div>
+</section>
+
+<section class="chapter searchable" id="sll-delete-beginning" data-title="4.5.6 · Deletion At Beginning">${chapterHead('4.5.6','DELETE BEGINNING','Deletion At Beginning','HEAD ko current first node se uske next node par shift karo.')}
+ <div class="codebox"><div><span>delete_first</span><button>Copy</button></div><pre><code>def delete_first(self):
+    if self.head is None:
+        return
+
+    self.head = self.head.next</code></pre></div>
+ <div class="linked-chain"><span><b>HEAD → A</b><i>next → B</i></span><em>→</em><span><b>B</b><i>next → C</i></span><em>→</em><span><b>C</b><i>None</i></span></div>
+ <div class="steps"><article><b>1</b><h3><code>if self.head is None</code></h3><p>HEAD None hai toh list empty hai aur delete karne ke liye first node nahi. <code>return</code> function ko wahi stop karta hai.</p></article><article><b>2</b><h3><code>self.head.next</code></h3><p>HEAD A ka reference rakhta hai aur A.next B ka reference rakhta hai. Isliye <code>self.head.next</code> se second node B ka reference milta hai.</p></article><article><b>3</b><h3><code>self.head = self.head.next</code></h3><p>HEAD ko A se B par shift kar diya. Ab B new first node hai aur A head se reachable nahi raha.</p></article></div>
+ <div class="linked-chain"><span><b>NEW HEAD → B</b><i>next → C</i></span><em>→</em><span><b>C</b><i>None</i></span></div>
+ <div class="callout"><b>One-node list</b><p>Agar HEAD A ko point karta hai aur A.next None hai, toh assignment ke baad HEAD None ho jayega. List empty ho jayegi.</p></div>
+ <div class="equation"><span>Complexity</span><b>fixed updates = O(1)</b></div>
+</section>
+
+<section class="chapter searchable" id="sll-delete-end" data-title="4.5.7 · Deletion At End">${chapterHead('4.5.7','DELETE END','Deletion At End','Last node delete karne ke liye second-last node ka reference chahiye.')}
+ <div class="codebox"><div><span>Complete delete_last</span><button>Copy</button></div><pre><code>def delete_last(self):
+    if self.head is None:
+        return
+
+    if self.head.next is None:
+        self.head = None
+        return
+
+    previous_node = self.head
+    current_node = self.head.next
+
+    while current_node.next:
+        previous_node = current_node
+        current_node = current_node.next
+
+    previous_node.next = None</code></pre></div>
+
+ <div class="steps"><article><b>1</b><h3>Empty list</h3><p><code>self.head is None</code> ka matlab koi node nahi. Delete karne ke liye last node absent hai, isliye return.</p></article><article><b>2</b><h3>One-node list</h3><p><code>self.head.next is None</code> ka matlab HEAD only node ko point karta hai. Head None karte hi list empty; return.</p></article><article><b>3</b><h3>Two references</h3><p>Minimum two nodes confirmed. Previous first node par aur current second node par start hote hain.</p></article></div>
+
+ <div class="linked-chain"><span><b>HEAD → A</b><i>next → B</i></span><em>→</em><span><b>current_node → B</b><i>next → C</i></span><em>→</em><span><b>C</b><i>next → D</i></span><em>→</em><span><b>D</b><i>None</i></span></div>
+ <div class="callout"><b>Initial references</b><p><code>previous_node = self.head</code>, so previous A par. <code>current_node = self.head.next</code>, so current B par. Current ko last tak le jaate waqt previous usse exactly one node peeche rahega.</p></div>
+
+ <div class="two-grid"><article><h3><code>while current_node.next</code></h3><p>Jab current ke baad koi node present hai, current abhi last nahi. Loop current ko aage move karta hai.</p></article><article><h3>Update order</h3><p>Pehle <code>previous_node = current_node</code>, phir <code>current_node = current_node.next</code>. Isse previous hamesha current se one step behind.</p></article></div>
+
+ <div class="linked-chain"><span><b>HEAD → A</b><i>next → B</i></span><em>→</em><span><b>B</b><i>next → C</i></span><em>→</em><span><b>previous_node → C</b><i>next → D</i></span><em>→</em><span><b>current_node → D</b><i>None</i></span></div>
+ <div class="callout"><b>Loop stop hone par</b><p><code>current_node.next</code> None hai, so current D last node hai. Previous C second-last node hai. <code>previous_node.next = None</code> se C new last node aur D list se disconnected.</p></div>
+ <div class="linked-chain"><span><b>HEAD → A</b><i>next → B</i></span><em>→</em><span><b>B</b><i>next → C</i></span><em>→</em><span><b>C</b><i>None</i></span></div>
+
+ <div class="codebox"><div><span>Alternative core traversal</span><button>Copy</button></div><pre><code>def delete_last(self):
+    previous_node = self.head
+    current_node = self.head.next
+
+    while current_node.next:
+        previous_node = current_node
+        current_node = current_node.next
+
+    previous_node.next = None</code></pre></div>
+ <div class="danger"><b>Alternative kab use karna hai?</b><p>Ye same traversal logic ka compact version hai, lekin assume karta hai ki list mein at least two nodes hain. Empty list mein <code>self.head.next</code> fail karega; one-node list mein current_node None hoga aur <code>current_node.next</code> fail karega. Isliye standalone correct method ke liye upar wale two initial checks required hain.</p></div>
+ <div class="equation"><span>Complexity</span><b>traversal O(n) + detach O(1) = O(n)</b></div>
+</section>
+
+<section class="chapter searchable" id="sll-delete-middle" data-title="4.5.8 · Deletion In Middle">${chapterHead('4.5.8','DELETE MIDDLE','Deletion In Middle','Target node ko bypass karke previous aur next nodes reconnect karo.')}
+ <div class="codebox"><div><span>delete_from_middle — simple version</span><button>Copy</button></div><pre><code>def delete_from_middle(self, position):
+    previous_node = self.head
+    current_node = self.head.next
+
+    for _ in range(position - 1):
+        previous_node = current_node
+        current_node = current_node.next
+
+    previous_node.next = current_node.next</code></pre></div>
+ <div class="callout"><b>Position convention</b><p>Position zero-based hai. Ye simple middle-deletion function position 1 ya uske baad ke node ke liye hai. Position 0 first-node deletion ka separate case hai.</p></div>
+
+ <div class="zero-title"><span>EXAMPLE</span><h2>Four-node list se position 2 wala node delete karna hai.</h2><p>Position 2 par node 30 hai. Goal: 30 ko bypass karke 20 ko directly 40 se connect karna.</p></div>
+ <div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>→</em><span><b>20</b><i>next → 30</i></span><em>→</em><span><b>position 2 → 30</b><i>next → 40</i></span><em>→</em><span><b>40</b><i>None</i></span></div>
+
+ <div class="steps"><article><b>1</b><h3><code>previous_node = self.head</code></h3><p>HEAD first node 10 ka reference rakhta hai. Wahi reference previous_node ko milta hai, so previous_node initially 10 par hai.</p></article><article><b>2</b><h3><code>current_node = self.head.next</code></h3><p>HEAD ka next second node 20 ka reference rakhta hai. Isliye current_node initially 20 par hai. Previous aur current ek node ke gap ke saath start hote hain.</p></article></div>
+
+ <div class="linked-chain"><span><b>previous_node → 10</b><i>next → 20</i></span><em>→</em><span><b>current_node → 20</b><i>next → 30</i></span><em>→</em><span><b>position 2 → 30</b><i>next → 40</i></span><em>→</em><span><b>40</b><i>None</i></span></div>
+
+ <div class="callout"><b><code>range(position - 1)</code> kyun?</b><p>Position 2 ke liye range(1), so loop ek baar chalega. Humein current_node ko delete target 30 par aur previous_node ko usse ek pehle 20 par lana hai.</p></div>
+
+ <div class="two-grid"><article><h3><code>previous_node = current_node</code></h3><p>Previous ko current ki present location 20 ka reference milta hai. Ab previous_node 20 par.</p></article><article><h3><code>current_node = current_node.next</code></h3><p>Current apna next reference follow karke 20 se 30 par move karta hai. Ab current_node exactly delete target position 2 par.</p></article></div>
+
+ <div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>→</em><span><b>previous_node → 20</b><i>next → 30</i></span><em>→</em><span><b>current_node → 30</b><i>next → 40</i></span><em>→</em><span><b>40</b><i>None</i></span></div>
+
+ <div class="zero-title"><span>FINAL BYPASS</span><h2><code>previous_node.next = current_node.next</code></h2><p>Previous 20 par hai. Current 30 par hai. Current.next 40 ka reference rakhta hai. Assignment 40 ka reference directly 20.next mein daal deta hai.</p></div>
+ <div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>→</em><span><b>previous_node → 20</b><i>next → 40</i></span><em>→</em><span><b>40</b><i>None</i></span></div>
+
+ <div class="callout"><b>Node 30 ka kya hua?</b><p>HEAD se path ab 10 → 20 → 40 hai. Koi reachable node 30 ko point nahi karta, isliye 30 logical linked list ka part nahi raha. Python eventually unreferenced object ko clean kar sakta hai.</p></div>
+ <div class="danger"><b>Is simple version ki assumption</b><p>List mein enough nodes hain aur position valid middle position hai. Empty list, one-node list, position 0 aur out-of-range position ko ye exact code separately check nahi karta.</p></div>
+ <div class="equation"><span>Complexity</span><b>target tak traversal O(position), worst O(n) · bypass O(1) · extra space O(1)</b></div>
+</section>
+
+<section class="chapter searchable" id="sll-complexity" data-title="4.5.9 · SLL Complexity Analysis">${chapterHead('4.5.9','COMPLEXITY','SLL Complexity Analysis','Har operation mein traversal cost aur actual link-update cost separately count karo.')}
+ <div class="zero-title"><span>START HERE</span><h2><code>n</code> ka matlab list mein total nodes.</h2><p>Complexity machine ke seconds nahi batati. Ye batati hai ki input size n badhne par required operations kis rate se grow karte hain.</p></div>
+ <div class="three-grid"><article><span>O(1)</span><h3>Constant time</h3><p>n kitna bhi ho, fixed number of statements/reference updates. Example: beginning deletion.</p></article><article><span>O(n)</span><h3>Linear time</h3><p>Worst case mein head se nodes ko one-by-one visit karna. n double hua toh work roughly double.</p></article><article><span>Auxiliary space</span><h3>Algorithm ki extra memory</h3><p>Input nodes ke alawa current, previous aur counter jaise temporary references count hote hain.</p></article></div>
+
+ <div class="zero-title complexity-section-title"><span>MASTER TABLE</span><h2>Tumhare SLL implementation ki operation-wise complexity.</h2></div>
+ <div class="table-wrap"><table><thead><tr><th>Operation</th><th>Best case</th><th>Worst case</th><th>Reason</th></tr></thead><tbody>
+ <tr><td>Traversal / display</td><td>O(n)</td><td>O(n)</td><td>Har node visit karna hi goal hai</td></tr>
+ <tr><td>Get length (stored nahi)</td><td>O(n)</td><td>O(n)</td><td>Saare nodes count hote hain</td></tr>
+ <tr><td>Search with return</td><td>O(1)</td><td>O(n)</td><td>Head match vs last/absent key</td></tr>
+ <tr><td>Insert at beginning</td><td>O(1)</td><td>O(1)</td><td>New.next aur head update only</td></tr>
+ <tr><td>Insert at end</td><td>O(1) empty</td><td>O(n)</td><td>Non-empty list mein last node locate</td></tr>
+ <tr><td>Insert at middle position</td><td>O(1) near head</td><td>O(n)</td><td>Previous node tak traversal</td></tr>
+ <tr><td>Delete at beginning</td><td>O(1)</td><td>O(1)</td><td>Head = head.next</td></tr>
+ <tr><td>Delete at end</td><td>O(1) empty/singleton</td><td>O(n)</td><td>Second-last node locate</td></tr>
+ <tr><td>Delete at middle position</td><td>O(1) near head</td><td>O(n)</td><td>Target/previous tak traversal</td></tr>
+ <tr><td>Space per node</td><td>O(1)</td><td>O(1)</td><td>Data + one next reference</td></tr>
+ <tr><td>Overall n-node list space</td><td>O(n)</td><td>O(n)</td><td>n nodes × constant storage</td></tr>
+ </tbody></table></div>
+
+ <div class="callout"><b>Sabse important GATE rule</b><p><strong>Total cost = node locate karne ka cost + links update karne ka cost.</strong> Rewiring do assignments aur O(1) ho sakti hai, lekin agar correct node dhoondne mein O(n) traversal hua, total O(n) hoga.</p></div>
+
+ <div class="zero-title complexity-section-title"><span>1 · TRAVERSAL</span><h2>Display aur length dono head se None tak chalte hain.</h2></div>
+ <div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>→</em><span><b>20</b><i>next → 30</i></span><em>→</em><span><b>30</b><i>next → 40</i></span><em>→</em><span><b>40</b><i>None</i></span></div>
+ <div class="two-grid"><article><h3>Time O(n)</h3><p>Four-node example mein 4 visits. General n-node list mein n visits. Display ko every value print karni hai aur length ko every node count karna hai, isliye best case bhi O(n).</p></article><article><h3>Extra space O(1)</h3><p>Loop poori new list nahi banata. Sirf one current reference aur length case mein one counter use hota hai; variables ki count n ke saath grow nahi karti.</p></article></div>
+ <div class="equation"><span>Traversal work</span><b>T(n) = c·n + constant → O(n)</b></div>
+
+ <div class="zero-title complexity-section-title"><span>2 · SEARCH</span><h2><code>return</code> ki wajah se best aur worst case different hain.</h2></div>
+ <div class="three-grid"><article><span>Best O(1)</span><h3>Key head par</h3><p>First comparison true aur function return. Sirf one node visit.</p></article><article><span>Worst O(n)</span><h3>Key last par ya absent</h3><p>Current ko n nodes tak move karna padega.</p></article><article><span>Average O(n)</span><h3>Typical position</h3><p>Key uniformly kisi position par ho toh roughly n/2 nodes check; constants ignore hone se O(n).</p></article></div>
+ <div class="danger"><b>n/2 ko O(n) kyun?</b><p>Asymptotic analysis constant factors ignore karti hai. n/2 ka growth n ke proportional hai, isliye O(n), O(n/2) final notation nahi.</p></div>
+
+ <div class="zero-title complexity-section-title"><span>3 · INSERTION</span><h2>Beginning mein traversal nahi; end/middle mein location dhoondni padti hai.</h2></div>
+ <div class="three-grid"><article><span>Beginning O(1)</span><h3>Two reference updates</h3><p><code>new_node.next = head</code> aur <code>head = new_node</code>. n independent.</p></article><article><span>End O(n)</span><h3>Last node locate</h3><p>Tumhare head-based append mein <code>while current.next</code> last node tak jaata hai; final connection O(1), total O(n).</p></article><article><span>Middle O(n)</span><h3>Previous position locate</h3><p>Loop O(position), worst position n ke proportional. Uske baad two link updates O(1).</p></article></div>
+ <div class="equation"><span>Middle insertion</span><b>O(position) + O(1) = worst O(n)</b></div>
+
+ <div class="zero-title complexity-section-title"><span>4 · DELETION</span><h2>Beginning direct hai; end aur middle mein predecessor locate hota hai.</h2></div>
+ <div class="three-grid"><article><span>Beginning O(1)</span><h3>Head shift</h3><p><code>head = head.next</code> fixed one update. List size matter nahi.</p></article><article><span>End O(n)</span><h3>Second-last tak walk</h3><p>Previous/current references ko last tak move karna. Final <code>previous.next = None</code> only O(1).</p></article><article><span>Middle O(n)</span><h3>Target tak walk</h3><p>Position tak loop O(position), then <code>previous.next = current.next</code> O(1). Worst O(n).</p></article></div>
+ <div class="equation"><span>Deletion pattern</span><b>locate O(n) + bypass O(1) = O(n)</b></div>
+
+ <div class="zero-title complexity-section-title"><span>5 · SPACE</span><h2>Input storage aur auxiliary space ko mix mat karo.</h2></div>
+ <div class="two-grid"><article><h3>Space per node O(1)</h3><p>Ek SLL node fixed fields rakhta hai: data aur one next reference. Har individual node ka storage constant.</p></article><article><h3>Overall list O(n)</h3><p>n nodes hain aur har node O(1) memory leta hai: n × O(1) = O(n).</p></article><article><h3>Iterative operations O(1) auxiliary</h3><p>Current, previous, position aur new_node jaise fixed references use hote hain. Extra variables n ke saath increase nahi.</p></article><article><h3>Output space separate</h3><p>Sirf values print karna stored output list create nahi karta. Agar n results ek new Python list mein collect karoge, output/extra space O(n) ho sakta hai.</p></article></div>
+
+ <div class="zero-title complexity-section-title"><span>NUMERICAL FEEL</span><h2>Agar n = 1,000 nodes ho.</h2></div>
+ <div class="table-wrap"><table><thead><tr><th>Operation</th><th>Approx node visits</th><th>Link updates</th><th>Final class</th></tr></thead><tbody><tr><td>Insert beginning</td><td>0</td><td>2</td><td>O(1)</td></tr><tr><td>Search last key</td><td>1,000</td><td>0</td><td>O(n)</td></tr><tr><td>Insert at position 600</td><td>about 600</td><td>2</td><td>O(n)</td></tr><tr><td>Delete beginning</td><td>0</td><td>1</td><td>O(1)</td></tr><tr><td>Delete last</td><td>about 1,000</td><td>1</td><td>O(n)</td></tr></tbody></table></div>
+
+ <div class="danger"><b>Common GATE traps</b><p>“Linked-list insertion O(1)” tabhi correct hai jab required previous/current node already available ho. “Position p par insert” mein p tak traversal include karo. Search sorted hone se direct middle access nahi milta. Per-node space O(1) hone ka matlab complete list O(1) nahi—n nodes ka total O(n).</p></div>
+ <div class="final"><h3>4.5.9 mastery check</h3><p>Har answer mein pehle batao: kitne nodes visit hue? kitne links update hue? extra variables kitne? Phir total time aur auxiliary space likho.</p></div>
+</section>`
+const oldSllSections=[...document.querySelectorAll('#sll-setup,#sll-insert,#sll-ops')];if(oldSllSections.length){oldSllSections[0].insertAdjacentHTML('beforebegin',sllLectureMarkup);oldSllSections.forEach(section=>section.remove())}
+
+const csllLectureMarkup=`
+<section class="chapter searchable" id="csll-intro" data-title="4.6 · Circular Singly Linked List">${chapterHead('4.6','CSLL','Circular Singly Linked List','SLL jaisi next links hain, bas last node ka next None ke bajay head ko point karta hai.')}
+ <div class="zero-title"><span>PEHLE IDEA</span><h2>CSLL mein list khatam nahi hoti; last node se phir first node par aa jaate ho.</h2><p>Singly linked list mein 30.next = None hota tha. Circular singly linked list mein 30.next = head hota hai. Isliye circular list ko traverse karte waqt None ka wait nahi kar sakte.</p></div>
+ <article class="ll-type-card"><header><h3>CSLL</h3><span>forward circular</span></header><div class="mini-list"><span class="mini-node head"><b>A</b><i>next</i></span><em>→</em><span class="mini-node"><b>B</b><i>next</i></span><em>→</em><span class="mini-node"><b>C</b><i>next</i></span><em>→</em><span class="mini-node tail"><b>D</b><i>next</i></span></div><span class="circular-return">TAIL.next wapas HEAD ko point karta hai</span><p>Tail ka <code>next</code> <code>None</code> nahi; wapas head ko point karta hai.</p></article>
+ <div class="callout"><b>Sabse important invariant</b><p>Non-empty CSLL mein last node ka <code>next</code> hamesha head ka reference rakhta hai. Isi ek link ki wajah se list circular banti hai. Agar woh link <code>None</code> ho gaya, woh CSLL nahi raha; normal SLL ban gaya.</p></div>
+</section>
+
+<section class="chapter searchable" id="csll-initial" data-title="4.6.1 · CSLL Initial Setup">${chapterHead('4.6.1','INITIAL SETUP','CSLL Initial Setup','Node same hota hai; head se circular connection banana naya part hai.')}
+ <div class="codebox"><div><span>Node aur empty circular list</span><button>Copy</button></div><pre><code>class Node:
+    def __init__(self, data):
+        self.data = data
+        self.next = None
+
+
+class CircularLinkedList:
+    def __init__(self):
+        self.head = None</code></pre></div>
+ <div class="two-grid"><article><h3>Empty list</h3><p><code>self.head = None</code> ka meaning: abhi koi first node hi nahi hai. Isliye circular link bhi nahi ho sakta. Empty list ko print/search/delete se pehle handle karna padta hai.</p></article><article><h3>One-node list</h3><p>Jab pehla node A add hota hai, wahi head bhi hai aur last node bhi. Circular rule complete karne ke liye <code>A.next = A</code>. Matlab A ka next reference khud A ko point karta hai.</p></article></div>
+ <div class="linked-chain"><span><b>HEAD → A</b><i>next → HEAD</i></span></div>
+ <div class="danger"><b>Singleton ko SLL ki tarah mat socho</b><p>SLL singleton mein <code>head.next = None</code>. CSLL singleton mein <code>head.next = head</code>. Ye difference insertion, deletion aur traversal sab mein important hai.</p></div>
+</section>
+
+<section class="chapter searchable" id="csll-insert-beginning" data-title="4.6.2 · CSLL Insertion At Beginning">${chapterHead('4.6.2','INSERT BEGINNING','CSLL Insertion At Beginning','New first node banao aur last node ki return link ko new head par shift karo.')}
+ <div class="zero-title"><span>BEFORE</span><h2>10 se start hoti list mein 5 ko new head banana hai.</h2><p>Purana last node 30 abhi 10 ko point karta hai. Head ko 5 par shift karne se pehle 30 ka next bhi 5 par shift karna hoga; warna cycle purane 10 par hi close rahegi.</p></div>
+ <div class="csll-step-flow">
+  <article><span>STEP 1 · LAST NODE DHOONDO</span><p><code>current</code> head se move karta hai. Jab <code>current.next == self.head</code>, current last node par hai: 30.</p><div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>→</em><span><b>20</b><i>next → 30</i></span><em>→</em><span><b>current → 30</b><i>next → HEAD</i></span></div></article>
+  <article><span>STEP 2 · NEW NODE KO OLD HEAD SE JODO</span><p><code>new_node.next = self.head</code>. Ab 5 ke andar purane first node 10 ka reference aa gaya. 5 abhi head nahi bana hai, isliye old circle abhi bhi 30 → 10 par close ho raha hai.</p><div class="two-grid"><div class="linked-chain"><span><b>new node → 5</b><i>next → 10</i></span></div><div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>→</em><span><b>20</b><i>next → 30</i></span><em>→</em><span><b>current → 30</b><i>next → HEAD</i></span></div></div></article>
+  <article><span>STEP 3 · CIRCLE CLOSE KARO, PHIR HEAD SHIFT KARO</span><p>Pehle <code>current.next = new_node</code>: 30 ka next ab 5 hai. Phir <code>self.head = new_node</code>: HEAD bhi 5 par aa gaya. Ab new circular list ready hai.</p><div class="linked-chain"><span><b>HEAD → 5</b><i>next → 10</i></span><em>→</em><span><b>10</b><i>next → 20</i></span><em>→</em><span><b>20</b><i>next → 30</i></span><em>→</em><span><b>30</b><i>next → HEAD</i></span></div></article>
+ </div>
+ <div class="codebox"><div><span>Insert at beginning</span><button>Copy</button></div><pre><code>def insert_at_beginning(self, data):
+    new_node = Node(data)
+
+    if self.head is None:
+        self.head = new_node
+        new_node.next = self.head
+        return
+
+    current = self.head
+
+    while current.next != self.head:
+        current = current.next
+
+    new_node.next = self.head
+    current.next = new_node
+    self.head = new_node</code></pre></div>
+ <div class="two-grid"><article><h3>Empty case</h3><p>Naya node pehla aur last dono hai. <code>self.head = new_node</code> ke baad <code>new_node.next = self.head</code>, so node khud ko point karta hai.</p></article><article><h3>Non-empty case</h3><p><code>current</code> ko last node tak le jaate hain. Last identify hota hai jab <code>current.next == self.head</code>. Phir new node purane head ko point karta hai, last node new node ko point karta hai, aur head new node par shift hota hai.</p></article></div>
+ <div class="callout"><b>Complexity ka reason</b><p>Is version mein tail stored nahi hai. Isliye last node dhoondne ke liye traversal hota hai: O(n). Actual links update sirf constant baar hote hain, lekin total operation O(n) hai.</p></div>
+</section>
+
+<section class="chapter searchable" id="csll-insert-end" data-title="4.6.3 · CSLL Insertion At End">${chapterHead('4.6.3','INSERT END','CSLL Insertion At End','New node ko last aur head ke beech connect karo.')}
+ <div class="codebox"><div><span>Insert at end</span><button>Copy</button></div><pre><code>def insert_at_end(self, data):
+    new_node = Node(data)
+
+    if self.head is None:
+        self.head = new_node
+        new_node.next = self.head
+        return
+
+    current = self.head
+
+    while current.next != self.head:
+        current = current.next
+
+    current.next = new_node
+    new_node.next = self.head</code></pre></div>
+ <div class="csll-step-flow">
+  <article><span>STEP 1 · LAST NODE DHOONDO</span><p><code>current</code> 10 se move karta hai: 10, phir 20, phir 30. 30 ka next wapas head ko point karta hai, isliye 30 current last node hai.</p><div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>→</em><span><b>20</b><i>next → 30</i></span><em>→</em><span><b>current → 30</b><i>next → HEAD</i></span></div></article>
+  <article><span>STEP 2 · OLD LAST KO NEW NODE SE JODO</span><p><code>current.next = new_node</code>. Current 30 par hai, so ab 30 ka next 40 ho gaya. 40 ka next abhi <code>None</code> hai, kyunki node bante waqt uska next None tha. Ye temporary state hai—next step mein circle complete hoga.</p><div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>→</em><span><b>20</b><i>next → 30</i></span><em>→</em><span><b>current → 30</b><i>next → new node 40</i></span><em>→</em><span><b>40</b><i>next → None</i></span></div></article>
+  <article><span>STEP 3 · NEW LAST KO HEAD SE JODO</span><p><code>new_node.next = self.head</code>. New node 40 ka next ab first node 10 ko point karta hai. Isse 40 new last node hai aur circle phir complete ho gaya.</p><div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>→</em><span><b>20</b><i>next → 30</i></span><em>→</em><span><b>30</b><i>next → 40</i></span><em>→</em><span><b>40</b><i>next → HEAD</i></span></div></article>
+ </div>
+ <div class="danger"><b>Order kyun important hai?</b><p><code>new_node.next = self.head</code> pehle ya baad mein safely ho sakta hai, kyunki old head already available hai. Lekin final state mein do links zaroor hone chahiye: old last → new node aur new node → head. Ek bhi missing hua toh cycle toot jaayegi.</p></div>
+</section>
+
+<section class="chapter searchable" id="csll-insert-middle" data-title="4.6.4 · CSLL Insertion In Middle">${chapterHead('4.6.4','INSERT MIDDLE','CSLL Insertion In Middle','Position ke previous node par rukkar new node ko beech mein jodo.')}
+ <div class="codebox"><div><span>Insert after position ka previous node</span><button>Copy</button></div><pre><code>def insert_at_position(self, position, data):
+    new_node = Node(data)
+    current = self.head
+
+    for _ in range(position - 1):
+        current = current.next
+
+    new_node.next = current.next
+    current.next = new_node</code></pre></div>
+ <div class="csll-step-flow">
+  <article><span>STEP 1 · POSITION KE PREVIOUS NODE PAR RUKO</span><p>Position 2 par 99 insert karna hai. New node ko position 2 par aana hai, jahan abhi 30 hai. Isliye <code>current</code> ko 30 par nahi, uske previous node 20 par rokna hai.</p><div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>→</em><span><b>current → 20</b><i>next → 30</i></span><em>→</em><span><b>30</b><i>next → 40</i></span><em>→</em><span><b>40</b><i>next → HEAD</i></span></div></article>
+  <article><span>STEP 2 · OLD SUCCESSOR KO NEW NODE MEIN SAVE KARO</span><p><code>new_node.next = current.next</code>. Current 20 par hai aur 20.next 30 ka reference rakhta hai. Wahi reference 99.next mein save hota hai. Is waqt <code>20.next</code> abhi bhi 30 hi hai—<code>20 → 99</code> wali link next step mein banegi.</p><div class="csll-reference-states"><div><b>NEW NODE · ABHI LIST SE SEPARATE HAI</b><p>99 ke paas 30 ka reference aa gaya: <code>99.next → 30</code>. Lekin head se 99 tak abhi koi path nahi, isliye 99 abhi main list ka reachable part nahi hai.</p><div class="linked-chain"><span><b>new node → 99</b><i>next → 30</i></span><em>→</em><span><b>30</b><i>next → 40</i></span><em>→</em><span><b>40</b><i>next → HEAD</i></span></div></div><div><b>ORIGINAL LIST · ABHI BILKUL UNCHANGED HAI</b><p>Head abhi 10 ko point kar raha hai. 10 → 20 → 30 path still same hai; 20 ke andar abhi 99 ka reference nahi dala gaya.</p><div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>→</em><span><b>current → 20</b><i>next → 30</i></span><em>→</em><span><b>30</b><i>next → 40</i></span><em>→</em><span><b>40</b><i>next → HEAD</i></span></div></div></div><div class="note"><b>Step 2 ka exact answer:</b> Haan, 10 aur 20 ka reference abhi sirf original list ke liye hai: <code>10.next → 20</code> aur <code>20.next → 30</code>. New node 99 ne 30 ko point karna start kar diya hai, but 20 abhi 99 ko point nahi karta. Step 3 mein <code>current.next = new_node</code> se <code>20.next → 99</code> hoga.</div></article>
+  <article><span>STEP 3 · PREVIOUS NODE KO NEW NODE SE JODO</span><p><code>current.next = new_node</code>. Ab 20 ka next, jo pehle 30 tha, 99 ho gaya. 99 already 30 ko point kar raha hai, so complete circle hai: 10 → 20 → 99 → 30 → 40 → HEAD.</p><div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>→</em><span><b>20</b><i>next → 99</i></span><em>→</em><span><b>99</b><i>next → 30</i></span><em>→</em><span><b>30</b><i>next → 40</i></span><em>→</em><span><b>40</b><i>next → HEAD</i></span></div></article>
+ </div>
+ <div class="callout"><b>GATE rule</b><p>Rewiring do assignments O(1) hai. Lekin position tak pahunchne ke liye loop chal raha hai, so position-based insertion ka total worst case O(n) hai.</p></div>
+</section>
+
+<section class="chapter searchable" id="csll-search" data-title="4.6.5 · CSLL Searching">${chapterHead('4.6.5','SEARCHING','CSLL Searching','Head par return hote hi search stop honi chahiye.')}
+ <div class="codebox"><div><span>Search a key</span><button>Copy</button></div><pre><code>def search(self, key):
+    if self.head is None:
+        return
+
+    current = self.head
+    position = 0
+
+    while True:
+        if current.data == key:
+            print(f'{key} found at position {position}')
+            return
+
+        current = current.next
+        position += 1
+
+        if current == self.head:
+            break</code></pre></div>
+ <div class="csll-step-flow">
+  <article><span>STEP 1 · HEAD SE SEARCH START</span><p>Maan lo key 30 search karni hai. <code>current</code> pehle head, yani 10 par hai. 10 ko key 30 se compare karo. Match nahi hua aur 10.next head nahi hai, so current ko 20 par move karte hain.</p><div class="linked-chain"><span><b>current → HEAD → 10</b><i>compare: 10 ≠ 30</i></span><em>→</em><span><b>20</b><i>next → 30</i></span><em>→</em><span><b>30</b><i>next → HEAD</i></span></div></article>
+  <article><span>STEP 2 · HAR NODE KO EK BAAR CHECK KARO</span><p>Current 20 par aaya; 20 bhi key nahi hai. 20.next head nahi hai, isliye aage move karna safe hai. Ab current 30 par aayega aur match mil jaayega.</p><div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>→</em><span><b>current → 20</b><i>compare: 20 ≠ 30</i></span><em>→</em><span><b>30</b><i>next → HEAD</i></span></div></article>
+  <article><span>STEP 3 · LAST NODE CHECK KARKE HEAD PAR RETURN</span><p>Agar key absent ho, current 30 par bhi <code>current.data == key</code> check karega. Uske baad <code>current = current.next</code> se current 30 se wapas head 10 par aayega. Ab <code>current == self.head</code> true hai, isliye break. Last node searchable raha aur head ko dobara check nahi kiya.</p><div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>→</em><span><b>20</b><i>next → 30</i></span><em>→</em><span><b>30</b><i>checked, then next → HEAD</i></span></div></article>
+ </div>
+ <div class="two-grid"><article><h3>Why not <code>while current</code>?</h3><p>Non-empty CSLL mein current kabhi None nahi hoga: 10 → 20 → 30 → 10 repeat hota rahega. Isliye key absent ho toh loop infinite ho jaayega.</p></article><article><h3><code>current == self.head</code> kyun?</h3><p>Current node ka data check karne ke baad hi current ko agle node par move karte hain. Last node ke baad current phir head par aata hai. Head par return ka meaning: har node exactly ek baar check ho chuka hai, so ab break.</p></article></div>
+</section>
+
+<section class="chapter searchable" id="csll-delete-beginning" data-title="4.6.6 · CSLL Deletion At Beginning">${chapterHead('4.6.6','DELETE BEGINNING','CSLL Deletion At Beginning','Head shift ke saath last node ki circular link bhi new head par shift karo.')}
+ <div class="codebox"><div><span>Delete first node</span><button>Copy</button></div><pre><code>def delete_first(self):
+    if self.head is None:
+        return
+
+    if self.head.next == self.head:
+        self.head = None
+        return
+
+    current = self.head
+
+    while current.next != self.head:
+        current = current.next
+
+    current.next = self.head.next
+    self.head = self.head.next</code></pre></div>
+ <div class="csll-step-flow">
+  <article><span>STEP 1 · LAST NODE DHOONDO</span><p>Head abhi 10 ko point karta hai. <code>current</code> 10 se 20 aur phir 30 tak move karta hai. 30 ka next head 10 hai, isliye 30 last node hai.</p><div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>→</em><span><b>20</b><i>next → 30</i></span><em>→</em><span><b>current → 30</b><i>next → HEAD</i></span></div></article>
+  <article><span>STEP 2 · LAST NODE KO SECOND NODE SE JODO</span><p><code>current.next = self.head.next</code>. Current 30 par hai aur <code>self.head.next</code> second node 20 ka reference rakhta hai. Isliye 30.next ab 20 ho gaya. Ab 20 → 30 → 20 ka chhota circular part ban gaya; old head 10 abhi temporary reference ke roop mein <code>self.head</code> mein hai.</p><div class="csll-reference-states"><div><b>OLD HEAD · ABHI SELF.HEAD 10 KO POINT KAR RAHA HAI</b><div class="linked-chain"><span><b>old HEAD → 10</b><i>next → 20</i></span></div></div><div><b>NEW CIRCLE · 20 SE START HONE WALA PART READY HAI</b><div class="linked-chain"><span><b>20</b><i>next → 30</i></span><em>→</em><span><b>current → 30</b><i>next → 20</i></span></div></div></div></article>
+  <article><span>STEP 3 · HEAD KO SECOND NODE PAR SHIFT KARO</span><p><code>self.head = self.head.next</code>. Old head 10 ka next already 20 tha, so HEAD ab 20 par aa gaya. Ab main list ka entry point 20 hai aur cycle 20 → 30 → HEAD complete hai. Old 10 head se reachable nahi raha, isliye list se delete ho gaya.</p><div class="linked-chain"><span><b>HEAD → 20</b><i>next → 30</i></span><em>→</em><span><b>30</b><i>next → HEAD</i></span></div></article>
+ </div>
+ <div class="danger"><b>Singleton special case</b><p>Agar <code>head.next == head</code>, sirf ek node hai. Us node ko delete karne ka result empty list hai: <code>head = None</code>. <code>head = head.next</code> karoge toh node phir khud par hi rahega—delete nahi hoga.</p></div>
+</section>
+
+<section class="chapter searchable" id="csll-delete-end" data-title="4.6.7 · CSLL Deletion At End">${chapterHead('4.6.7','DELETE END','CSLL Deletion At End','Second-last node ko new last banao aur uska next head par reconnect karo.')}
+ <div class="codebox"><div><span>Delete last node</span><button>Copy</button></div><pre><code>def delete_last(self):
+    if self.head is None:
+        return
+
+    if self.head.next == self.head:
+        self.head = None
+        return
+
+    previous_node = self.head
+    current_node = self.head.next
+
+    while current_node.next != self.head:
+        previous_node = current_node
+        current_node = current_node.next
+
+    previous_node.next = self.head</code></pre></div>
+ <div class="csll-step-flow">
+  <article><span>STEP 1 · LAST AUR SECOND-LAST NODE LOCATE KARO</span><p>Traversal mein do references saath move karte hain. <code>current_node</code> last node 30 par rukta hai; <code>previous_node</code> ek step peechhe 20 par rehta hai. Condition <code>current_node.next == self.head</code> bolti hai ki current_node last node hai.</p><div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>→</em><span><b>previous_node → 20</b><i>next → 30</i></span><em>→</em><span><b>current_node → 30</b><i>next → HEAD</i></span></div></article>
+  <article><span>STEP 2 · SECOND-LAST KO HEAD SE CONNECT KARO</span><p><code>previous_node.next = self.head</code>. Previous node 20 par hai aur head 10 ko point karta hai. Isliye 20.next, jo pehle 30 tha, ab direct 10 ho jaata hai. New circular list 10 → 20 → HEAD ban gayi.</p><div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>→</em><span><b>previous_node → 20</b><i>next → HEAD</i></span></div></article>
+  <article><span>STEP 3 · OLD LAST NODE BYPASS HO GAYA</span><p>Old last node 30 ka reference ab 20.next mein nahi hai. Head se 10 → 20 → 10 follow karoge, 30 kabhi nahi milega. Isliye 30 logical circular list ka part nahi raha. Function finish hote hi local <code>current_node</code> bhi khatam; Python garbage collector is unreachable node ko later reclaim kar sakta hai.</p><div class="csll-reference-states"><div><b>FINAL LIST · HEAD SE REACHABLE</b><div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>→</em><span><b>20</b><i>next → HEAD</i></span></div></div><div><b>OLD NODE 30 · LIST SE REMOVED</b><p>30 apne <code>next → HEAD</code> reference ko temporarily hold kar sakta hai, but HEAD se 30 tak koi incoming path nahi bacha. Isliye woh list se remove hai.</p><div class="linked-chain"><span><b>old current_node → 30</b><i>next → HEAD</i></span></div></div></div></article>
+ </div>
+</section>
+
+<section class="chapter searchable" id="csll-delete-middle" data-title="4.6.8 · CSLL Deletion In Middle">${chapterHead('4.6.8','DELETE MIDDLE','CSLL Deletion In Middle','Previous node ka next target ke successor par le jao.')}
+ <div class="codebox"><div><span>Delete a middle position</span><button>Copy</button></div><pre><code>def delete_from_middle(self, position):
+    previous_node = self.head
+    current_node = self.head.next
+
+    for _ in range(position - 1):
+        previous_node = current_node
+        current_node = current_node.next
+
+    previous_node.next = current_node.next</code></pre></div>
+ <div class="csll-step-flow">
+  <article><span>EXAMPLE · POSITION 2 PAR NODE 30 DELETE KARNA HAI</span><p>List hai 10 → 20 → 30 → 40 → HEAD. Position 2 par target node 30 hai. Humein 20 ko directly 40 se connect karna hai, taaki 30 cycle se bypass ho jaaye.</p><div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>→</em><span><b>20</b><i>next → 30</i></span><em>→</em><span><b>target → 30</b><i>next → 40</i></span><em>→</em><span><b>40</b><i>next → HEAD</i></span></div></article>
+  <article><span>STEP 1 · PREVIOUS AUR TARGET KO POSITION TAK LE JAO</span><p>Start mein <code>previous_node</code> 10 par aur <code>current_node</code> 20 par hota hai. Position 2 ke liye loop ek baar chalega: previous 20 par aur current 30 par aa jaayega. Ab previous target ke just pehle hai; current target node hai.</p><div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>→</em><span><b>previous_node → 20</b><i>next → 30</i></span><em>→</em><span><b>current_node → 30</b><i>next → 40</i></span><em>→</em><span><b>40</b><i>next → HEAD</i></span></div></article>
+  <article><span>STEP 2 · TARGET KE SUCCESSOR KO PREVIOUS SE CONNECT KARO</span><p><code>previous_node.next = current_node.next</code>. Current node 30 ka next 40 ka reference rakhta hai. Wahi reference direct 20.next mein daal dete hain. Isliye 20.next, jo pehle 30 tha, ab 40 ho jaata hai.</p><div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>→</em><span><b>previous_node → 20</b><i>next → 40</i></span><em>→</em><span><b>40</b><i>next → HEAD</i></span></div></article>
+  <article><span>STEP 3 · 30 AB LIST MEIN REACHABLE NAHI HAI</span><p>Head se ab path sirf 10 → 20 → 40 → 10 hai. 30 ka incoming reference 20 se hata diya gaya, isliye HEAD se links follow karke 30 tak nahi pahunch sakte. Yehi deletion ka meaning hai: data erase karna nahi, target ko logical list se bypass karna.</p><div class="csll-reference-states"><div><b>FINAL CIRCULAR LIST · HEAD SE REACHABLE</b><div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>→</em><span><b>20</b><i>next → 40</i></span><em>→</em><span><b>40</b><i>next → HEAD</i></span></div></div><div><b>OLD TARGET 30 · LIST SE REMOVED</b><p>Local <code>current_node</code> temporarily 30 ka reference hold kar raha hai, but main list ke kisi node ka next ab 30 ko point nahi karta.</p><div class="linked-chain"><span><b>old current_node → 30</b><i>next → 40</i></span></div></div></div></article>
+ </div>
+ <div class="callout"><b>Yahan circular part kya change karta hai?</b><p>Middle deletion ka rewiring normal SLL jaisa hi hai. Difference traversal boundaries mein hai: valid positions ka dhyan rakho, kyunki <code>current_node</code> kabhi None nahi banega; galat/too-large position repeat cycle mein ghuma sakti hai.</p></div>
+</section>
+
+<section class="chapter searchable" id="csll-complexity" data-title="4.6.9 · CSLL Complexity Analysis">${chapterHead('4.6.9','COMPLEXITY','CSLL Complexity Analysis','Locate cost + link update cost alag-alag socho.')}
+ <div class="table-wrap"><table><thead><tr><th>Operation</th><th>Lecture implementation</th><th>Why?</th></tr></thead><tbody><tr><td>Traversal / display</td><td>O(n)</td><td>Every node once; return to head stop.</td></tr><tr><td>Search</td><td>O(n)</td><td>Absent / last key mein all nodes check.</td></tr><tr><td>Insert beginning</td><td>O(n)</td><td>Last node locate for its next update.</td></tr><tr><td>Insert end</td><td>O(n)</td><td>Last node locate.</td></tr><tr><td>Insert middle</td><td>O(n)</td><td>Position locate O(n), rewire O(1).</td></tr><tr><td>Delete beginning</td><td>O(n)</td><td>Last node locate to reconnect cycle.</td></tr><tr><td>Delete end / middle</td><td>O(n)</td><td>Previous/current locate.</td></tr><tr><td>Total storage for n nodes</td><td>O(n)</td><td>Every node stores data + one next reference.</td></tr></tbody></table></div>
+ <div class="callout"><b>Tail pointer optimisation</b><p>Agar class mein <code>tail</code> bhi maintain karo, tail ke paas already last node ka reference hoga. CSLL mein beginning/end insertion O(1) ho sakte hain. But question ka implementation sirf head use kare, toh tail assume mat karna—answer O(n) hi hoga.</p></div>
+ <div class="danger"><b>Final GATE checklist</b><p>CSLL dekhte hi teen checks: (1) last.next = head, (2) empty aur singleton separate, (3) traversal stop at head—never wait for None. Complexity mein node locate karne ki cost zaroor add karo.</p></div>
+</section>`
+const oldCsllSection=document.querySelector('#csll');if(oldCsllSection){oldCsllSection.insertAdjacentHTML('beforebegin',csllLectureMarkup);oldCsllSection.remove()}
+
+document.querySelectorAll('.linked-chain b').forEach(label=>{const text=label.textContent.trim(),match=text.match(/^(?:(Before|After):\s*)?(new\s+)?HEAD\s*→\s*(.+)$/i);if(!match)return;const phase=match[1]?`${match[1].toUpperCase()} · `:'',fresh=match[2]?'NEW ':'';label.textContent=match[3];label.dataset.headLabel=`${phase}${fresh}HEAD`;label.classList.add('head-ref');label.parentElement.classList.add('head-node');label.closest('.linked-chain').classList.add('with-head')})
+document.querySelectorAll('.linked-chain b').forEach(label=>{const match=label.textContent.trim().match(/^current(?:_node)?\s*→\s*(.+)$/i);if(!match)return;label.textContent=match[1];label.classList.add('current-ref');label.parentElement.classList.add('current-node');label.closest('.linked-chain').classList.add('with-current')})
+document.querySelectorAll('.linked-chain b').forEach(label=>{const match=label.textContent.trim().match(/^previous_node\s*→\s*(.+)$/i);if(!match)return;label.textContent=match[1];label.classList.add('previous-ref');label.parentElement.classList.add('previous-node');label.closest('.linked-chain').classList.add('with-previous')})
+document.querySelectorAll('.linked-chain b').forEach(label=>{const match=label.textContent.trim().match(/^position\s+(\d+)\s*→\s*(.+)$/i);if(!match)return;label.textContent=match[2];label.dataset.positionLabel=`POSITION ${match[1]}`;label.classList.add('position-ref');label.parentElement.classList.add('position-node');label.closest('.linked-chain').classList.add('with-position')})
+
+const lectureList=document.querySelector('.lecture-list');lectureList.innerHTML='<label><input type="checkbox" data-lecture="4.1"><span><b>4.1</b><i>Introduction</i><small>Node, head, links</small></span></label><label><input type="checkbox" data-lecture="4.2"><span><b>4.2</b><i>Memory model</i><small>Non-contiguous reachability</small></span></label><label><input type="checkbox" data-lecture="4.3"><span><b>4.3</b><i>Lists vs arrays</i><small>Trade-offs</small></span></label><label><input type="checkbox" data-lecture="4.4"><span><b>4.4</b><i>Types</i><small>SLL, CSLL, DLL, CDLL</small></span></label><label><input type="checkbox" data-lecture="4.5.1"><span><b>4.5.1</b><i>SLL Initial Setup</i><small>Node, head, length, display</small></span></label><label><input type="checkbox" data-lecture="4.5.2"><span><b>4.5.2</b><i>Insertion At Beginning</i><small>Old head preserve</small></span></label><label><input type="checkbox" data-lecture="4.5.3"><span><b>4.5.3</b><i>Insertion At End</i><small>Tail locate</small></span></label><label><input type="checkbox" data-lecture="4.5.4"><span><b>4.5.4</b><i>Insertion In Middle</i><small>Position + rewire</small></span></label><label><input type="checkbox" data-lecture="4.5.5"><span><b>4.5.5</b><i>SLL Searching</i><small>Sequential scan</small></span></label><label><input type="checkbox" data-lecture="4.5.6"><span><b>4.5.6</b><i>Deletion At Beginning</i><small>Head shift</small></span></label><label><input type="checkbox" data-lecture="4.5.7"><span><b>4.5.7</b><i>Deletion At End</i><small>Previous + last</small></span></label><label><input type="checkbox" data-lecture="4.5.8"><span><b>4.5.8</b><i>Deletion In Middle</i><small>Bypass target</small></span></label><label><input type="checkbox" data-lecture="4.6"><span><b>4.6</b><i>Circular SLL</i><small>Return-to-head stop</small></span></label><label><input type="checkbox" data-lecture="4.7"><span><b>4.7</b><i>Doubly LL</i><small>Two-way invariants</small></span></label><label><input type="checkbox" data-lecture="4.8"><span><b>4.8</b><i>Circular DLL</i><small>Four boundary links</small></span></label><label><input type="checkbox" data-lecture="4.9"><span><b>4.9</b><i>Problems + GATE</i><small>Middle, cycle, reverse</small></span></label>'
+lectureList.querySelector('[data-lecture="4.6"]').closest('label').insertAdjacentHTML('beforebegin','<label><input type="checkbox" data-lecture="4.5.9"><span><b>4.5.9</b><i>SLL Complexity Analysis</i><small>Time, space, GATE traps</small></span></label>')
+const csllTracker='<label><input type="checkbox" data-lecture="4.6"><span><b>4.6</b><i>Circular Singly Linked List</i><small>Circle invariant</small></span></label><label><input type="checkbox" data-lecture="4.6.1"><span><b>4.6.1</b><i>CSLL Initial Setup</i><small>Empty and singleton</small></span></label><label><input type="checkbox" data-lecture="4.6.2"><span><b>4.6.2</b><i>CSLL Insertion At Beginning</i><small>Last link + head shift</small></span></label><label><input type="checkbox" data-lecture="4.6.3"><span><b>4.6.3</b><i>CSLL Insertion At End</i><small>New last reconnects head</small></span></label><label><input type="checkbox" data-lecture="4.6.4"><span><b>4.6.4</b><i>CSLL Insertion In Middle</i><small>Position + rewire</small></span></label><label><input type="checkbox" data-lecture="4.6.5"><span><b>4.6.5</b><i>CSLL Searching</i><small>Return-to-head stop</small></span></label><label><input type="checkbox" data-lecture="4.6.6"><span><b>4.6.6</b><i>CSLL Deletion At Beginning</i><small>Reconnect last to new head</small></span></label><label><input type="checkbox" data-lecture="4.6.7"><span><b>4.6.7</b><i>CSLL Deletion At End</i><small>Previous node becomes last</small></span></label><label><input type="checkbox" data-lecture="4.6.8"><span><b>4.6.8</b><i>CSLL Deletion In Middle</i><small>Bypass target</small></span></label><label><input type="checkbox" data-lecture="4.6.9"><span><b>4.6.9</b><i>CSLL Complexity Analysis</i><small>Locate + rewire</small></span></label>'
+const oldCsllTracker=lectureList.querySelector('[data-lecture="4.6"]')?.closest('label');if(oldCsllTracker)oldCsllTracker.outerHTML=csllTracker
+
+const tabs=[...document.querySelectorAll('.tab')],panels=[...document.querySelectorAll('[data-panel]')],toc=document.querySelector('#toc'),sidebar=document.querySelector('.sidebar')
+function buildToc(view){const sections=[...document.querySelector(`[data-panel="${view}"]`).querySelectorAll('[data-title]')];toc.innerHTML=sections.map((s,i)=>{if(!s.id)s.id=`${view}-${i}`;return `<a href="#${s.id}"><i>${String(i+1).padStart(2,'0')}</i>${s.dataset.title}</a>`}).join('')}
+function clearSearch(){document.querySelector('#search').value='';document.querySelectorAll('.searchable,.pyq-card').forEach(x=>x.classList.remove('hidden'));document.querySelector('#searchResult').textContent='Search current view'}
+function setView(view){tabs.forEach(t=>t.classList.toggle('active',t.dataset.view===view));panels.forEach(p=>p.classList.toggle('active',p.dataset.panel===view));buildToc(view);window.scrollTo({top:0,behavior:'smooth'});clearSearch()}
+tabs.forEach(t=>t.onclick=()=>setView(t.dataset.view));document.querySelectorAll('[data-jump]').forEach(b=>b.onclick=()=>setView(b.dataset.jump));buildToc('notes');const introDiagram=document.querySelector('#pointer-vocabulary .linked-chain');if(introDiagram){introDiagram.className='pointer-diagram';introDiagram.innerHTML='<div class="diagram-label head-label">HEAD</div><div class="diagram-row"><span class="diagram-node"><b>A</b><i>next → B</i></span><em>→</em><span class="diagram-node"><b>B</b><i>next → C</i></span><em>→</em><span class="diagram-node"><b>C</b><i>next → None</i></span></div><div class="diagram-label tail-label">TAIL</div>'}document.querySelector('#zero-start .linked-chain')?.remove();document.querySelector('#zero-start .reading-method')?.remove()
+document.querySelector('#themeButton').onclick=()=>{document.documentElement.classList.toggle('dark');localStorage.setItem('da-theme',document.documentElement.classList.contains('dark')?'dark':'light')};if(localStorage.getItem('da-theme')!=='light')document.documentElement.classList.add('dark');document.querySelector('#searchButton').onclick=()=>{document.querySelector('.searchbox').classList.toggle('open');document.querySelector('#search').focus()};document.querySelector('#search').oninput=e=>{const term=e.target.value.toLowerCase().trim(),items=[...document.querySelector('.view.active').querySelectorAll('.searchable,.pyq-card')];let n=0;items.forEach(x=>{const hit=!term||x.textContent.toLowerCase().includes(term);x.classList.toggle('hidden',!hit);if(hit)n++});document.querySelector('#searchResult').textContent=term?`${n} matching blocks`:'Search current view'}
+document.querySelectorAll('.codebox button').forEach(b=>b.onclick=async()=>{await navigator.clipboard.writeText(b.closest('.codebox').querySelector('code').innerText);const t=document.querySelector('.toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1000)});document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.pyq-card').forEach(x=>x.classList.toggle('filtered',b.dataset.year!=='all'&&x.dataset.year!==b.dataset.year))});let open=false;document.querySelector('#expand').onclick=e=>{open=!open;document.querySelectorAll('.pyq-card:not(.filtered)').forEach(x=>x.open=open);e.target.textContent=open?'Collapse all':'Expand all'}
+const lectureChecks=[...document.querySelectorAll('[data-lecture]')],savedLectures=JSON.parse(localStorage.getItem('da-m4-lectures')||'[]');lectureChecks.forEach(c=>{c.checked=savedLectures.includes(c.dataset.lecture);c.onchange=lectureProgress});function lectureProgress(){const done=lectureChecks.filter(c=>c.checked).map(c=>c.dataset.lecture),percent=Math.round(done.length/lectureChecks.length*100);localStorage.setItem('da-m4-lectures',JSON.stringify(done));document.querySelector('#count').textContent=`${done.length}/${lectureChecks.length}`;document.querySelector('#bar').style.width=`${percent}%`;document.querySelector('#lecturePercent').textContent=`${percent}%`}lectureProgress()
+const esc=v=>String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');const attempted=new Set(JSON.parse(localStorage.getItem('da-m4-practice')||'[]')),practiceTopic=document.querySelector('#practiceTopic'),practiceDifficulty=document.querySelector('#practiceDifficulty');function renderPractice(){const topic=module4Topics.find(t=>t.id===practiceTopic.value)||module4Topics[0],level=practiceDifficulty.value,visible=level==='all'?topic.questions:topic.questions.filter(x=>x.difficulty===level),done=topic.questions.filter(x=>attempted.has(x.id)).length,patterns=[...new Set(topic.questions.map(x=>x.pattern))];document.querySelector('#practiceScore').textContent=`${done}/${topic.questions.length}`;document.querySelector('#practiceContext').innerHTML=`<div><span>Topic ${esc(topic.number)}</span><h2>${esc(topic.label)}</h2><p>Har question ke liye before/after links draw karo. Answer explanation tab hi kholo jab invariant audit complete ho.</p></div><aside><b>${visible.length} shown</b><small>${patterns.length} patterns</small><p>${patterns.map(esc).join(' · ')}</p></aside>`;document.querySelector('#questionList').innerHTML=visible.length?visible.map(x=>`<article class="practice-question searchable ${attempted.has(x.id)?'attempted':''}" data-title="${esc(topic.label)} question ${x.number}"><div class="question-meta"><span>Q${String(x.number).padStart(2,'0')}</span><i>${esc(x.difficulty)}</i><b>${esc(x.pattern)}</b></div><h3>${esc(x.prompt)}</h3><ol class="question-options" type="A">${x.options.map(o=>`<li>${esc(o)}</li>`).join('')}</ol><details class="answer-reveal"><summary>Answer + explanation dekho</summary><div><strong>Correct: ${esc(x.answer)}</strong><p>${x.explanation}</p><small>Known node vs position-search cost separate likho.</small></div></details><label class="attempt-check"><input type="checkbox" data-attempt="${x.id}" ${attempted.has(x.id)?'checked':''}><span>Attempted</span></label></article>`).join(''):'<article class="practice-question"><h3>Is level ke questions nahi hain. All levels select karo.</h3></article>';document.querySelectorAll('[data-attempt]').forEach(box=>box.onchange=()=>{box.checked?attempted.add(box.dataset.attempt):attempted.delete(box.dataset.attempt);localStorage.setItem('da-m4-practice',JSON.stringify([...attempted]));box.closest('.practice-question').classList.toggle('attempted',box.checked);document.querySelector('#practiceScore').textContent=`${topic.questions.filter(x=>attempted.has(x.id)).length}/${topic.questions.length}`})}practiceTopic.onchange=renderPractice;practiceDifficulty.onchange=renderPractice;renderPractice()
+const sectionMap={intro:'intro',compare:'compare',types:'types','sll-setup':'sll-setup','sll-insert-beginning':'sll-insert-beginning','sll-insert-end':'sll-insert-end','sll-insert-middle':'sll-insert-middle','sll-search':'sll-search','sll-delete-beginning':'sll-delete-beginning','sll-delete-end':'sll-delete-end','sll-delete-middle':'sll-delete-middle','sll-complexity':'sll-complexity','csll-complexity':'csll',dll:'dll',cdll:'cdll',coding:'coding','gate-patterns':'gate-patterns'};Object.entries(sectionMap).forEach(([id,topicId])=>{const section=document.querySelector(`#${id}`),topic=module4Topics.find(t=>t.id===topicId);if(section&&topic)section.insertAdjacentHTML('beforeend',`<button class="topic-practice" data-practice-topic="${topicId}">Is topic ke ${topic.questions.length} questions solve karo →</button>`)});document.querySelectorAll('[data-practice-topic]').forEach(b=>b.onclick=()=>{practiceTopic.value=b.dataset.practiceTopic;practiceDifficulty.value='all';renderPractice();setView('practice')});document.querySelector('#print').onclick=()=>window.print();document.querySelector('#menu').onclick=()=>sidebar.classList.toggle('open');toc.onclick=()=>sidebar.classList.remove('open');window.onscroll=()=>{const max=document.documentElement.scrollHeight-innerHeight;document.querySelector('.read-progress span').style.width=`${max?100*scrollY/max:0}%`}
