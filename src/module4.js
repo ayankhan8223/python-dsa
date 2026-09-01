@@ -667,15 +667,170 @@ class CircularLinkedList:
 </section>`
 const oldCsllSection=document.querySelector('#csll');if(oldCsllSection){oldCsllSection.insertAdjacentHTML('beforebegin',csllLectureMarkup);oldCsllSection.remove()}
 
+const dllLectureMarkup=`
+<section class="chapter searchable" id="dll-intro" data-title="4.7 · Doubly Linked List">${chapterHead('4.7','DLL','Doubly Linked List','Har node ke paas agle node ka bhi aur previous node ka bhi reference hota hai.')}
+ <div class="zero-title"><span>CORE IDEA</span><h2>DLL mein har middle node ke do neighbours hote hain: ek left aur ek right.</h2><p>SLL mein sirf <code>next</code> tha. DLL mein <code>prev</code> bhi hota hai. Isliye forward aur backward dono direction mein travel kar sakte ho—but har change mein dono sides ke links correct rakhne padte hain.</p></div>
+ <div class="linked-chain"><span><b>HEAD → 10</b><i>prev=None · next → 20</i></span><em>⇄</em><span><b>20</b><i>prev ← 10 · next → 30</i></span><em>⇄</em><span><b>30</b><i>prev ← 20 · next=None</i></span></div>
+ <div class="callout"><b>DLL invariant</b><p>First node ka <code>prev = None</code>. Last node ka <code>next = None</code>. Beech ke har neighbour pair ke liye: agar A.next B hai, toh B.prev A hona hi chahiye.</p></div>
+</section>
+
+<section class="chapter searchable" id="dll-initial" data-title="4.7.1 · DLL Initial Setup">${chapterHead('4.7.1','INITIAL SETUP','DLL Initial Setup','Node ke andar data, previous reference aur next reference store hote hain.')}
+ <div class="codebox"><div><span>Node + empty DLL</span><button>Copy</button></div><pre><code>class Node:
+    def __init__(self, data):
+        self.data = data
+        self.prev = None
+        self.next = None
+
+
+class DoublyLinkedList:
+    def __init__(self):
+        self.head = None
+        self.tail = None</code></pre></div>
+ <div class="two-grid"><article><h3>Empty list</h3><p><code>head = None</code> means koi node nahi hai. Agar tail-based methods use karoge, empty list mein <code>tail = None</code> bhi hoga. Is state mein <code>head.prev</code> ya <code>head.next</code> access nahi kar sakte, because head itself None hai.</p></article><article><h3>One node</h3><p>Ek node 10 ho toh HEAD → 10. Is node ke dono outside neighbours nahi hain: <code>10.prev = None</code> aur <code>10.next = None</code>. Tail maintain kar rahe ho toh <code>head</code> aur <code>tail</code> dono isi 10 node ko point karenge.</p></article></div>
+ <div class="danger"><b>DLL ka extra responsibility</b><p>SLL mein ek link correct karna enough ho sakta tha. DLL mein forward link aur backward link dono audit karo. Ek side update karne se list half-broken ho sakti hai.</p></div>
+</section>
+
+<section class="chapter searchable" id="dll-insert-beginning" data-title="4.7.2 · DLL Insertion At Beginning">${chapterHead('4.7.2','INSERT BEGINNING','DLL Insertion At Beginning','New node ko old head se pehle jodo, aur old head ka prev bhi update karo.')}
+ <div class="codebox"><div><span>Insert at beginning</span><button>Copy</button></div><pre><code>def insert_at_beginning(self, data):
+    new_node = Node(data)
+
+    if self.head is None:
+        self.head = new_node
+        return
+
+    new_node.next = self.head
+    self.head.prev = new_node
+    self.head = new_node</code></pre></div>
+ <div class="csll-step-flow"><article><span>STEP 1 · NEW NODE KO OLD HEAD SE JODO</span><p><code>new_node.next = self.head</code>. New node 5 ka next purane first node 10 ko point karega.</p><div class="linked-chain"><span><b>new node → 5</b><i>prev=None · next → 10</i></span><em>⇄</em><span><b>old HEAD → 10</b><i>prev=None · next → 20</i></span></div></article><article><span>STEP 2 · OLD HEAD KA BACKWARD LINK UPDATE KARO</span><p><code>self.head.prev = new_node</code>. Ab 10.prev bhi 5 ko point karta hai. Forward aur backward dono direction connect ho gayi.</p><div class="linked-chain"><span><b>5</b><i>prev=None · next → 10</i></span><em>⇄</em><span><b>old HEAD → 10</b><i>prev ← 5 · next → 20</i></span></div></article><article><span>STEP 3 · HEAD SHIFT KARO</span><p><code>self.head = new_node</code>. Ab 5 new first node hai.</p><div class="linked-chain"><span><b>HEAD → 5</b><i>prev=None · next → 10</i></span><em>⇄</em><span><b>10</b><i>prev ← 5 · next → 20</i></span><em>⇄</em><span><b>20</b><i>prev ← 10 · next=None</i></span></div></article></div>
+</section>
+
+<section class="chapter searchable" id="dll-insert-end" data-title="4.7.3 · DLL Insertion At End">${chapterHead('4.7.3','INSERT END','DLL Insertion At End','Tail ho toh direct insert; tail na ho toh last node locate karke insert karo.')}
+ <div class="zero-title"><span>TWO IMPLEMENTATIONS</span><h2><code>tail</code> stored hai ya nahi—complexity isi se change hoti hai.</h2><p>Dono methods correct hain. Difference sirf itna hai ki tail wale version mein last node ka reference already saved hota hai; without-tail version mein pehle last node dhoondhna padta hai.</p></div>
+ <div class="codebox"><div><span>With tail · O(1)</span><button>Copy</button></div><pre><code>def insert_at_end_with_tail(self, data):
+    new_node = Node(data)
+
+    if self.head is None:
+        self.head = new_node
+        self.tail = new_node
+        return
+
+    self.tail.next = new_node
+    new_node.prev = self.tail
+    self.tail = new_node</code></pre></div>
+ <div class="callout"><b><code>tail</code> version ko line-by-line samjho</b><p>Empty list mein first node hi head aur tail dono banta hai. Non-empty list mein <code>self.tail</code> old last node ko directly point kar raha hai: <code>self.tail.next = new_node</code> forward link banata hai; <code>new_node.prev = self.tail</code> backward link banata hai; phir <code>self.tail = new_node</code> tail reference ko naye last node par shift karta hai. Koi traversal nahi, isliye O(1).</p></div>
+ <div class="codebox"><div><span>Without tail · O(n)</span><button>Copy</button></div><pre><code>def insert_at_end_without_tail(self, data):
+    new_node = Node(data)
+
+    if self.head is None:
+        self.head = new_node
+        return
+
+    current = self.head
+
+    while current.next:
+        current = current.next
+
+    current.next = new_node
+    new_node.prev = current</code></pre></div>
+ <div class="callout"><b>Without <code>tail</code> kyun O(n)?</b><p><code>current</code> head se ek-ek <code>next</code> follow karta hai. Last node milne tak worst case n nodes visit honge. Uske baad actual linking ki sirf do lines O(1) hain, but locate karne ki O(n) cost total complexity decide karti hai.</p></div>
+ <div class="csll-step-flow"><article><span>STEP 1 · LAST NODE LOCATE KARO</span><p><code>current</code> head se next follow karta hai. Jis node ka <code>next = None</code>, wahi last node hai. Example mein current 30 par rukega.</p><div class="linked-chain"><span><b>HEAD → 10</b><i>prev=None · next → 20</i></span><em>⇄</em><span><b>20</b><i>prev ← 10 · next → 30</i></span><em>⇄</em><span><b>current → 30</b><i>prev ← 20 · next=None</i></span></div></article><article><span>STEP 2 · DONO DIRECTION KE LINKS BANAO</span><p><code>current.next = new_node</code> se 30 → 40. <code>new_node.prev = current</code> se 40 ← 30. New node ka next None hi rahega, because woh new last node hai.</p><div class="linked-chain"><span><b>HEAD → 10</b><i>prev=None · next → 20</i></span><em>⇄</em><span><b>20</b><i>prev ← 10 · next → 30</i></span><em>⇄</em><span><b>30</b><i>prev ← 20 · next → 40</i></span><em>⇄</em><span><b>40</b><i>prev ← 30 · next=None</i></span></div></article></div>
+</section>
+
+<section class="chapter searchable" id="dll-insert-middle" data-title="4.7.4 · DLL Insertion In Middle">${chapterHead('4.7.4','INSERT MIDDLE','DLL Insertion In Middle','New node ko do existing neighbours ke beech forward aur backward dono side se connect karo.')}
+ <div class="codebox"><div><span>Insert at a middle position</span><button>Copy</button></div><pre><code>def insert_at_position(self, position, data):
+    new_node = Node(data)
+    current = self.head
+
+    for _ in range(position - 1):
+        current = current.next
+
+    new_node.next = current.next
+    new_node.prev = current
+    current.next.prev = new_node
+    current.next = new_node</code></pre></div>
+ <div class="csll-step-flow"><article><span>EXAMPLE · 20 AUR 30 KE BEECH 99</span><p>Current 20 par hai. 20 right neighbour 30 ko point karta hai. New node 99 ko dono neighbours 20 aur 30 ke saath connect karna hai.</p><div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>⇄</em><span><b>current → 20</b><i>prev ← 10 · next → 30</i></span><em>⇄</em><span><b>30</b><i>prev ← 20 · next=None</i></span></div></article><article><span>STEP 1 · 99 MEIN DONO NEIGHBOURS SAVE KARO</span><p><code>new_node.next = current.next</code> se 99.next 30. <code>new_node.prev = current</code> se 99.prev 20. Ab 99 ke paas dono addresses hain, but 20 aur 30 abhi old relation mein hain.</p><div class="linked-chain"><span><b>20</b><i>next → 30</i></span><em>⇄</em><span><b>new node → 99</b><i>prev ← 20 · next → 30</i></span><em>⇄</em><span><b>30</b><i>prev ← 20 · next=None</i></span></div></article><article><span>STEP 2 · EXISTING NEIGHBOURS KO 99 SE REWIRE KARO</span><p><code>current.next.prev = new_node</code> se 30.prev 99 hota hai. Finally <code>current.next = new_node</code> se 20.next 99 hota hai. Dono directions complete.</p><div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>⇄</em><span><b>20</b><i>prev ← 10 · next → 99</i></span><em>⇄</em><span><b>99</b><i>prev ← 20 · next → 30</i></span><em>⇄</em><span><b>30</b><i>prev ← 99 · next=None</i></span></div></article></div>
+</section>
+
+<section class="chapter searchable" id="dll-search" data-title="4.7.5 · DLL Searching">${chapterHead('4.7.5','SEARCHING','DLL Searching','Search forward direction mein head se next links follow karke hoti hai.')}
+ <div class="codebox"><div><span>Search a key</span><button>Copy</button></div><pre><code>def search(self, key):
+    current = self.head
+    position = 0
+
+    while current:
+        if current.data == key:
+            print(f'{key} found at position {position}')
+            return
+
+        current = current.next
+        position += 1</code></pre></div>
+ <div class="two-grid"><article><h3>Forward search</h3><p>Standard search head se 10, 20, 30 ki direction mein next follow karegi. Key first node par mile toh O(1); absent ya last par mile toh O(n).</p></article><article><h3>Backward possible, automatically faster nahi</h3><p>DLL mein prev hai, so agar tail ka reference available ho toh tail se backward search start kar sakte ho. Lekin unsorted list mein worst case phir bhi O(n) hai.</p></article></div>
+</section>
+
+<section class="chapter searchable" id="dll-delete-beginning" data-title="4.7.6 · DLL Deletion At Beginning">${chapterHead('4.7.6','DELETE BEGINNING','DLL Deletion At Beginning','Head ko second node par shift karo aur new head ka prev None karo.')}
+ <div class="codebox"><div><span>Delete first node</span><button>Copy</button></div><pre><code>def delete_first(self):
+    if self.head is None:
+        return
+
+    if self.head.next is None:
+        self.head = None
+        return
+
+    self.head = self.head.next
+    self.head.prev = None</code></pre></div>
+ <div class="csll-step-flow"><article><span>STEP 1 · HEAD KO SECOND NODE PAR SHIFT KARO</span><p>Old HEAD 10 ka next 20 hai. <code>self.head = self.head.next</code> se HEAD 20 par aa jaata hai.</p><div class="linked-chain"><span><b>old 10</b><i>next → HEAD (20)</i></span><em>⇄</em><span><b>HEAD → 20</b><i>prev ← 10 · next → 30</i></span></div></article><article><span>STEP 2 · NEW HEAD KA PREV CLEAN KARO</span><p><code>self.head.prev = None</code>. 20 ab first node hai, isliye uske left mein koi node nahi hona chahiye. Old 10 HEAD se unreachable ho jaata hai.</p><div class="linked-chain"><span><b>HEAD → 20</b><i>prev=None · next → 30</i></span><em>⇄</em><span><b>30</b><i>prev ← 20 · next=None</i></span></div></article></div>
+</section>
+
+<section class="chapter searchable" id="dll-delete-end" data-title="4.7.7 · DLL Deletion At End">${chapterHead('4.7.7','DELETE END','DLL Deletion At End','Last node par pahunchkar uske prev ko new last banao.')}
+ <div class="codebox"><div><span>Delete last node</span><button>Copy</button></div><pre><code>def delete_last(self):
+    if self.head is None:
+        return
+
+    if self.head.next is None:
+        self.head = None
+        return
+
+    current = self.head
+
+    while current.next:
+        current = current.next
+
+    current.prev.next = None</code></pre></div>
+ <div class="csll-step-flow"><article><span>STEP 1 · LAST NODE LOCATE KARO</span><p>Current 30 par rukta hai because 30.next None hai. Current.prev 20 ka reference rakhta hai.</p><div class="linked-chain"><span><b>HEAD → 10</b><i>next → 20</i></span><em>⇄</em><span><b>20</b><i>prev ← 10 · next → 30</i></span><em>⇄</em><span><b>current → 30</b><i>prev ← 20 · next=None</i></span></div></article><article><span>STEP 2 · PREVIOUS NODE KO NEW LAST BANAO</span><p><code>current.prev.next = None</code>. Current.prev 20 hai, so 20.next None ho jaata hai. Ab 20 new last node hai aur 30 head se unreachable.</p><div class="linked-chain"><span><b>HEAD → 10</b><i>prev=None · next → 20</i></span><em>⇄</em><span><b>20</b><i>prev ← 10 · next=None</i></span></div></article></div>
+</section>
+
+<section class="chapter searchable" id="dll-delete-middle" data-title="4.7.8 · DLL Deletion In Middle">${chapterHead('4.7.8','DELETE MIDDLE','DLL Deletion In Middle','Target ke left aur right neighbour ko directly connect karo.')}
+ <div class="codebox"><div><span>Delete a middle position</span><button>Copy</button></div><pre><code>def delete_in_middle(self, position):
+    current = self.head
+
+    for _ in range(position - 1):
+        current = current.next
+
+    current.next.next.prev = current
+    current.next = current.next.next</code></pre></div>
+ <div class="csll-step-flow"><article><span>EXAMPLE · 20 KO DELETE KARNA HAI</span><p>List hai 10 ⇄ 20 ⇄ 30. Is code mein <code>current</code> delete hone wale node par nahi, uske ek node pehle rukta hai: current 10 par hoga aur <code>current.next</code> target 20 hoga.</p><div class="linked-chain"><span><b>current → 10</b><i>prev=None · next → 20</i></span><em>⇄</em><span><b>target → 20</b><i>prev ← 10 · next → 30</i></span><em>⇄</em><span><b>30</b><i>prev ← 20 · next=None</i></span></div></article><article><span>STEP 1 · TARGET KE RIGHT NODE KA PREV UPDATE KARO</span><p><code>current.next.next.prev = current</code>. Current 10 par hai; <code>current.next</code> 20 hai; <code>current.next.next</code> 30 hai. So 30.prev, jo pehle 20 tha, ab 10 ho jaata hai. Backward link correct ho gaya.</p><div class="linked-chain"><span><b>current → 10</b><i>prev=None · next → 20</i></span><em>⇄</em><span><b>target → 20</b><i>prev ← 10 · next → 30</i></span><em>⇄</em><span><b>30</b><i>prev ← 10 · next=None</i></span></div></article><article><span>STEP 2 · CURRENT KA NEXT TARGET KE BAAD WALE NODE PAR SHIFT KARO</span><p><code>current.next = current.next.next</code>. 10.next, jo 20 ko point kar raha tha, ab direct 30 ko point karega. Ab 20 ke paas left se koi incoming next link nahi bacha; HEAD se woh reachable nahi hai. List 10 ⇄ 30 ban gayi.</p><div class="linked-chain"><span><b>HEAD → 10</b><i>prev=None · next → 30</i></span><em>⇄</em><span><b>30</b><i>prev ← 10 · next=None</i></span></div></article></div>
+</section>
+
+<section class="chapter searchable" id="dll-complexity" data-title="4.7.9 · DLL Complexity Analysis">${chapterHead('4.7.9','COMPLEXITY','DLL Complexity Analysis','DLL ka benefit backward link hai; position locate karne ka cost phir bhi count karo.')}
+ <div class="table-wrap"><table><thead><tr><th>Operation</th><th>Only head stored</th><th>Why?</th></tr></thead><tbody><tr><td>Traverse / search</td><td>O(n)</td><td>Worst case all nodes check.</td></tr><tr><td>Insert/delete beginning</td><td>O(1)</td><td>Fixed head and one neighbour updates.</td></tr><tr><td>Insert/delete end</td><td>O(n)</td><td>Last node locate from head.</td></tr><tr><td>Middle by position</td><td>O(n)</td><td>Locate O(n), DLL rewiring O(1).</td></tr><tr><td>Delete known middle node</td><td>O(1)</td><td>prev and next neighbours directly available.</td></tr><tr><td>Storage per node</td><td>O(1)</td><td>Data + prev + next references.</td></tr><tr><td>Total storage n nodes</td><td>O(n)</td><td>n constant-size node objects.</td></tr></tbody></table></div>
+ <div class="callout"><b>Tail pointer ka effect</b><p>Agar <code>tail</code> bhi maintain karo, insert/delete at end O(1) ho sakte hain because tail.prev se previous node mil jaata hai. Sirf head wale lecture code mein tail assume mat karna; end operations O(n) hain.</p></div>
+ <div class="danger"><b>Final DLL audit</b><p>Har operation ke baad check: new head.prev None? new tail.next None? Aur middle neighbour pair ke liye <code>A.next.prev == A</code> and <code>B.prev.next == B</code>? Forward chain correct dikhna enough nahi hai.</p></div>
+</section>`
+const oldDllSection=document.querySelector('#dll');if(oldDllSection){oldDllSection.insertAdjacentHTML('beforebegin',dllLectureMarkup);oldDllSection.remove()}
+
 document.querySelectorAll('.linked-chain b').forEach(label=>{const text=label.textContent.trim(),match=text.match(/^(?:(Before|After):\s*)?(new\s+)?HEAD\s*→\s*(.+)$/i);if(!match)return;const phase=match[1]?`${match[1].toUpperCase()} · `:'',fresh=match[2]?'NEW ':'';label.textContent=match[3];label.dataset.headLabel=`${phase}${fresh}HEAD`;label.classList.add('head-ref');label.parentElement.classList.add('head-node');label.closest('.linked-chain').classList.add('with-head')})
 document.querySelectorAll('.linked-chain b').forEach(label=>{const match=label.textContent.trim().match(/^current(?:_node)?\s*→\s*(.+)$/i);if(!match)return;label.textContent=match[1];label.classList.add('current-ref');label.parentElement.classList.add('current-node');label.closest('.linked-chain').classList.add('with-current')})
 document.querySelectorAll('.linked-chain b').forEach(label=>{const match=label.textContent.trim().match(/^previous_node\s*→\s*(.+)$/i);if(!match)return;label.textContent=match[1];label.classList.add('previous-ref');label.parentElement.classList.add('previous-node');label.closest('.linked-chain').classList.add('with-previous')})
 document.querySelectorAll('.linked-chain b').forEach(label=>{const match=label.textContent.trim().match(/^position\s+(\d+)\s*→\s*(.+)$/i);if(!match)return;label.textContent=match[2];label.dataset.positionLabel=`POSITION ${match[1]}`;label.classList.add('position-ref');label.parentElement.classList.add('position-node');label.closest('.linked-chain').classList.add('with-position')})
+// DLL nodes have three fields. Keep the data value in the centre, with prev on
+// its left and next on its right, so the two directions are visually obvious.
+document.querySelectorAll('.chapter[id^="dll-"] .linked-chain').forEach(chain=>{const nodes=[...chain.querySelectorAll(':scope > span')];nodes.forEach(node=>{const data=node.querySelector(':scope > b'),oldLink=node.querySelector(':scope > i');if(!data||!oldLink)return;let value=data.textContent.trim();if(!data.classList.contains('head-ref')&&!data.classList.contains('current-ref')&&!data.classList.contains('previous-ref')&&!data.classList.contains('position-ref')){const ref=value.match(/^(new node|old HEAD|old|target)\s*→?\s*(.+)$/i);if(ref){data.textContent=ref[2];data.dataset.dllLabel=ref[1].toUpperCase();data.classList.add('dll-ref');node.classList.add('dll-reference-node');chain.classList.add('with-dll-reference')}}const links=oldLink.textContent.trim(),prevMatch=links.match(/prev\s*(?:=|←)\s*([^·]+)/i),nextMatch=links.match(/(next\s*(?:=|→)\s*.+)$/i),prev=document.createElement('i'),next=document.createElement('i');prev.className='dll-prev';next.className='dll-next';prev.textContent=prevMatch?`prev ${links.includes('←')?'←':'='} ${prevMatch[1].trim()}`:'prev';next.textContent=nextMatch?nextMatch[1].trim():links;oldLink.remove();node.classList.add('dll-node');node.insertBefore(prev,data);node.append(next)})})
 
 const lectureList=document.querySelector('.lecture-list');lectureList.innerHTML='<label><input type="checkbox" data-lecture="4.1"><span><b>4.1</b><i>Introduction</i><small>Node, head, links</small></span></label><label><input type="checkbox" data-lecture="4.2"><span><b>4.2</b><i>Memory model</i><small>Non-contiguous reachability</small></span></label><label><input type="checkbox" data-lecture="4.3"><span><b>4.3</b><i>Lists vs arrays</i><small>Trade-offs</small></span></label><label><input type="checkbox" data-lecture="4.4"><span><b>4.4</b><i>Types</i><small>SLL, CSLL, DLL, CDLL</small></span></label><label><input type="checkbox" data-lecture="4.5.1"><span><b>4.5.1</b><i>SLL Initial Setup</i><small>Node, head, length, display</small></span></label><label><input type="checkbox" data-lecture="4.5.2"><span><b>4.5.2</b><i>Insertion At Beginning</i><small>Old head preserve</small></span></label><label><input type="checkbox" data-lecture="4.5.3"><span><b>4.5.3</b><i>Insertion At End</i><small>Tail locate</small></span></label><label><input type="checkbox" data-lecture="4.5.4"><span><b>4.5.4</b><i>Insertion In Middle</i><small>Position + rewire</small></span></label><label><input type="checkbox" data-lecture="4.5.5"><span><b>4.5.5</b><i>SLL Searching</i><small>Sequential scan</small></span></label><label><input type="checkbox" data-lecture="4.5.6"><span><b>4.5.6</b><i>Deletion At Beginning</i><small>Head shift</small></span></label><label><input type="checkbox" data-lecture="4.5.7"><span><b>4.5.7</b><i>Deletion At End</i><small>Previous + last</small></span></label><label><input type="checkbox" data-lecture="4.5.8"><span><b>4.5.8</b><i>Deletion In Middle</i><small>Bypass target</small></span></label><label><input type="checkbox" data-lecture="4.6"><span><b>4.6</b><i>Circular SLL</i><small>Return-to-head stop</small></span></label><label><input type="checkbox" data-lecture="4.7"><span><b>4.7</b><i>Doubly LL</i><small>Two-way invariants</small></span></label><label><input type="checkbox" data-lecture="4.8"><span><b>4.8</b><i>Circular DLL</i><small>Four boundary links</small></span></label><label><input type="checkbox" data-lecture="4.9"><span><b>4.9</b><i>Problems + GATE</i><small>Middle, cycle, reverse</small></span></label>'
 lectureList.querySelector('[data-lecture="4.6"]').closest('label').insertAdjacentHTML('beforebegin','<label><input type="checkbox" data-lecture="4.5.9"><span><b>4.5.9</b><i>SLL Complexity Analysis</i><small>Time, space, GATE traps</small></span></label>')
 const csllTracker='<label><input type="checkbox" data-lecture="4.6"><span><b>4.6</b><i>Circular Singly Linked List</i><small>Circle invariant</small></span></label><label><input type="checkbox" data-lecture="4.6.1"><span><b>4.6.1</b><i>CSLL Initial Setup</i><small>Empty and singleton</small></span></label><label><input type="checkbox" data-lecture="4.6.2"><span><b>4.6.2</b><i>CSLL Insertion At Beginning</i><small>Last link + head shift</small></span></label><label><input type="checkbox" data-lecture="4.6.3"><span><b>4.6.3</b><i>CSLL Insertion At End</i><small>New last reconnects head</small></span></label><label><input type="checkbox" data-lecture="4.6.4"><span><b>4.6.4</b><i>CSLL Insertion In Middle</i><small>Position + rewire</small></span></label><label><input type="checkbox" data-lecture="4.6.5"><span><b>4.6.5</b><i>CSLL Searching</i><small>Return-to-head stop</small></span></label><label><input type="checkbox" data-lecture="4.6.6"><span><b>4.6.6</b><i>CSLL Deletion At Beginning</i><small>Reconnect last to new head</small></span></label><label><input type="checkbox" data-lecture="4.6.7"><span><b>4.6.7</b><i>CSLL Deletion At End</i><small>Previous node becomes last</small></span></label><label><input type="checkbox" data-lecture="4.6.8"><span><b>4.6.8</b><i>CSLL Deletion In Middle</i><small>Bypass target</small></span></label><label><input type="checkbox" data-lecture="4.6.9"><span><b>4.6.9</b><i>CSLL Complexity Analysis</i><small>Locate + rewire</small></span></label>'
 const oldCsllTracker=lectureList.querySelector('[data-lecture="4.6"]')?.closest('label');if(oldCsllTracker)oldCsllTracker.outerHTML=csllTracker
+const dllTracker='<label><input type="checkbox" data-lecture="4.7"><span><b>4.7</b><i>Doubly Linked List</i><small>Prev + next invariant</small></span></label><label><input type="checkbox" data-lecture="4.7.1"><span><b>4.7.1</b><i>DLL Initial Setup</i><small>Empty and singleton</small></span></label><label><input type="checkbox" data-lecture="4.7.2"><span><b>4.7.2</b><i>DLL Insertion At Beginning</i><small>Old head prev update</small></span></label><label><input type="checkbox" data-lecture="4.7.3"><span><b>4.7.3</b><i>DLL Insertion At End</i><small>New last, two links</small></span></label><label><input type="checkbox" data-lecture="4.7.4"><span><b>4.7.4</b><i>DLL Insertion In Middle</i><small>Four links audit</small></span></label><label><input type="checkbox" data-lecture="4.7.5"><span><b>4.7.5</b><i>DLL Searching</i><small>Forward and backward</small></span></label><label><input type="checkbox" data-lecture="4.7.6"><span><b>4.7.6</b><i>DLL Deletion At Beginning</i><small>New head prev None</small></span></label><label><input type="checkbox" data-lecture="4.7.7"><span><b>4.7.7</b><i>DLL Deletion At End</i><small>Previous becomes last</small></span></label><label><input type="checkbox" data-lecture="4.7.8"><span><b>4.7.8</b><i>DLL Deletion In Middle</i><small>Two-sided bypass</small></span></label><label><input type="checkbox" data-lecture="4.7.9"><span><b>4.7.9</b><i>DLL Complexity Analysis</i><small>Known node vs position</small></span></label>'
+const oldDllTracker=lectureList.querySelector('[data-lecture="4.7"]')?.closest('label');if(oldDllTracker)oldDllTracker.outerHTML=dllTracker
 
 const tabs=[...document.querySelectorAll('.tab')],panels=[...document.querySelectorAll('[data-panel]')],toc=document.querySelector('#toc'),sidebar=document.querySelector('.sidebar')
 function buildToc(view){const sections=[...document.querySelector(`[data-panel="${view}"]`).querySelectorAll('[data-title]')];toc.innerHTML=sections.map((s,i)=>{if(!s.id)s.id=`${view}-${i}`;return `<a href="#${s.id}"><i>${String(i+1).padStart(2,'0')}</i>${s.dataset.title}</a>`}).join('')}
@@ -686,4 +841,4 @@ document.querySelector('#themeButton').onclick=()=>{document.documentElement.cla
 document.querySelectorAll('.codebox button').forEach(b=>b.onclick=async()=>{await navigator.clipboard.writeText(b.closest('.codebox').querySelector('code').innerText);const t=document.querySelector('.toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1000)});document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.pyq-card').forEach(x=>x.classList.toggle('filtered',b.dataset.year!=='all'&&x.dataset.year!==b.dataset.year))});let open=false;document.querySelector('#expand').onclick=e=>{open=!open;document.querySelectorAll('.pyq-card:not(.filtered)').forEach(x=>x.open=open);e.target.textContent=open?'Collapse all':'Expand all'}
 const lectureChecks=[...document.querySelectorAll('[data-lecture]')],savedLectures=JSON.parse(localStorage.getItem('da-m4-lectures')||'[]');lectureChecks.forEach(c=>{c.checked=savedLectures.includes(c.dataset.lecture);c.onchange=lectureProgress});function lectureProgress(){const done=lectureChecks.filter(c=>c.checked).map(c=>c.dataset.lecture),percent=Math.round(done.length/lectureChecks.length*100);localStorage.setItem('da-m4-lectures',JSON.stringify(done));document.querySelector('#count').textContent=`${done.length}/${lectureChecks.length}`;document.querySelector('#bar').style.width=`${percent}%`;document.querySelector('#lecturePercent').textContent=`${percent}%`}lectureProgress()
 const esc=v=>String(v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');const attempted=new Set(JSON.parse(localStorage.getItem('da-m4-practice')||'[]')),practiceTopic=document.querySelector('#practiceTopic'),practiceDifficulty=document.querySelector('#practiceDifficulty');function renderPractice(){const topic=module4Topics.find(t=>t.id===practiceTopic.value)||module4Topics[0],level=practiceDifficulty.value,visible=level==='all'?topic.questions:topic.questions.filter(x=>x.difficulty===level),done=topic.questions.filter(x=>attempted.has(x.id)).length,patterns=[...new Set(topic.questions.map(x=>x.pattern))];document.querySelector('#practiceScore').textContent=`${done}/${topic.questions.length}`;document.querySelector('#practiceContext').innerHTML=`<div><span>Topic ${esc(topic.number)}</span><h2>${esc(topic.label)}</h2><p>Har question ke liye before/after links draw karo. Answer explanation tab hi kholo jab invariant audit complete ho.</p></div><aside><b>${visible.length} shown</b><small>${patterns.length} patterns</small><p>${patterns.map(esc).join(' · ')}</p></aside>`;document.querySelector('#questionList').innerHTML=visible.length?visible.map(x=>`<article class="practice-question searchable ${attempted.has(x.id)?'attempted':''}" data-title="${esc(topic.label)} question ${x.number}"><div class="question-meta"><span>Q${String(x.number).padStart(2,'0')}</span><i>${esc(x.difficulty)}</i><b>${esc(x.pattern)}</b></div><h3>${esc(x.prompt)}</h3><ol class="question-options" type="A">${x.options.map(o=>`<li>${esc(o)}</li>`).join('')}</ol><details class="answer-reveal"><summary>Answer + explanation dekho</summary><div><strong>Correct: ${esc(x.answer)}</strong><p>${x.explanation}</p><small>Known node vs position-search cost separate likho.</small></div></details><label class="attempt-check"><input type="checkbox" data-attempt="${x.id}" ${attempted.has(x.id)?'checked':''}><span>Attempted</span></label></article>`).join(''):'<article class="practice-question"><h3>Is level ke questions nahi hain. All levels select karo.</h3></article>';document.querySelectorAll('[data-attempt]').forEach(box=>box.onchange=()=>{box.checked?attempted.add(box.dataset.attempt):attempted.delete(box.dataset.attempt);localStorage.setItem('da-m4-practice',JSON.stringify([...attempted]));box.closest('.practice-question').classList.toggle('attempted',box.checked);document.querySelector('#practiceScore').textContent=`${topic.questions.filter(x=>attempted.has(x.id)).length}/${topic.questions.length}`})}practiceTopic.onchange=renderPractice;practiceDifficulty.onchange=renderPractice;renderPractice()
-const sectionMap={intro:'intro',compare:'compare',types:'types','sll-setup':'sll-setup','sll-insert-beginning':'sll-insert-beginning','sll-insert-end':'sll-insert-end','sll-insert-middle':'sll-insert-middle','sll-search':'sll-search','sll-delete-beginning':'sll-delete-beginning','sll-delete-end':'sll-delete-end','sll-delete-middle':'sll-delete-middle','sll-complexity':'sll-complexity','csll-complexity':'csll',dll:'dll',cdll:'cdll',coding:'coding','gate-patterns':'gate-patterns'};Object.entries(sectionMap).forEach(([id,topicId])=>{const section=document.querySelector(`#${id}`),topic=module4Topics.find(t=>t.id===topicId);if(section&&topic)section.insertAdjacentHTML('beforeend',`<button class="topic-practice" data-practice-topic="${topicId}">Is topic ke ${topic.questions.length} questions solve karo →</button>`)});document.querySelectorAll('[data-practice-topic]').forEach(b=>b.onclick=()=>{practiceTopic.value=b.dataset.practiceTopic;practiceDifficulty.value='all';renderPractice();setView('practice')});document.querySelector('#print').onclick=()=>window.print();document.querySelector('#menu').onclick=()=>sidebar.classList.toggle('open');toc.onclick=()=>sidebar.classList.remove('open');window.onscroll=()=>{const max=document.documentElement.scrollHeight-innerHeight;document.querySelector('.read-progress span').style.width=`${max?100*scrollY/max:0}%`}
+const sectionMap={intro:'intro',compare:'compare',types:'types','sll-setup':'sll-setup','sll-insert-beginning':'sll-insert-beginning','sll-insert-end':'sll-insert-end','sll-insert-middle':'sll-insert-middle','sll-search':'sll-search','sll-delete-beginning':'sll-delete-beginning','sll-delete-end':'sll-delete-end','sll-delete-middle':'sll-delete-middle','sll-complexity':'sll-complexity','csll-complexity':'csll','dll-complexity':'dll',cdll:'cdll',coding:'coding','gate-patterns':'gate-patterns'};Object.entries(sectionMap).forEach(([id,topicId])=>{const section=document.querySelector(`#${id}`),topic=module4Topics.find(t=>t.id===topicId);if(section&&topic)section.insertAdjacentHTML('beforeend',`<button class="topic-practice" data-practice-topic="${topicId}">Is topic ke ${topic.questions.length} questions solve karo →</button>`)});document.querySelectorAll('[data-practice-topic]').forEach(b=>b.onclick=()=>{practiceTopic.value=b.dataset.practiceTopic;practiceDifficulty.value='all';renderPractice();setView('practice')});document.querySelector('#print').onclick=()=>window.print();document.querySelector('#menu').onclick=()=>sidebar.classList.toggle('open');toc.onclick=()=>sidebar.classList.remove('open');window.onscroll=()=>{const max=document.documentElement.scrollHeight-innerHeight;document.querySelector('.read-progress span').style.width=`${max?100*scrollY/max:0}%`}

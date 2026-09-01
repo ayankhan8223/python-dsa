@@ -98,6 +98,15 @@ code, pre { font-family: 'DM Mono', ui-monospace, monospace; }
 .linked-chain .previous-ref::before { content: 'PREVIOUS_NODE ↓'; color: var(--green); }
 .linked-chain .position-ref::before { content: attr(data-position-label) ' ↓'; color: var(--orange); }
 .linked-chain span.head-node i, .linked-chain span.current-node i, .linked-chain span.previous-node i, .linked-chain span.position-node i { border-radius: 0 8px 8px 0; }
+.linked-chain span.dll-node { grid-template-columns: minmax(86px,auto) minmax(76px,1fr) minmax(112px,auto); min-width: 286px; }
+.linked-chain span.dll-node > b { grid-column: 2; grid-row: 1; background: var(--card); }
+.linked-chain span.dll-node > i { grid-row: 1; padding-inline: 11px; font-size: .82rem; }
+.linked-chain span.dll-node > .dll-prev { grid-column: 1; color: var(--muted); background: color-mix(in srgb,var(--green-pale) 42%,transparent); }
+.linked-chain span.dll-node > .dll-next { grid-column: 3; color: var(--orange); background: var(--green-pale); }
+.linked-chain.with-dll-reference { padding-top: 56px; }
+.linked-chain span.dll-reference-node { overflow: visible; }
+.linked-chain .dll-ref { position: relative; }
+.linked-chain .dll-ref::before { content: attr(data-dll-label) ' ↓'; position: absolute; left: 50%; bottom: calc(100% + 16px); transform: translateX(-50%); color: var(--orange); font-size: .76rem; font-weight: 900; letter-spacing: .04em; white-space: nowrap; }
 .pointer-diagram { position: relative; margin: 22px 0; padding: 42px 22px 28px; overflow-x: auto; background: color-mix(in srgb,var(--green-pale) 55%,transparent); border-radius: 13px; }
 .pointer-diagram .diagram-row { display: flex; align-items: center; gap: 12px; min-width: max-content; }
 .pointer-diagram .diagram-node { position: relative; display: grid; grid-template-columns: minmax(90px,1fr) minmax(88px,auto); min-width: 188px; background: var(--card); border: 1px solid var(--line); border-radius: 9px; overflow: visible; }
