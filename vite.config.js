@@ -8,7 +8,8 @@ export default defineConfig({
         module1: resolve(import.meta.dirname, 'index.html'),
         module2: resolve(import.meta.dirname, 'module2.html'),
         module3: resolve(import.meta.dirname, 'module3.html'),
-        module4: resolve(import.meta.dirname, 'module4.html')
+        module4: resolve(import.meta.dirname, 'module4.html'),
+        module5: resolve(import.meta.dirname, 'module5.html')
       }
     }
   }

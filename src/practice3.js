@@ -1,5 +1,5 @@
 const q=(prompt,options,answer,explanation,difficulty='Core',pattern='Concept')=>({prompt,options,answer,explanation,difficulty,pattern})
-const topic=(id,number,label,count,make)=>({id,number,label,questions:Array.from({length:count},(_,i)=>({id:`m3-${id}-${i+1}`,number:i+1,...make(i%10,Math.floor(i/10)+1)}))})
+const topic=(id,number,label,count,make)=>({id,number,label,questions:Array.from({length:Math.min(count,10)},(_,i)=>({id:`m3-${id}-${i+1}`,number:i+1,...make(i,1)}))})
 
 const foundations=topic('intro','3.1','String foundations',50,(m,r)=>[
   q('Python string ki best definition?',['Mutable characters list','Immutable ordered Unicode sequence','Unordered bytes','Numeric array'],'Immutable ordered Unicode sequence','Characters ordered hain, indexing possible hai, lekin same string object edit nahi hota.','Foundation','Definition'),

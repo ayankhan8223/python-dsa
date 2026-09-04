@@ -2,7 +2,9 @@ const q = (prompt, options, answer, explanation, difficulty, pattern) => ({ prom
 
 const topic = (id, number, label, count, generator) => ({
   id, number, label,
-  questions: Array.from({ length: count }, (_, i) => ({ id: `m2-${id}-${i + 1}`, number: i + 1, ...generator(i % 10, Math.floor(i / 10) + 1) }))
+  // Har generator mein 10 genuinely different patterns hain. Purana code inhi
+  // questions ko numerical "variations" ke naam par 50-60 baar repeat karta tha.
+  questions: Array.from({ length: Math.min(count, 10) }, (_, i) => ({ id: `m2-${id}-${i + 1}`, number: i + 1, ...generator(i, 1) }))
 })
 
 const foundations = topic('array-model','2.1','Array foundations',50,(m,r)=>{

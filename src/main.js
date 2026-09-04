@@ -160,7 +160,7 @@ document.querySelector('#app').innerHTML = `
 <div class="layout" id="top">
   <aside class="sidebar">
     <p class="overline">Module 01</p><h2>Introduction to DSA<br>& Python Basics</h2>
-    <div class="module-switch"><a class="active" href="./index.html">M01</a><a href="./module2.html">M02</a><a href="./module3.html">M03</a><a href="./module4.html">M04</a></div>
+    <div class="module-switch"><a class="active" href="./index.html">M01</a><a href="./module2.html">M02</a><a href="./module3.html">M03</a><a href="./module4.html">M04</a><a href="./module5.html">M05</a></div>
     <div class="completion"><span><b>Mastery</b><i id="count">0/12</i></span><div><i id="bar"></i></div></div>
     <nav id="toc"></nav>
     <p class="source"><b>Sources</b>CampusX full PDF + Module 1 notebook + GATE DA 2024–2026 papers</p>
@@ -247,20 +247,22 @@ return total             # 1
       <section class="chapter searchable" id="bounds" data-title="1.2 · Bounds and cases">
         ${chapterHead('1.2 A','GATE depth','Big-O, Big-Omega, Big-Theta','Bounds ko cases ke saath confuse mat karo.','bounds')}
         <div class="bounds"><article><b>O(g(n))</b><h3>Upper bound</h3><p>T(n) eventually g(n) ke constant multiple se zyada grow nahi karta.</p></article><article><b>Ω(g(n))</b><h3>Lower bound</h3><p>T(n) eventually g(n) ke constant multiple se kam grow nahi karta.</p></article><article><b>Θ(g(n))</b><h3>Tight bound</h3><p>Upper aur lower growth same order ke hain.</p></article></div>
+        <div class="explain-block"><h3>Inequality se formal meaning</h3><p><b>Big-O:</b> kuch positive constants <code>c,n₀</code> milne chahiye jinke liye <code>0 ≤ T(n) ≤ c·g(n)</code> har <code>n ≥ n₀</code> par true ho. <b>Big-Ω:</b> <code>0 ≤ c·g(n) ≤ T(n)</code>. <b>Big-Θ:</b> do constants <code>c₁,c₂</code> ke beech sandwich: <code>0 ≤ c₁g(n) ≤ T(n) ≤ c₂g(n)</code>.</p><p>Example <code>T(n)=3n²+5n+2</code>. <code>n≥1</code> par <code>3n² ≤ T(n) ≤ 10n²</code>, so T(n)=Θ(n²). Isi wajah se <code>n = O(n²)</code> true hai, lekin tight nahi; <code>n² = Ω(n)</code> bhi true but loose hai.</p></div>
+        <div class="table-wrap"><table><thead><tr><th>Statement</th><th>True?</th><th>Reason</th></tr></thead><tbody><tr><td><code>n = O(n²)</code></td><td>Yes</td><td>n eventually n² se faster grow nahi karta; loose upper bound.</td></tr><tr><td><code>n² = Ω(n)</code></td><td>Yes</td><td>n² eventually n ka lower-bound multiple hai; loose lower bound.</td></tr><tr><td><code>n² = Θ(n³)</code></td><td>No</td><td>Same-order upper aur lower sandwich possible nahi.</td></tr><tr><td><code>3n²+5n+2 = Θ(n²)</code></td><td>Yes</td><td>Dominant degree 2; positive constants se sandwich hota hai.</td></tr></tbody></table></div>
         <div class="danger"><b>Lecture correction</b><p>“Ω = best, Θ = average, O = worst” formal definition nahi. Best/average/worst input cases hain; O/Ω/Θ bounds hain. Linear search ka worst case Θ(n) bhi hai.</p></div>
         <div class="table-wrap"><table><thead><tr><th>Linear search</th><th>Situation</th><th>Comparisons</th><th>Tight bound</th></tr></thead><tbody><tr><td>Best</td><td>First position</td><td>1</td><td>Θ(1)</td></tr><tr><td>Average</td><td>Random position</td><td>≈(n+1)/2</td><td>Θ(n)</td></tr><tr><td>Worst</td><td>Absent / last</td><td>n</td><td>Θ(n)</td></tr></tbody></table></div>
       </section>
 
       <section class="chapter searchable" id="growth" data-title="1.2 · Growth order">
         ${chapterHead('1.2 B','GATE depth','Complexity growth ladder','Large input par difference explosive hota hai.','growth')}
-        <div class="ladder"><code>1</code><i>≺</i><code>log n</code><i>≺</i><code>√n</code><i>≺</i><code>n</code><i>≺</i><code>n log n</code><i>≺</i><code>n²</code><i>≺</i><code>2ⁿ</code><i>≺</i><code>n!</code></div>
+        <div class="ladder"><code>1</code><i>≺</i><code>log log n</code><i>≺</i><code>log n</code><i>≺</i><code>√n</code><i>≺</i><code>n</code><i>≺</i><code>n log n</code><i>≺</i><code>n²</code><i>≺</i><code>n³</code><i>≺</i><code>2ⁿ</code><i>≺</i><code>n!</code><i>≺</i><code>nⁿ</code><i>≺</i><code>2^(n²)</code></div>
         <div class="growth-visual"><span class="g1">O(1)</span><span class="gl">O(log n)</span><span class="gn">O(n)</span><span class="gnl">O(n log n)</span><span class="gn2">O(n²)</span><span class="g2n">O(2ⁿ)</span><i>input size n →</i></div>
-        <div class="callout"><b>Log base rule</b><p>Asymptotically log₂n aur log₁₀n Θ(log n) hain. Exact comparison count mein base/boundary matter kar sakti hai.</p></div>
+        <div class="callout"><b>Log simplification rules</b><p>Asymptotically <code>log₂n</code> aur <code>log₁₀n</code> dono Θ(log n). <code>log(√n)=½log n</code> aur fixed k ke liye <code>log(nᵏ)=k log n</code>, so dono Θ(log n). Lekin <code>log log n</code> genuinely slower class hai. Exact comparison/NAT count mein base, floor, ceiling aur boundary matter kar sakti hai.</p></div>
       </section>
 
       <section class="chapter searchable" id="loops" data-title="1.2 · Loop analysis">
         ${chapterHead('1.2 C','GATE depth','Loop patterns ko derive karo','Memorize se better: iterations count karo.','loops')}
-        <div class="table-wrap"><table><thead><tr><th>Pattern</th><th>Count</th><th>Complexity</th><th>Why</th></tr></thead><tbody><tr><td><code>range(n)</code></td><td>n</td><td>Θ(n)</td><td>One pass</td></tr><tr><td><code>range(0,n,5)</code></td><td>⌈n/5⌉</td><td>Θ(n)</td><td>Step constant</td></tr><tr><td><code>i *= 2</code></td><td>⌊log₂n⌋+1</td><td>Θ(log n)</td><td>Value doubles</td></tr><tr><td>Two separate loops</td><td>n+n</td><td>Θ(n)</td><td>Add work</td></tr><tr><td>Independent nested</td><td>n×n</td><td>Θ(n²)</td><td>Multiply</td></tr><tr><td>Inner <code>range(i)</code></td><td>0+…+n-1</td><td>Θ(n²)</td><td>Triangular sum</td></tr><tr><td>Outer n, inner 100</td><td>100n</td><td>Θ(n)</td><td>100 constant</td></tr></tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th>Pattern</th><th>Exact/derived count</th><th>Tight complexity</th><th>Recognition rule</th></tr></thead><tbody><tr><td><code>i += c</code>, <code>i -= c</code>, <code>range(0,n,c)</code></td><td>about n/c</td><td>Θ(n)</td><td>c input se independent constant hai.</td></tr><tr><td><code>i *= c</code> or <code>i //= c</code></td><td>about log<sub>c</sub>n</td><td>Θ(log n)</td><td>Har step remaining scale constant factor se badalta.</td></tr><tr><td><code>i = i*i</code>, start i&gt;1</td><td>about log₂log n</td><td>Θ(log log n)</td><td>Values 2,4,16,256…; exponent double hota hai.</td></tr><tr><td>Two separate blocks</td><td>T₁(n)+T₂(n)</td><td>Dominant term</td><td>Add: n²+n log n+n = Θ(n²).</td></tr><tr><td>Independent nested blocks</td><td>n×log n</td><td>Θ(n log n)</td><td>Outer ke har turn mein full inner work.</td></tr><tr><td>Inner <code>range(i)</code></td><td>Σᵢ₌₀ⁿ⁻¹ i=n(n−1)/2</td><td>Θ(n²)</td><td>Dependent loop ko blindly n×n nahi; sum likho.</td></tr><tr><td>Inner <code>range(0,i,2)</code></td><td>Σ⌈i/2⌉</td><td>Θ(n²)</td><td>Half constant factor order change nahi karta.</td></tr><tr><td>Three independent n loops nested</td><td>n³</td><td>Θ(n³)</td><td>n×n×n.</td></tr></tbody></table></div>
         <div class="code-grid"><div class="codebox"><div><span>Dependent loop</span><button>Copy</button></div><pre><code>for i in range(n):
     for j in range(i):
         work()
@@ -271,12 +273,26 @@ return total             # 1
         <div class="danger"><b>Early exit</b><p><code>break</code> ya <code>return</code> se automatically O(1) nahi. Best case early ho sakta hai; worst case full loop.</p></div>
       </section>
 
+      <section class="chapter searchable" id="tricky-loops" data-title="GATE Tricky Loop Pattern Recognition">
+        ${chapterHead('1.2 E','GATE drill','GATE Tricky Loop Pattern Recognition','Har loop mein pehle variable ki value-sequence likho; phir iterations count karo.','tricky-loops')}
+        <div class="practice-list">
+          <article><b>01</b><div><code>for i in range(0,n,2)</code><h3>Constant step</h3><p>Values 0,2,4,…; about n/2 iterations. 2 constant hai, so Θ(n).</p><details><summary>2 practice questions</summary><p>(a) <code>range(3,n,7)</code> ka exact count aur Θ? (b) <code>i=n; while i&gt;0: i-=5</code>?</p></details></div><strong>Θ(n)</strong></article>
+          <article><b>02</b><div><code>i=1; while i&lt;n: i*=2</code><h3>Multiplicative growth</h3><p>1,2,4,8,…,2ᵏ. Stop when 2ᵏ≥n, hence k=⌈log₂n⌉.</p><details><summary>2 practice questions</summary><p>(a) multiplier 3 ho toh? (b) <code>i=n; i//=3</code> sequence for n=81 trace karo.</p></details></div><strong>Θ(log n)</strong></article>
+          <article><b>03</b><div><code>i=2; while i&lt;n: i=i*i</code><h3>Self-power growth</h3><p>2,4,16,256,… After k updates value <code>2^(2^k)</code>. Condition <code>2^(2^k)≥n</code> se k≈log₂log₂n.</p><details><summary>2 practice questions</summary><p>(a) n=65536 par updates count karo. (b) start i=1 kyun infinite loop banata hai?</p></details></div><strong>Θ(log log n)</strong></article>
+          <article><b>04</b><div><code>for i in range(n): j=2; while j&lt;n: j*=j</code><h3>n × log log n</h3><p>Inner self-squaring loop har outer iteration mein Θ(log log n), so product Θ(n log log n).</p><details><summary>2 practice questions</summary><p>(a) outer <code>range(n*n)</code> ho toh? (b) inner start 4 ho toh order change hota hai?</p></details></div><strong>Θ(n log log n)</strong></article>
+          <article><b>05</b><div><code>for i in range(n): for j in range(i)</code><h3>Dependent triangular loop</h3><p>Inner counts 0,1,2,…,n−1. Sum n(n−1)/2, therefore Θ(n²).</p><details><summary>2 practice questions</summary><p>(a) <code>range(0,i,2)</code>? (b) inner <code>range(n-i)</code> ka sum?</p></details></div><strong>Θ(n²)</strong></article>
+          <article><b>06</b><div><code>block A: n log n; block B: n²; block C: n</code><h3>Sequential blocks add</h3><p>Total nlogn+n²+n; n² fastest dominant term, so Θ(n²). Sequential blocks multiply nahi hote.</p><details><summary>2 practice questions</summary><p>(a) log n+n? (b) n³+n²logn+2ⁿ mein dominant?</p></details></div><strong>Θ(n²)</strong></article>
+        </div>
+        <div class="callout"><b>Summation shortcut</b><p><code>Σ1=n</code>, <code>Σi=n(n+1)/2=Θ(n²)</code>, aur <code>Σlog i=log(n!)=Θ(n log n)</code>. Exact NAT mein formula rakho; asymptotic MCQ mein dominant order simplify karo.</p></div>
+      </section>
+
       <section class="chapter searchable" id="space" data-title="1.2 · Space analysis">
         ${chapterHead('1.2 D','GATE depth','Space complexity without confusion','Input, auxiliary aur stack separately name karo.','space')}
         <div class="equation"><span>Total space</span><b>= input space + auxiliary space</b></div>
         <div class="three-grid"><article><span>Input</span><h3>Provided data</h3><p>Size-n list total memory O(n), but auxiliary analysis mein normally exclude.</p></article><article><span>Auxiliary</span><h3>Extra memory</h3><p>Variables, new containers, temporary buffers, recursion frames.</p></article><article><span>In-place</span><h3>Small extra storage</h3><p>Usually O(1) auxiliary; input object mutate ho sakta hai.</p></article></div>
         <div class="corrections"><article><code>print(arr[0])</code><b>Aux Θ(1)</b></article><article><code>[0] * n</code><b>Time Θ(n), space Θ(n)</b></article><article><code>fib(n-1)+fib(n-2)</code><b>Stack Θ(n)</b></article><article><code>arr.sort()</code><b>Python Timsort, not quicksort</b></article></div>
         <div class="callout"><b>Three quantities</b><p>Total calls (time), maximum active calls (stack), aur returned value ko mix mat karo.</p></div>
+        <div class="explain-block"><h3>Maximum recursion depth kaise nikalein?</h3><p>Ek waqt par simultaneously active calls count karo, poore call tree ke total calls nahi. <code>f(n)→f(n−1)→…→f(0)</code> mein n+1 frames peak par active, so stack Θ(n). Naive Fibonacci ke total calls exponential ho sakte hain, lekin longest active path linear hota hai.</p><p><b>Best/average/worst</b> input situations hain. Har situation ka apna O, Ω aur Θ bound likha ja sakta hai. Example linear search worst-case time Θ(n); ye sirf “O(n)” kehne se stronger statement hai.</p></div>
       </section>
 
       <section class="chapter searchable" id="complexity-practice" data-title="1.2.1 · Complexity Practice">
@@ -437,7 +453,7 @@ print(r.area())                 # 20</code></pre></div>
     </div>
 
     <div class="view" data-panel="practice">
-      <section class="page-hero practice-head searchable" data-title="Practice Lab"><p class="eyebrow"><i></i> Topic-wise · saved progress</p><h1>Practice Lab</h1><p>${totalPracticeQuestions} questions. Har lecture ke immediately baad usi topic ka set solve karo.</p><div class="practice-summary"><span><b>13</b>lecture topics</span><span><b>50–60</b>questions each</span><span><b>3 levels</b>foundation · core · practice</span></div></section>
+      <section class="page-hero practice-head searchable" data-title="Practice Lab"><p class="eyebrow"><i></i> Topic-wise · saved progress</p><h1>Practice Lab</h1><p>${totalPracticeQuestions} questions. Har lecture ke immediately baad usi topic ka set solve karo.</p><div class="practice-summary"><span><b>${practiceTopics.length}</b>lecture topics</span><span><b>distinct</b>concept-first questions</span><span><b>3 levels</b>foundation · core · practice</span></div></section>
       <section class="practice-controls searchable" data-title="Choose lecture topic"><div><label for="practiceTopic">Lecture topic</label><select id="practiceTopic">${practiceTopicOptions}</select></div><div><label for="practiceDifficulty">Difficulty</label><select id="practiceDifficulty"><option value="all">All levels</option><option>Foundation</option><option>Core</option><option>Practice</option></select></div><div class="practice-score"><span>Attempted</span><b id="practiceScore">0/50</b></div></section>
       <section class="practice-context" id="practiceContext"></section>
       <section class="question-list" id="questionList"></section>
@@ -447,7 +463,7 @@ print(r.area())                 # 20</code></pre></div>
       <section class="page-hero revision-head searchable" data-title="Revision sheet"><p class="eyebrow"><i></i> Last-day recall</p><h1>Rapid Revision Sheet</h1><p>First-time learning nahi—fast retrieval ke liye.</p><button id="print">Print sheet</button></section>
       <section class="revision-grid">
         <article class="rev searchable"><span>01</span><h2>Bounds</h2><ul><li>O upper</li><li>Ω lower</li><li>Θ tight</li><li>Cases ≠ bounds</li></ul></article>
-        <article class="rev searchable"><span>02</span><h2>Growth</h2><p>1 ≺ log n ≺ √n ≺ n ≺ n log n ≺ n² ≺ 2ⁿ ≺ n!</p><ul><li>Consecutive add</li><li>Nested multiply only if independent</li><li>Doubling → log</li></ul></article>
+        <article class="rev searchable"><span>02</span><h2>Growth</h2><p>1 ≺ log log n ≺ log n ≺ √n ≺ n ≺ n log n ≺ n² ≺ n³ ≺ 2ⁿ ≺ n! ≺ nⁿ ≺ 2^(n²)</p><ul><li>Consecutive add</li><li>Nested multiply only if independent</li><li>Doubling → log n; self-square → log log n</li></ul></article>
         <article class="rev searchable"><span>03</span><h2>Space</h2><ul><li>Total = input + auxiliary</li><li>Stack depth ≠ total calls</li><li>[0]*n time & space Θ(n)</li><li>In-place usually O(1) aux</li></ul></article>
         <article class="rev searchable"><span>04</span><h2>Objects</h2><ul><li>Assignment binds name</li><li>list/dict/set mutable</li><li>tuple/string immutable</li><li>== value, is identity</li></ul></article>
         <article class="rev searchable"><span>05</span><h2>Containers</h2><ul><li>List index O(1)</li><li>Membership O(n)</li><li>append O(1) amortized</li><li>dict/set O(1) average</li><li>slice O(k)</li></ul></article>
@@ -480,7 +496,7 @@ document.querySelectorAll('[data-jump]').forEach(b=>b.onclick=()=>setView(b.data
 buildToc('notes')
 
 const sectionPracticeMap = {
-  'exam-map':'intro', foundation:'importance', analysis:'complexity', bounds:'complexity', growth:'complexity', loops:'complexity', space:'complexity',
+  'exam-map':'intro', foundation:'importance', analysis:'complexity', bounds:'complexity', growth:'complexity', loops:'complexity', 'tricky-loops':'complexity-practice', space:'complexity',
   'complexity-practice':'complexity-practice', 'python-refresher':'refresher', objects:'refresher', containers:'types', control:'control',
   'python-loops':'loops', functions:'functions', builtins:'builtins', comprehensions:'comprehensions', classes:'classes', inputs:'inputs'
 }

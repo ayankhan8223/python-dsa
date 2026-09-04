@@ -3,7 +3,7 @@ const mcq = (prompt, options, answer, explanation, difficulty = 'Foundation', pa
 })
 
 const buildTopic = (id, number, label, generator, count = 50) => ({
-  id, number, label, questions: Array.from({ length: count }, (_, index) => ({
+  id, number, label, questions: Array.from({ length: ['complexity', 'complexity-practice'].includes(id) ? 20 : 10 }, (_, index) => ({
     id: `${id}-${index + 1}`,
     number: index + 1,
     ...generator(index, Math.floor(index / 5) + 1, index % 5)
@@ -130,5 +130,18 @@ const inputs = buildTopic('inputs', '1.3.8', 'Reading Inputs', (i, r, m) => {
   return mcq(`int('3.5') ka result?`, ['3','3.5','ValueError','None'], 'ValueError', 'Decimal string direct int parser ke valid integer format mein nahi.', 'Core', 'Conversion error')
 })
 
-export const practiceTopics = [intro, importance, complexity, complexityPractice, refresher, types, control, loops, functions, builtins, comprehensions, classes, inputs]
+const removeRepeatedPrompts = topic => {
+  const seen = new Set()
+  const questions = topic.questions
+    .filter(question => {
+      const key = question.prompt.toLowerCase().replace(/\s+/g, ' ').trim()
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+    .map((question, index) => ({...question, number: index + 1}))
+  return {...topic, questions}
+}
+
+export const practiceTopics = [intro, importance, complexity, complexityPractice, refresher, types, control, loops, functions, builtins, comprehensions, classes, inputs].map(removeRepeatedPrompts)
 export const totalPracticeQuestions = practiceTopics.reduce((sum, topic) => sum + topic.questions.length, 0)

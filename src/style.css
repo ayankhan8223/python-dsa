@@ -104,9 +104,13 @@ code, pre { font-family: 'DM Mono', ui-monospace, monospace; }
 .linked-chain span.dll-node > .dll-prev { grid-column: 1; color: var(--muted); background: color-mix(in srgb,var(--green-pale) 42%,transparent); }
 .linked-chain span.dll-node > .dll-next { grid-column: 3; color: var(--orange); background: var(--green-pale); }
 .linked-chain.with-dll-reference { padding-top: 56px; }
+.linked-chain.with-tail { padding-top: 56px; }
 .linked-chain span.dll-reference-node { overflow: visible; }
+.linked-chain span.tail-node { overflow: visible; }
 .linked-chain .dll-ref { position: relative; }
 .linked-chain .dll-ref::before { content: attr(data-dll-label) ' ↓'; position: absolute; left: 50%; bottom: calc(100% + 16px); transform: translateX(-50%); color: var(--orange); font-size: .76rem; font-weight: 900; letter-spacing: .04em; white-space: nowrap; }
+.linked-chain .tail-ref { position: relative; }
+.linked-chain .tail-ref::before { content: attr(data-tail-label) ' ↓'; position: absolute; left: 50%; bottom: calc(100% + 16px); transform: translateX(-50%); color: var(--orange); font-size: .76rem; font-weight: 900; letter-spacing: .04em; white-space: nowrap; }
 .pointer-diagram { position: relative; margin: 22px 0; padding: 42px 22px 28px; overflow-x: auto; background: color-mix(in srgb,var(--green-pale) 55%,transparent); border-radius: 13px; }
 .pointer-diagram .diagram-row { display: flex; align-items: center; gap: 12px; min-width: max-content; }
 .pointer-diagram .diagram-node { position: relative; display: grid; grid-template-columns: minmax(90px,1fr) minmax(88px,auto); min-width: 188px; background: var(--card); border: 1px solid var(--line); border-radius: 9px; overflow: visible; }
@@ -192,6 +196,11 @@ main { min-width: 0; }
 .year-grid b, .three-grid span { color: var(--orange); font: 500 10px 'DM Mono'; text-transform: uppercase; letter-spacing: .12em; }
 .year-grid h3, .three-grid h3, .bounds h3 { margin: 15px 0 8px; font-size: 15px; letter-spacing: -.02em; }
 .year-grid p, .three-grid p, .bounds p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.65; }
+#gate-patterns .three-grid { grid-template-columns: 1fr; gap: 18px; }
+#gate-patterns .three-grid article { min-width: 0; }
+#gate-patterns .three-grid .callout { grid-template-columns: 1fr; gap: 8px; }
+#gate-patterns-new .three-grid { grid-template-columns: 1fr; gap: 18px; }
+#gate-patterns-new .three-grid article { min-width: 0; }
 .insight, .callout, .danger, .note { margin: 18px 0 0; padding: 17px 19px; border-radius: 11px; }
 .insight, .callout { display: grid; grid-template-columns: 100px 1fr; gap: 12px; align-items: start; background: var(--green-pale); }
 .insight b, .callout b { color: var(--green); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; }
@@ -642,3 +651,14 @@ th { font-size: 12px; }
   .rev { break-inside: avoid; padding: 15px; }
   .self-test { break-before: page; }
 }
+
+/* Module 5: an uncluttered vertical stack diagram */
+.stack-visual{max-width:430px;margin:24px auto 4px;padding:22px 28px;background:color-mix(in srgb,var(--green-pale) 52%,transparent);border:1px solid var(--line);border-radius:16px;text-align:center}.stack-top-label{color:var(--orange);font-weight:900;letter-spacing:.12em;font-size:1rem}.stack-arrow{color:var(--green);font-weight:800;margin:8px 0}.stack-item{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 20px;background:var(--card);border:1px solid var(--line);border-bottom:0}.stack-item b{font-size:1.35rem;color:var(--ink)}.stack-item span{color:var(--orange);font-size:.9rem}.top-item{border-radius:12px 12px 0 0}.bottom-item{border-bottom:1px solid var(--line);border-radius:0 0 12px 12px}.stack-rule{margin-top:15px;color:var(--muted);font-size:.92rem;font-weight:700}
+.stack-mini{margin-top:18px;padding:14px 18px}.stack-mini .stack-item{padding:10px 14px}.stack-mini .stack-item b{font-size:1.1rem}.stack-mini .stack-item span{font-size:.78rem}
+.topic-practice{margin-top:24px;padding:13px 20px;border:0;border-radius:10px;background:var(--green);color:#102019;font:800 14px inherit;cursor:pointer}.topic-practice:hover{filter:brightness(1.08)}
+.m5-practice-chooser{display:grid;gap:10px;margin:4px 0 20px;padding:16px 18px;border:1px solid var(--line);border-radius:12px;background:var(--panel)}.m5-practice-chooser label{font-size:13px;font-weight:800;color:var(--muted)}.m5-practice-chooser select{max-width:620px;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--text);font:inherit}.m5-practice-topic{margin:0;color:var(--green);font-weight:800}
+
+/* Module 5: state-by-state lecture diagrams */
+.state-flow{display:grid;grid-template-columns:minmax(0,1fr) 120px minmax(0,1fr);gap:18px;align-items:center;margin:24px 0;padding:22px;background:color-mix(in srgb,var(--green-pale) 55%,transparent);border:1px solid var(--line);border-radius:16px}.state-flow>article{min-width:0;padding:18px;background:var(--card);border:1px solid var(--line);border-radius:13px}.state-flow>article>span{display:block;color:var(--orange);font:700 12px 'DM Mono',monospace;letter-spacing:.08em}.state-flow>article>p{margin:12px 0 0;color:var(--muted);line-height:1.65}.state-operation{display:grid;place-items:center;gap:8px;text-align:center}.state-operation code{padding:8px 10px;color:var(--green);background:var(--card);border:1px solid var(--line);border-radius:8px;font-weight:800}.state-operation b{color:var(--green);font-size:28px}.empty-stack{padding:22px 16px;color:var(--muted);background:var(--card);border:2px dashed var(--line);border-radius:12px;font-weight:800}.array-stack{display:flex;justify-content:center;gap:6px;margin:24px 0}.array-stack i{display:grid;gap:5px;min-width:94px;padding:13px;color:var(--muted);background:var(--green-pale);border:1px solid var(--line);border-radius:9px;font-style:normal;text-align:center}.array-stack b{color:var(--ink);font-size:22px}.array-stack small{color:var(--orange);font-weight:800}.output-string{margin:35px 0;padding:20px;color:var(--green);background:var(--green-pale);border:1px solid var(--line);border-radius:10px;font:800 20px 'DM Mono',monospace;text-align:center}.command-strip{display:flex;flex-wrap:wrap;gap:9px;margin-top:18px}.command-strip code{padding:9px 12px;background:var(--card);border:1px solid var(--line);border-radius:8px}.success-chain{border-color:color-mix(in srgb,var(--green) 45%,var(--line));background:color-mix(in srgb,var(--green-pale) 70%,transparent)}
+
+@media (max-width:900px){.state-flow{grid-template-columns:1fr}.state-operation b{transform:rotate(90deg)}.array-stack{flex-wrap:wrap}}

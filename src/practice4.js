@@ -1,5 +1,5 @@
 const q=(prompt,options,answer,explanation,difficulty='Core',pattern='Concept')=>({prompt,options,answer,explanation,difficulty,pattern})
-const topic=(id,number,label,count,make)=>({id,number,label,questions:Array.from({length:count},(_,i)=>({id:`m4-${id}-${i+1}`,number:i+1,...make(i%10,Math.floor(i/10)+1)}))})
+const topic=(id,number,label,count,make)=>({id,number,label,questions:Array.from({length:Math.min(count,10)},(_,i)=>({id:`m4-${id}-${i+1}`,number:i+1,...make(i,1)}))})
 
 const intro=topic('intro','4.1','Linked-list foundations',50,(m,r)=>[
  q('Linked list kis se banti hai?',['Contiguous slots only','Nodes connected by references','Hash buckets only','Matrix rows'],'Nodes connected by references','Har node data aur link/reference field rakhta hai.','Foundation','Definition'),
@@ -163,7 +163,7 @@ const sllDeleteMiddle=topic('sll-delete-middle','4.5.8','SLL deletion in middle'
  q('Middle delete mein q?', ['Successor','Target predecessor','None always','Length'],'Target predecessor','q bypass link updates.','Core','Predecessor'),
  q('Core bypass?', ['q.next=p.next','p.next=q','head=p','q=None'],'q.next=p.next','Predecessor to successor.','Core','Bypass'),
  q('p.next=None purpose?', ['Delete suffix','Detach removed node','Cycle','Count'],'Detach removed node','Link clear.','Core','Detach'),
- q('Position 0 route?', ['Delete beginning','Delete end','Invalid','Search'],'Delete beginning','Head boundary.','Foundation','Boundary'),
+ q('Delete position 0 ko kis operation par route karna chahiye?', ['Delete beginning','Delete end','Invalid','Search'],'Delete beginning','Head boundary.','Foundation','Boundary'),
  q('Position n−1 route?', ['Beginning','Delete end','Invalid','Middle only'],'Delete end','Tail boundary.','Foundation','Boundary'),
  q('q and p already known rewire?', ['O(1)','O(n)','O(log n)','O(n²)'],'O(1)','Fixed bypass.','Core','Known refs'),
  q('Only position overall?', ['O(1)','O(n) locate + O(1) bypass','O(log n)','Impossible'],'O(n) locate + O(1) bypass','Traversal dominates.','Core','Decomposition'),
@@ -247,6 +247,17 @@ const gate=topic('gate-patterns','4.G','GATE pointer patterns',60,(m,r)=>[
  q('Intersection of two SLL by identity vs data?', ['Compare data only','Node object identity','Sort values','Count duplicates'],'Node object identity','Equal values do not mean shared physical suffix.','Practice','Intersection'),
  q('Dummy/sentinel node benefit?', ['Makes list circular always','Unifies head insertion/deletion cases','Removes all memory','Gives O(1) search'],'Unifies head insertion/deletion cases','Predecessor always available near logical head, fewer branches.','Core','Sentinel')
 ][m])
+
+;[
+ q('10→20→30→40→50→None mein standard 1-based k=2 from end?', ['30','40','50','20'],'40','End se counting: 50 first, 40 second. Fast ko exactly 2 nodes ahead karke verify hota hai.','Core','Gap trace'),
+ q('Gap method mein k=length ho toh slow final kahan?', ['Head','Tail','None','Middle'],'Head','Fast k steps ke baad None; slow move nahi karta, so head length-th from end hai.','Core','Gap boundary'),
+ q('Gap method mein k>length aur validation absent ho toh?', ['Correct head','Dereference error','Always tail','Cycle'],'Dereference error','Fast ko k steps move karte waqt None.next access ho sakta hai; k range validate karo.','Practice','Gap invalid k'),
+ q('Even list 10→20→30→40 par slow/fast both head, condition fast and fast.next: returned middle?', ['20','30','40','None'],'30','Standard update slow=slow.next, fast=fast.next.next second middle return karta hai.','Core','Even middle'),
+ q('First middle 20 chahiye for 4-node list: useful loop guard?', ['fast and fast.next','fast.next and fast.next.next','while slow','while head'],'fast.next and fast.next.next','Fast ko two-step move tabhi do jab uske baad bhi pair available ho; slow first middle par rukta hai.','Practice','First middle'),
+ q('Cycle detection mein slow=fast=head ke turant baad equality check karna?', ['Correct cycle proof','False positive','Required','Tail detect'],'False positive','Initialization par equality natural hai; pehle pointers move hone chahiye, phir meeting test.','Practice','Cycle initialization'),
+ q('Reverse start par current→10, prev=None. current.next=prev ke baad 10.next?', ['20','None','10','30'],'None','First forward arrow reverse hokar list ka old head new tail candidate banta hai.','Core','Reverse step'),
+ q('Reverse mein nxt save kiye bina current.next=prev kar diya. Kya lose?', ['Previous part','Original successor/remainder','Head data','Node object current'],'Original successor/remainder','Current ka original next hi remaining unreversed chain tak ekmatra rasta tha.','Practice','Pointer-order trap')
+].forEach((question,index)=>gate.questions.push({id:`m4-gate-patterns-${gate.questions.length+1}`,number:gate.questions.length+1,...question}))
 
 export const module4Topics=[intro,comparison,types,sllSetup,sllInsertBeginning,sllInsertEnd,sllInsertMiddle,sllSearch,sllDeleteBeginning,sllDeleteEnd,sllDeleteMiddle,sllComplexity,csll,dll,cdll,coding,gate]
 export const module4QuestionCount=module4Topics.reduce((sum,t)=>sum+t.questions.length,0)
