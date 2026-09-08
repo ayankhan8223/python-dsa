@@ -160,7 +160,7 @@ document.querySelector('#app').innerHTML = `
 <div class="layout" id="top">
   <aside class="sidebar">
     <p class="overline">Module 01</p><h2>Introduction to DSA<br>& Python Basics</h2>
-    <div class="module-switch"><a class="active" href="./index.html">M01</a><a href="./module2.html">M02</a><a href="./module3.html">M03</a><a href="./module4.html">M04</a><a href="./module5.html">M05</a></div>
+    <div class="module-switch"><a class="active" href="./index.html">M01</a><a href="./module2.html">M02</a><a href="./module3.html">M03</a><a href="./module4.html">M04</a><a href="./module5.html">M05</a><a href="./module6.html">M06</a></div>
     <div class="completion"><span><b>Mastery</b><i id="count">0/12</i></span><div><i id="bar"></i></div></div>
     <nav id="toc"></nav>
     <p class="source"><b>Sources</b>CampusX full PDF + Module 1 notebook + GATE DA 2024–2026 papers</p>
@@ -516,6 +516,7 @@ document.querySelectorAll('[data-practice-topic]').forEach(button => button.oncl
 document.querySelector('#themeButton').onclick=()=>{ document.documentElement.classList.toggle('dark'); localStorage.setItem('da-theme',document.documentElement.classList.contains('dark')?'dark':'light') }
 // Dark is the default for first-time visitors; an explicit light choice is remembered.
 if(localStorage.getItem('da-theme')!=='light') document.documentElement.classList.add('dark')
+if(!document.querySelector('.module-switch a[href="./module7.html"]')) document.querySelector('.module-switch').insertAdjacentHTML('beforeend','<a href="./module7.html">M07</a>')
 document.querySelector('#searchButton').onclick=()=>{document.querySelector('.searchbox').classList.toggle('open');document.querySelector('#search').focus()}
 function clearSearch(){document.querySelector('#search').value='';document.querySelectorAll('.searchable,.pyq-card').forEach(x=>x.classList.remove('hidden'));document.querySelector('#searchResult').textContent='Search current view'}
 document.querySelector('#search').oninput=e=>{const term=e.target.value.toLowerCase().trim(),items=[...document.querySelector('.view.active').querySelectorAll('.searchable,.pyq-card')];let n=0;items.forEach(x=>{const hit=!term||x.textContent.toLowerCase().includes(term);x.classList.toggle('hidden',!hit);if(hit)n++});document.querySelector('#searchResult').textContent=term?`${n} matching blocks`:'Search current view'}
