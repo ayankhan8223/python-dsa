@@ -11,7 +11,8 @@ export default defineConfig({
         module4: resolve(import.meta.dirname, 'module4.html'),
         module5: resolve(import.meta.dirname, 'module5.html'),
         module6: resolve(import.meta.dirname, 'module6.html'),
-        module7: resolve(import.meta.dirname, 'module7.html')
+        module7: resolve(import.meta.dirname, 'module7.html'),
+        module8: resolve(import.meta.dirname, 'module8.html')
       }
     }
   }

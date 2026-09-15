@@ -517,6 +517,7 @@ document.querySelector('#themeButton').onclick=()=>{ document.documentElement.cl
 // Dark is the default for first-time visitors; an explicit light choice is remembered.
 if(localStorage.getItem('da-theme')!=='light') document.documentElement.classList.add('dark')
 if(!document.querySelector('.module-switch a[href="./module7.html"]')) document.querySelector('.module-switch').insertAdjacentHTML('beforeend','<a href="./module7.html">M07</a>')
+if(!document.querySelector('.module-switch a[href="./module8.html"]')) document.querySelector('.module-switch').insertAdjacentHTML('beforeend','<a href="./module8.html">M08</a>')
 document.querySelector('#searchButton').onclick=()=>{document.querySelector('.searchbox').classList.toggle('open');document.querySelector('#search').focus()}
 function clearSearch(){document.querySelector('#search').value='';document.querySelectorAll('.searchable,.pyq-card').forEach(x=>x.classList.remove('hidden'));document.querySelector('#searchResult').textContent='Search current view'}
 document.querySelector('#search').oninput=e=>{const term=e.target.value.toLowerCase().trim(),items=[...document.querySelector('.view.active').querySelectorAll('.searchable,.pyq-card')];let n=0;items.forEach(x=>{const hit=!term||x.textContent.toLowerCase().includes(term);x.classList.toggle('hidden',!hit);if(hit)n++});document.querySelector('#searchResult').textContent=term?`${n} matching blocks`:'Search current view'}

@@ -25,7 +25,7 @@ document.querySelector('#app').innerHTML = `
 <div class="read-progress"><span></span></div>
 <header class="topbar"><a class="brand" href="#top"><b>DA</b><span><strong>Python + DSA</strong><small>GATE 2027 Notebook</small></span></a><nav><button class="tab active" data-view="notes">Detailed Notes</button><button class="tab" data-view="pyq">PYQ Evidence <i>3</i></button><button class="tab" data-view="practice">Practice <i>${module7QuestionCount}</i></button><button class="tab" data-view="revision">Revision</button></nav><div class="actions"><button id="searchButton" aria-label="Search">⌕</button><button id="themeButton" aria-label="Theme">◐</button></div></header>
 <div class="searchbox"><input id="search" type="search" placeholder="Search: low, high, mid, sorted, exponential…"><span>Search current view</span></div>
-<div class="layout" id="top"><aside class="sidebar"><p class="overline">Module 07</p><h2>Searching</h2><div class="module-switch"><a href="./index.html">M01</a><a href="./module2.html">M02</a><a href="./module3.html">M03</a><a href="./module4.html">M04</a><a href="./module5.html">M05</a><a href="./module6.html">M06</a><a class="active" href="./module7.html">M07</a></div><div class="completion"><span><b>Lecture progress</b><i id="count">0/${lectures.length}</i></span><div><i id="bar"></i></div></div><nav id="toc"></nav><p class="source"><b>Sources</b>CampusX Searching lecture flow · supplied GATE DA syllabus · supplied 2024–2026 DA papers</p></aside><main>
+<div class="layout" id="top"><aside class="sidebar"><p class="overline">Module 07</p><h2>Searching</h2><div class="module-switch"><a href="./index.html">M01</a><a href="./module2.html">M02</a><a href="./module3.html">M03</a><a href="./module4.html">M04</a><a href="./module5.html">M05</a><a href="./module6.html">M06</a><a class="active" href="./module7.html">M07</a><a href="./module8.html">M08</a></div><div class="completion"><span><b>Lecture progress</b><i id="count">0/${lectures.length}</i></span><div><i id="bar"></i></div></div><nav id="toc"></nav><p class="source"><b>Sources</b>CampusX Searching lecture flow · supplied GATE DA syllabus · supplied 2024–2026 DA papers</p></aside><main>
 <div class="view active" data-panel="notes">
 <section class="hero searchable" data-title="Overview"><p class="eyebrow"><i></i> Module 07 · eliminate candidates correctly</p><h1>Search mein main question hai: <em>kaunse candidates safely discard</em> kar sakte ho?</h1><p>Unsorted data: linear scan. Sorted array: binary search. Unknown sorted range: exponential search pehle range locate karti hai, phir binary search chalati hai.</p><div class="metrics"><span><b>${lectures.length}</b>lecture sessions</span><span><b>${module7QuestionCount}</b>lecture-wise drills</span><span><b>3</b>direct PYQs</span></div><div class="syllabus"><b>GATE DA syllabus map</b>Search algorithms · linear search · binary search · Python lists · complexity analysis</div></section>
 <section class="lecture-track searchable" id="lecture-track" data-title="Module 7 lecture tracker"><div class="track-head"><div><p class="eyebrow"><i></i> Exact lecture sequence</p><h2>Module 7 · Lecture Tracker</h2><p>Binary/exponential trace mein har round ke baad low, high aur mid likho. Pehle verify karo: data sorted hai ya nahi.</p></div><strong id="lecturePercent">0%</strong></div><div class="lecture-list">${tracker}</div></section>
@@ -141,3 +141,109 @@ document.querySelector('[data-jump="practice"]').onclick = () => setView('practi
 document.querySelector('#print').onclick = () => window.print()
 const read = document.querySelector('.read-progress span')
 window.addEventListener('scroll', () => { const h = document.documentElement.scrollHeight - window.innerHeight; read.style.width = `${h ? window.scrollY / h * 100 : 0}%` })
+
+function visualizerMarkup(type) {
+  const title = type === 'binary' ? 'Binary Search · step visualizer' : 'Exponential Search · step visualizer'
+  const description = type === 'binary'
+    ? 'Sorted values aur key do. Start se har click exact comparison, discarded half aur updated low/high/mid dikhayega.'
+    : 'Pehle 1, 2, 4, 8… range checks dekho. Range milne ke baad exactly wahi bounded binary-search steps dikhengi.'
+  return `<div class="search-lab" data-search-lab="${type}"><div class="search-lab-head"><span>TRY IT YOURSELF</span><h3>${title}</h3><p>${description}</p></div><div class="search-lab-controls"><label>Sorted values (comma separated)<input data-values value="${type === 'binary' ? '10,20,30,40,50,60,70' : '3,6,9,12,15,18,21,24,27'}"></label><label>Key<input data-key value="${type === 'binary' ? '60' : '23'}"></label><button data-start>Start dry run</button><button data-next disabled>Next step →</button></div><p class="search-lab-warning" data-warning></p><div class="search-lab-state" data-state><p>Values aur key set karke <strong>Start dry run</strong> dabao.</p></div></div>`
+}
+
+document.querySelector('#binary').insertAdjacentHTML('beforeend', visualizerMarkup('binary'))
+document.querySelector('#exponential-code').insertAdjacentHTML('beforeend', visualizerMarkup('exponential'))
+
+function mountSearchLab(lab) {
+  const type = lab.dataset.searchLab
+  const valuesInput = lab.querySelector('[data-values]')
+  const keyInput = lab.querySelector('[data-key]')
+  const startButton = lab.querySelector('[data-start]')
+  const nextButton = lab.querySelector('[data-next]')
+  const warning = lab.querySelector('[data-warning]')
+  const output = lab.querySelector('[data-state]')
+  let arr = []
+  let key = 0
+  let state = null
+
+  const parse = () => valuesInput.value.split(',').map(value => Number(value.trim())).filter(value => !Number.isNaN(value))
+  const isSorted = values => values.every((value, index) => index === 0 || values[index - 1] <= value)
+  const visual = (low, high, mid) => `<div class="lab-array">${arr.map((value, index) => `<span class="${index < low || index > high ? 'discarded' : ''} ${index === mid ? 'lab-mid' : ''}"><i>${index}</i><b>${value}</b></span>`).join('')}</div>`
+  const write = (message, detail) => {
+    const { low, high, mid, phase, done } = state
+    output.innerHTML = `<div class="lab-status"><span>${phase === 'range' ? 'RANGE FINDING' : done ? 'FINISHED' : 'BINARY SEARCH'}</span><b>low=${low ?? '—'} · high=${high ?? '—'} · mid=${mid ?? '—'}</b></div>${visual(low ?? 0, high ?? arr.length - 1, mid)}<h4>${message}</h4><p>${detail}</p>`
+    nextButton.disabled = Boolean(done)
+  }
+
+  const binaryStep = () => {
+    if (state.low > state.high) {
+      state.done = true
+      state.mid = null
+      write('Key not found → return -1', 'low high se bada ho gaya. Candidate interval empty hai; sorted array mein ab koi unchecked possible position nahi bachi.')
+      return
+    }
+    state.mid = state.low + Math.floor((state.high - state.low) / 2)
+    const value = arr[state.mid]
+    if (value === key) {
+      state.done = true
+      write(`Match: arr[${state.mid}] = ${key} → return ${state.mid}`, `mid currently index ${state.mid} ko point kar raha tha. Value key ke equal hai, so search complete. Koi aur half check nahi hota.`)
+    } else if (value < key) {
+      const oldLow = state.low
+      state.low = state.mid + 1
+      write(`arr[${state.mid}] = ${value} is smaller than key ${key}`, `Sorted ascending array mein indices ${oldLow} through ${state.mid} ki values bhi ${key} se chhoti hain. Isliye unhe discard karke low = mid + 1 = ${state.low}.`)
+    } else {
+      const oldHigh = state.high
+      state.high = state.mid - 1
+      write(`arr[${state.mid}] = ${value} is greater than key ${key}`, `Sorted ascending array mein indices ${state.mid} through ${oldHigh} ki values bhi ${key} se badi hain. Isliye unhe discard karke high = mid - 1 = ${state.high}.`)
+    }
+  }
+
+  const exponentialStep = () => {
+    if (state.phase === 'range') {
+      if (state.i < arr.length && arr[state.i] < key) {
+        const previous = state.i
+        state.i *= 2
+        state.low = previous
+        state.high = Math.min(state.i, arr.length - 1)
+        state.mid = null
+        write(`Range check: arr[${previous}] = ${arr[previous]} < ${key}; double boundary`, `Target ${key} index ${previous} par nahi aur uske left mein bhi nahi ho sakta. Next boundary i = ${previous} × 2 = ${state.i}. Ab next check arr[${state.high}] par hoga.`)
+        return
+      }
+      state.phase = 'binary'
+      state.low = Math.floor(state.i / 2)
+      state.high = Math.min(state.i, arr.length - 1)
+      state.mid = null
+      write(`Bracket ready: search only indices ${state.low}…${state.high}`, `Doubling stop hui because ${state.i >= arr.length ? 'array end aa gaya' : 'arr[' + state.i + '] = ' + arr[state.i] + ' is not smaller than key'}. Ab full array nahi, sirf yeh bounded interval binary search karega.`)
+      return
+    }
+    binaryStep()
+  }
+
+  startButton.onclick = () => {
+    arr = parse()
+    key = Number(keyInput.value)
+    warning.textContent = ''
+    if (!arr.length || Number.isNaN(key)) {
+      warning.textContent = 'Comma-separated numeric values aur numeric key dono do.'
+      nextButton.disabled = true
+      return
+    }
+    if (!isSorted(arr)) {
+      warning.textContent = 'Input sorted ascending nahi hai. Binary aur exponential search ke liye values sort karna zaroori hai.'
+      nextButton.disabled = true
+      return
+    }
+    if (type === 'binary') {
+      state = { phase: 'binary', low: 0, high: arr.length - 1, mid: null, done: false }
+      write('Start state ready', `Candidate interval poora array hai: indices 0…${arr.length - 1}. Next step par mid calculate hoga.`)
+    } else if (arr[0] === key) {
+      state = { phase: 'range', low: 0, high: 0, mid: 0, done: true }
+      write('First element match → return 0', 'Exponential search ka special guard arr[0] pehle check karta hai. Doubling aur binary phase ki zarurat nahi.')
+    } else {
+      state = { phase: 'range', i: 1, low: 0, high: Math.min(1, arr.length - 1), mid: null, done: false }
+      write('Start exponential range finding', 'Index 0 checked (not match). First doubling boundary i=1 hai. Next step arr[1] compare karega.')
+    }
+    nextButton.disabled = state.done
+  }
+  nextButton.onclick = () => type === 'binary' ? binaryStep() : exponentialStep()
+}
+document.querySelectorAll('[data-search-lab]').forEach(mountSearchLab)

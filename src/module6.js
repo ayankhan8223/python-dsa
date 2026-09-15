@@ -246,3 +246,4 @@ document.querySelector('#menu').onclick = () => sidebar.classList.toggle('open')
 toc.onclick = () => sidebar.classList.remove('open')
 window.onscroll = () => { const max = document.documentElement.scrollHeight - innerHeight; document.querySelector('.read-progress span').style.width = `${max ? 100 * scrollY / max : 0}%` }
 document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module7.html">M07</a>')
+document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module8.html">M08</a>')
