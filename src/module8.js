@@ -1,5 +1,6 @@
 import './style.css'
 import { module8Topics, module8QuestionCount } from './practice8.js'
+import { quickSortLabMarkup, mountQuickSortLab, quickSortUserCode } from './quickSortLab.js'
 
 const lectures = [
   ['8.1', 'Introduction', 'Order, stable aur in-place language'],
@@ -12,9 +13,9 @@ const lectures = [
   ['8.5.1', 'Merge Sort (theory)', 'Divide, conquer, merge'],
   ['8.5.2', 'Merge Sort (code)', 'Two sorted halves merge'],
   ['8.6.1', 'Quick Sort (theory)', 'Pivot aur partition'],
-  ['8.6.2', 'Quick Sort (code)', 'Lomuto last-pivot partition'],
+  ['8.6.2', 'Quick Sort (code)', 'First pivot with p/q partition'],
   ['8.7.1', 'Counting Sort (theory)', 'Value range frequency'],
-  ['8.7.2', 'Counting Sort (code)', 'Count, prefix count, output'],
+  ['8.7.2', 'Counting Sort (code)', 'Count frequencies, then extend output'],
   ['8.8', 'Complexity Analysis', 'Time, space, stable, in-place'],
   ['8.9', 'DS Context', 'Input ke hisaab se sort choose']
 ]
@@ -92,11 +93,11 @@ document.querySelector('#app').innerHTML = `
 
 <section class="chapter searchable" id="quick-theory" data-title="8.6.1 · Quick Sort theory">${chapter('8.6.1', 'QUICK SORT · THEORY', 'Pivot ke around partition, then recursive subproblems', 'Partition complete hone ke baad pivot final sorted position par hota hai. Left/right regions internally sorted abhi nahi hote.')}<div class="zero-title"><span>PARTITION INVARIANT</span><h2>Pivot p ke baad: left values ≤ pivot ≤ right values.</h2><p>Yeh only pivot placement guarantee hai. Left aur right regions ko recursively quicksort karna still baaki hai.</p></div>${state(['9','3','7','1','8','2','5'], 'pivot = 5; partition', ['3','1','2','5','8','7','9'], { key:6 }, { fixed:[3] })}<div class="two-grid"><article><h3>Average case</h3><p>Balanced-ish partitions → O(n log n). Many practical implementations random/median-like pivot strategy use karti hain to avoid predictable bad inputs.</p></article><article><h3>Worst case</h3><p>Every pivot extreme ho: subproblems n−1 and 0 → O(n²). Sorted input + first/last deterministic pivot common trap hai.</p></article></div><div class="danger"><b>GATE trap</b><p>“Expected” quicksort recurrence random pivot rank ki average leti hai. <code>2T(n/2)+O(n)</code> only perfectly balanced special case hai, expected recurrence itself nahi.</p></div></section>
 
-<section class="chapter searchable" id="quick-code" data-title="8.6.2 · Quick Sort code">${chapter('8.6.2', 'QUICK SORT · CODE', 'Last-element pivot: Lomuto partition trace', 'i marks last ≤ pivot position. j scans every current element before pivot.')} ${codebox('Python · Lomuto last-pivot quicksort', `def partition(arr, low, high):\n    pivot = arr[high]\n    i = low - 1\n    for j in range(low, high):\n        if arr[j] <= pivot:\n            i += 1\n            arr[i], arr[j] = arr[j], arr[i]\n    arr[i + 1], arr[high] = arr[high], arr[i + 1]\n    return i + 1\n\ndef quick_sort(arr, low, high):\n    if low < high:\n        p = partition(arr, low, high)\n        quick_sort(arr, low, p - 1)\n        quick_sort(arr, p + 1, high)`)}<div class="table-wrap"><table><thead><tr><th>For [9,3,7,1,8,2,5]</th><th>i</th><th>j value</th><th>Array fact</th></tr></thead><tbody><tr><td>Start, pivot=5</td><td>-1</td><td>—</td><td>no ≤ pivot region yet</td></tr><tr><td>j=1, value 3</td><td>0</td><td>3 ≤ 5</td><td>3 enters left region</td></tr><tr><td>j=3, value 1</td><td>1</td><td>1 ≤ 5</td><td>3,1 left region</td></tr><tr><td>j=5, value 2</td><td>2</td><td>2 ≤ 5</td><td>3,1,2 left region</td></tr><tr><td>final pivot swap</td><td>—</td><td>5</td><td>pivot ends index 3</td></tr></tbody></table></div></section>
+<section class="chapter searchable" id="quick-code" data-title="8.6.2 · Quick Sort code">${chapter('8.6.2', 'QUICK SORT · CODE', 'Tumhara Quick Sort code: first pivot, p aur q', 'pivot=arr[low]. p first > pivot aur q first ≤ pivot find karta hai.')} ${codebox('Python · your first-pivot quicksort', quickSortUserCode.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;'))}<div class="table-wrap"></div></section>
 
 <section class="chapter searchable" id="counting-theory" data-title="8.7.1 · Counting Sort theory">${chapter('8.7.1', 'COUNTING SORT · THEORY', 'Values compare nahi; frequency count hoti hai', 'Integer keys ka compact known range ho toh count array each value ka occurrence track karta hai.')}<div class="zero-title"><span>QUESTION</span><h2><code>[2,0,2,1,1,0]</code> ko count array se sort karo.</h2><p>Value range 0…2, so count=[2,2,2]. Output: 0,0,1,1,2,2.</p></div><div class="counting-visual"><div><span>VALUE</span><b>0</b><b>1</b><b>2</b></div><div><span>COUNT</span><b>2</b><b>2</b><b>2</b></div><div><span>OUTPUT</span><b>0,0</b><b>1,1</b><b>2,2</b></div></div><div class="two-grid"><article><h3>When it wins</h3><p>n large aur k (range size) reasonably small. Complexity O(n+k), comparison sorting lower bound is case par apply nahi hota.</p></article><article><h3>When it loses</h3><p>n=10 but range 0…10⁹ means count array absurdly large. Sparse large keys ke liye bad choice.</p></article></div></section>
 
-<section class="chapter searchable" id="counting-code" data-title="8.7.2 · Counting Sort code">${chapter('8.7.2', 'COUNTING SORT · CODE', 'Count → cumulative positions → stable output', 'Stable version output array mein right-to-left placement karti hai.')} ${codebox('Python · stable counting sort for non-negative integers', `def counting_sort(arr):\n    if not arr:\n        return []\n    k = max(arr)\n    count = [0] * (k + 1)\n    for value in arr:\n        count[value] += 1\n    for value in range(1, k + 1):\n        count[value] += count[value - 1]\n    output = [0] * len(arr)\n    for value in reversed(arr):\n        count[value] -= 1\n        output[count[value]] = value\n    return output`)}<div class="steps"><article><b>1</b><h3>Frequency</h3><p><code>count[value]</code> tells how many copies exist.</p></article><article><b>2</b><h3>Cumulative</h3><p><code>count[v]</code> becomes number of values ≤ v: placement boundary.</p></article><article><b>3</b><h3>Right to left</h3><p>Last equal input item gets last available output slot, so earlier equal item stays before it.</p></article></div><div class="danger"><b>Negative-key edge case</b><p>This basic code assumes non-negative values. Negative data ke liye <code>min_value</code> offset use karo: bucket = value - min_value.</p></div></section>
+<section class="chapter searchable" id="counting-code" data-title="8.7.2 · Counting Sort code">${chapter('8.7.2', 'COUNTING SORT · CODE', 'Tumhara code: count frequencies, phir result banao', 'Har index ek value hai; us index par stored number batata hai ki value kitni baar aayi.')} ${codebox('Python · your counting sort code', `def counting_sort(arr):\n    max_item=max(arr)\n    count_arr=[0] * (max_item +1)\n    for i in arr:\n        count_arr[i]= count_arr[i]+1\n\n    result=[]\n\n    for i in range(len(count_arr)):\n        result.extend([i] * count_arr[i])\n\n    return result\n\narr = [4, 2, 2, 1, 3, 4, 1]\n\nprint(counting_sort(arr))`)}<div class="steps"><article><b>1</b><h3>Count array</h3><p><code>max_item=4</code>, so indices 0…4 ke liye <code>[0,0,0,0,0]</code> banao.</p></article><article><b>2</b><h3>Frequency</h3><p>Input scan ke baad <code>count_arr=[0,2,2,1,2]</code>. Index 1 par 2 ka matlab value 1 do baar aayi.</p></article><article><b>3</b><h3>Result rebuild</h3><p><code>i</code> 0…4 values leta hai. <code>extend([i] * count_arr[i])</code> se output <code>[1,1,2,2,3,4,4]</code> banta hai.</p></article></div><div class="callout"><b>Why range, not direct count_arr loop?</b><p><code>for i in count_arr</code> frequencies (0,2,2,1,2) deta. Hume value/index (0,1,2,3,4) chahiye, isliye <code>range(len(count_arr))</code>.</p></div><div class="danger"><b>Is exact code ki boundaries</b><p><code>arr=[]</code> par <code>max(arr)</code> error dega. Negative values direct index se sahi handle nahi hoti. Yeh plain integer values rebuild karta hai; equal-key records ka original order preserve karna ho toh cumulative-count stable variant chahiye. Time O(n+k), auxiliary space O(n+k).</p></div></section>
 
 <section class="chapter searchable" id="complexity" data-title="8.8 · Complexity Analysis">${chapter('8.8', 'COMPLEXITY ANALYSIS', 'Algorithm name se nahi, exact guarantee se compare karo', 'Time, auxiliary space, stability aur input-sensitivity ek table mein see karo.')}<div class="table-wrap"><table><thead><tr><th>Algorithm</th><th>Best</th><th>Average</th><th>Worst</th><th>Auxiliary</th><th>Stable?</th><th>In-place?</th></tr></thead><tbody><tr><td>Bubble (optimised)</td><td>O(n)</td><td>O(n²)</td><td>O(n²)</td><td>O(1)</td><td>Yes</td><td>Yes</td></tr><tr><td>Selection</td><td>O(n²)</td><td>O(n²)</td><td>O(n²)</td><td>O(1)</td><td>No*</td><td>Yes</td></tr><tr><td>Insertion</td><td>O(n)</td><td>O(n²)</td><td>O(n²)</td><td>O(1)</td><td>Yes</td><td>Yes</td></tr><tr><td>Merge</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n)</td><td>Yes</td><td>No (standard array)</td></tr><tr><td>Quick</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n²)</td><td>O(log n) avg stack</td><td>No*</td><td>Yes</td></tr><tr><td>Counting</td><td>O(n+k)</td><td>O(n+k)</td><td>O(n+k)</td><td>O(n+k)</td><td>Yes†</td><td>No (standard)</td></tr></tbody></table></div><p class="table-note">*Standard implementation. †With cumulative counts, output array and right-to-left placement.</p><div class="callout"><b>Space language</b><p>Input array storage aur auxiliary space separate rakho. For merge, source array n is input; temporary merge buffers O(n) auxiliary are additional.</p></div></section>
 
@@ -130,6 +131,27 @@ document.querySelector('#selection-code .chapter-head h2').textContent = 'Your S
 document.querySelector('#selection-code .chapter-head p').textContent = 'Exactly your code: pehle whole unsorted region scan karke minimum locate karo; phir pass end par arr[i] ke saath one swap.'
 document.querySelector('#selection-code .codebox code').textContent = lectureSelectionCode
 
+const mergeCallTree = `<div class="merge-call-tree"><div class="merge-tree-head"><span>CODE FLOW · RECURSION CALL TREE</span><p>Har recursive call complete return karta hai, tab parent call next statement par aati hai.</p></div><div class="merge-tree-code" role="img" aria-label="Merge sort recursion tree for 8, 3, 5, 4"><span class="merge-root">merge_sort([8,3,5,4])</span><span>│</span><span>├── sorted_left = merge_sort([8,3])</span><span>│   │</span><span>│   ├── merge_sort([8]) → [8] <em>base case</em></span><span>│   ├── merge_sort([3]) → [3] <em>base case</em></span><span>│   └── merge([8], [3]) → <strong>[3,8]</strong></span><span>│</span><span>├── sorted_left = [3,8] <b>✓ returned</b></span><span>│</span><span class="merge-focus">├── sorted_right = merge_sort([5,4]) <small>← RIGHT BRANCH: ab yahan execution hai</small></span><span class="merge-focus">│   │</span><span class="merge-focus">│   ├── merge_sort([5]) → [5] <em>base case</em></span><span class="merge-focus">│   ├── merge_sort([4]) → [4] <em>base case</em></span><span class="merge-focus">│   └── merge([5], [4]) → <strong>[4,5]</strong></span><span>│</span><span>├── sorted_right = [4,5] <b>✓ returned</b></span><span>│</span><span>└── merge([3,8], [4,5])</span><span class="merge-result">          ↓&nbsp;&nbsp; [3,4,5,8]</span></div><div class="merge-tree-note"><b>Important:</b> <code>merge([3,8], [4,5])</code> tabhi call hota hai jab left aur right dono fully sorted return ho chuke hote hain.</div></div>`
+const lectureMergeCode = `def merge(left, right):\n    result = []\n    i = 0\n    j = 0\n\n    # Compare elements from both sorted lists\n    while i < len(left) and j < len(right):\n        if left[i] <= right[j]:\n            result.append(left[i])\n            i += 1\n        else:\n            result.append(right[j])\n            j += 1\n\n    # If some elements are still left in left list\n    while i < len(left):\n        result.append(left[i])\n        i += 1\n\n    # If some elements are still left in right list\n    while j < len(right):\n        result.append(right[j])\n        j += 1\n\n    return result\n\ndef merge_sort(arr):\n    # Base case: a single element is already sorted\n    if len(arr) <= 1:\n        return arr\n\n    mid = len(arr) // 2\n    left = arr[:mid]\n    right = arr[mid:]\n\n    sorted_left = merge_sort(left)\n    sorted_right = merge_sort(right)\n\n    return merge(sorted_left, sorted_right)\n\n# Main\narr = [8, 3, 5, 4]\nsorted_arr = merge_sort(arr)\nprint("Original:", arr)\nprint("Sorted:", sorted_arr)`
+const mergeCodeSection = document.querySelector('#merge-code')
+mergeCodeSection.querySelector('.chapter-head h2').textContent = 'Your Merge Sort code: separate merge helper'
+mergeCodeSection.querySelector('.chapter-head p').textContent = 'Exactly tumhara flow: recursively left complete karo, recursively right complete karo, then only two sorted outputs ko merge karo.'
+mergeCodeSection.querySelector('.codebox code').textContent = lectureMergeCode
+mergeCodeSection.querySelector('.codebox').insertAdjacentHTML('afterend', mergeCallTree)
+mergeCodeSection.querySelector('.table-wrap').innerHTML = `<table><thead><tr><th>merge([3,8], [4,5])</th><th>Comparison</th><th>result</th><th>Pointer change</th></tr></thead><tbody><tr><td>Start</td><td>i=0, j=0</td><td>[]</td><td>left[0]=3, right[0]=4</td></tr><tr><td>Round 1</td><td>3 ≤ 4 → append 3</td><td>[3]</td><td>i=1</td></tr><tr><td>Round 2</td><td>8 ≤ 4 false → append 4</td><td>[3,4]</td><td>j=1</td></tr><tr><td>Round 3</td><td>8 ≤ 5 false → append 5</td><td>[3,4,5]</td><td>j=2; right exhausted</td></tr><tr><td>Leftover loop</td><td>append left[1]=8</td><td>[3,4,5,8]</td><td>i=2; done</td></tr></tbody></table>`
+mergeCodeSection.insertAdjacentHTML('beforeend', `<div class="callout"><b>GATE trace rule</b><p><code>merge()</code> sirf <em>sorted</em> left aur right lists receive karta hai. Merge ke andar unsorted original array ko compare mat karo; recursion already halves ko sort karke return kar chuki hoti hai.</p></div>`)
+
+const quickTheory = document.querySelector('#quick-theory')
+quickTheory.querySelector('.zero-title h2').textContent = 'Partition ke baad pivot apni final position par hota hai.'
+quickTheory.querySelector('.sort-state-flow').outerHTML = state(['40','55','20','30','80','25','90','50'], 'first pivot 40 · p/q partition', ['30','25','20','40','80','55','90','50'], { key: 0 }, { fixed: [3] })
+quickTheory.querySelector('.sort-state-flow').insertAdjacentHTML('afterend', quickSortLabMarkup)
+const quickCodeSection = document.querySelector('#quick-code')
+quickCodeSection.querySelector('.chapter-head h2').textContent = 'Tumhara Quick Sort code: first pivot, p aur q'
+quickCodeSection.querySelector('.chapter-head p').textContent = 'pivot=arr[low]. p right se first > pivot, q left se first ≤ pivot dhundta hai. Swap ke baad inner scans hi pointers ko aage badhate hain.'
+quickCodeSection.querySelector('.codebox > div span').textContent = 'Python · your first-pivot quicksort'
+quickCodeSection.querySelector('.codebox code').textContent = quickSortUserCode
+quickCodeSection.querySelector('.table-wrap').innerHTML = `<table><thead><tr><th>Step</th><th>p</th><th>q</th><th>Array / decision</th></tr></thead><tbody><tr><td>Start; pivot=40</td><td>1 → 55</td><td>7 → 50</td><td>[40,55,20,30,80,25,90,50]</td></tr><tr><td>First scans stop</td><td>1 → 55 &gt; 40</td><td>5 → 25 ≤ 40</td><td>q skips 50 and 90; p &lt; q, so swap 55 and 25</td></tr><tr><td>After swap</td><td>1 → 25</td><td>5 → 55</td><td>[40,25,20,30,80,55,90,50]. No explicit p++ or q--</td></tr><tr><td>Next scans stop</td><td>4 → 80 &gt; 40</td><td>3 → 30 ≤ 40</td><td>p=4, q=3: pointers crossed</td></tr><tr><td>Pivot placement</td><td>—</td><td>3</td><td>Swap 40 and 30 → [30,25,20,40,80,55,90,50]</td></tr></tbody></table>`
+
 const tabs = [...document.querySelectorAll('.tab')]
 const panels = [...document.querySelectorAll('.view')]
 const practiceTopic = document.querySelector('#practiceTopic')
@@ -143,10 +165,41 @@ function renderPractice() {
   const questions = topic.questions.filter(item => practiceDifficulty.value === 'all' || item.difficulty === practiceDifficulty.value)
   const saved = JSON.parse(localStorage.getItem('da-m8-practice') || '{}')
   const key = item => `${topic.id}-${item.id}`
-  document.querySelector('#practiceScore').textContent = `${questions.filter(item => saved[key(item)]).length}/${questions.length}`
-  document.querySelector('#practiceContext').innerHTML = `<div><span>LECTURE TOPIC</span><h2>${topic.label}</h2><p>Array trace pehle khud karo. Explanation only after selecting an answer.</p></div><strong>${questions.length} shown</strong>`
-  document.querySelector('#questionList').innerHTML = questions.map((item, i) => `<article class="question-card"><div><span>${String(i + 1).padStart(2, '0')}</span><small>${item.difficulty}${item.pattern ? ' · ' + item.pattern : ''}</small></div><h3>${item.prompt}</h3><div class="options">${item.options.map(option => `<button data-answer="${option}" data-correct="${item.answer}">${option}</button>`).join('')}</div><p class="explanation" hidden><b>Why:</b> ${item.explanation}</p></article>`).join('')
-  document.querySelectorAll('.options button').forEach(button => button.onclick = () => { const card = button.closest('.question-card'); const item = questions[[...document.querySelectorAll('.question-card')].indexOf(card)]; card.querySelectorAll('button').forEach(option => option.disabled = true); button.classList.add(button.dataset.answer === button.dataset.correct ? 'correct' : 'wrong'); if (button.dataset.answer !== button.dataset.correct) [...card.querySelectorAll('button')].find(option => option.dataset.answer === button.dataset.correct)?.classList.add('correct'); card.querySelector('.explanation').hidden = false; saved[key(item)] = true; localStorage.setItem('da-m8-practice', JSON.stringify(saved)); document.querySelector('#practiceScore').textContent = `${questions.filter(q => saved[key(q)]).length}/${questions.length}` })
+  const esc = value => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
+  const updateScore = () => {
+    const attempted = questions.filter(item => saved[key(item)]).length
+    const correct = questions.filter(item => saved[key(item)]?.correct).length
+    document.querySelector('#practiceScore').textContent = `${attempted}/${questions.length} · ${correct} correct`
+  }
+  updateScore()
+  document.querySelector('#practiceContext').innerHTML = `<div><span>LECTURE TOPIC</span><h2>${esc(topic.label)}</h2><p>Ek option choose karo. Phir turant sahi/galat aur chhoti explanation dikhegi.</p></div><strong>${questions.length} shown</strong>`
+  document.querySelector('#questionList').innerHTML = questions.map((item, i) => {
+    const choice = saved[key(item)]?.selection
+    const answered = typeof choice === 'string'
+    const isCorrect = choice === item.answer
+    return `<article class="question-card ${answered ? isCorrect ? 'answered-correct' : 'answered-wrong' : ''}" data-question-index="${i}"><div class="question-card-meta"><span>Q${String(i + 1).padStart(2, '0')}</span><small>${esc(item.difficulty)}${item.pattern ? ' · ' + esc(item.pattern) : ''}</small></div><h3>${esc(item.prompt)}</h3><div class="options" role="group" aria-label="Question ${i + 1} options">${item.options.map((option, optionIndex) => `<button type="button" data-option-index="${optionIndex}" class="${answered && option === item.answer ? 'correct' : ''} ${answered && option === choice && !isCorrect ? 'wrong' : ''}" ${answered ? 'disabled' : ''}><b>${String.fromCharCode(65 + optionIndex)}</b><span>${esc(option)}</span></button>`).join('')}</div><div class="question-feedback ${answered ? isCorrect ? 'is-correct' : 'is-wrong' : ''}" role="status" ${answered ? '' : 'hidden'}><strong>${answered ? isCorrect ? '✓ Sahi jawab' : '✗ Galat jawab' : ''}</strong><p><b>Correct option:</b> ${esc(item.answer)}</p><p>${esc(item.explanation)}</p></div></article>`
+  }).join('')
+  document.querySelectorAll('.question-card .options button').forEach(button => button.onclick = () => {
+    const card = button.closest('.question-card')
+    const item = questions[Number(card.dataset.questionIndex)]
+    const selection = item.options[Number(button.dataset.optionIndex)]
+    if (saved[key(item)]?.selection) return
+    const correct = selection === item.answer
+    saved[key(item)] = { selection, correct }
+    localStorage.setItem('da-m8-practice', JSON.stringify(saved))
+    card.classList.add(correct ? 'answered-correct' : 'answered-wrong')
+    card.querySelectorAll('.options button').forEach(optionButton => {
+      const value = item.options[Number(optionButton.dataset.optionIndex)]
+      optionButton.disabled = true
+      optionButton.classList.toggle('correct', value === item.answer)
+      optionButton.classList.toggle('wrong', value === selection && !correct)
+    })
+    const feedback = card.querySelector('.question-feedback')
+    feedback.hidden = false
+    feedback.classList.add(correct ? 'is-correct' : 'is-wrong')
+    feedback.querySelector('strong').textContent = correct ? '✓ Sahi jawab' : '✗ Galat jawab'
+    updateScore()
+  })
 }
 practiceTopic.onchange = renderPractice; practiceDifficulty.onchange = renderPractice; renderPractice()
 
@@ -321,6 +374,7 @@ function mountSelectionLab() {
   reset()
 }
 mountSelectionLab()
+mountQuickSortLab()
 
 const toc = document.querySelector('#toc')
 toc.innerHTML = [...document.querySelectorAll('[data-panel="notes"] .searchable')].map((section, i) => `<a href="#${section.id || 'top'}"><span>${String(i + 1).padStart(2, '0')}</span>${section.dataset.title}</a>`).join('')

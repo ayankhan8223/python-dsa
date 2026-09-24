@@ -10,7 +10,7 @@ const intro = fifty([
   q('In-place sorting ka matlab?', ['Input array itself rearrange hota hai', 'New n-size array compulsory', 'Array never changes', 'Only linked list use hoti hai'], 'Input array itself rearrange hota hai', 'Auxiliary memory O(1) ya small hoti hai; original storage mein values rearrange hoti hain.', 'Core'),
   q('Stable sort equal keys ke baare mein kya preserve karta hai?', ['Their original relative order', 'Only their values', 'Their memory address', 'Nothing'], 'Their original relative order', 'Example: (5,A) before (5,B) tha, stable sort ke baad bhi A before B rahega.', 'Core'),
   q('Comparison sort lower-bound discussion kis model mein hoti hai?', ['Only comparisons decide order', 'Hash lookup', 'Graph traversal', 'File I/O'], 'Only comparisons decide order', 'Comparison-based algorithms pairwise ordering information se decide karte hain.', 'Practice'),
-  q('NAT: n distinct items ki sorted order check karne ke liye adjacent comparisons kitne?', ['NAT · integer'], 'n-1', 'Every adjacent pair a[i] <= a[i+1] verify hoti hai, so n-1 checks.', 'Practice')
+  q('n distinct items ki sorted order check karne ke liye adjacent comparisons kitne?', ['n-1', 'n', 'n(n-1)/2', '1'], 'n-1', 'Every adjacent pair a[i] <= a[i+1] verify hoti hai, so n-1 checks.', 'Practice')
 ])
 
 const bubbleTheory = fifty([
@@ -26,7 +26,7 @@ const bubbleCode = fifty([
   q('Bubble sort inner loop end har pass mein kyun reduce hota hai?', ['Largest suffix already fixed hai', 'Array smaller ho jata hai', 'Python requires it', 'To remove duplicates'], 'Largest suffix already fixed hai', 'Pass ke end par largest remaining element final position par hota hai.', 'Core'),
   q('Bubble code mein swapped flag false rahe to?', ['Break early', 'Reverse array', 'Double n', 'Raise error'], 'Break early', 'No adjacent inversion means array sorted hai.', 'Core'),
   q('Bubble comparison guard ascending code mein?', ['if arr[j] > arr[j+1]', 'if arr[j] < arr[j+1]', 'if j == 0', 'if arr is None'], 'if arr[j] > arr[j+1]', 'Wrong order only when left item right item se bada hai.', 'Foundation'),
-  q('NAT: [3,1,2] first bubble pass after j=0 and j=1?', ['NAT · array'], '[1,2,3]', '3 swaps with 1, then 3 swaps with 2.', 'Practice'),
+  q('[3,1,2] first bubble pass after j=0 and j=1?', ['[1,2,3]', '[1,3,2]', '[2,1,3]', '[3,2,1]'], '[1,2,3]', '3 swaps with 1, then 3 swaps with 2.', 'Practice'),
   q('Bubble sort auxiliary space iterative in-place?', ['O(1)', 'O(n)', 'O(log n)', 'O(n²)'], 'O(1)', 'Temporary swap variable fixed count ka hota hai.', 'Core'),
   q('Bubble sort equal values ko preserve karne wala operator?', ['>', '>=', '<=', '!='], '>', 'Equal pair swap nahi hoga.', 'Practice')
 ])
@@ -44,7 +44,7 @@ const selectionCode = fifty([
   q('Selection sort code mein min_index initially?', ['i', '0 always', 'n-1', 'None'], 'i', 'Current unsorted part starts at i, so initially it is current minimum candidate.', 'Core'),
   q('arr[j] < arr[min_index] mile to?', ['min_index = j', 'swap immediately always', 'break', 'j = 0'], 'min_index = j', 'Scan complete karke only one final swap karna selection sort ka structure hai.', 'Core'),
   q('Selection sort outer loop i range?', ['0 to n-2', '0 to n', '1 to n', 'n to 0'], '0 to n-2', 'Last remaining element automatically correct position par hota hai.', 'Foundation'),
-  q('NAT: [29,10,14,37,13] first selection pass result?', ['NAT · array'], '[10,29,14,37,13]', 'Minimum 10 index 1 par tha; it swaps with 29.', 'Practice'),
+  q('[29,10,14,37,13] first selection pass result?', ['[10,29,14,37,13]', '[10,14,29,37,13]', '[13,10,14,37,29]', '[29,10,14,13,37]'], '[10,29,14,37,13]', 'Minimum 10 index 1 par tha; it swaps with 29.', 'Practice'),
   q('Selection sort in-place?', ['Yes', 'No, always n array', 'Only recursion', 'Only linked list'], 'Yes', 'Minimum index aur temporary swap variable enough hote hain.', 'Core'),
   q('Selection code equal values par < use kare to first minimum?', ['First encountered minimum', 'Last encountered minimum', 'Random', 'No minimum'], 'First encountered minimum', 'Strict < equal value par min_index update nahi karta.', 'Practice')
 ])
@@ -62,7 +62,7 @@ const insertionCode = fifty([
   q('Insertion code mein key kya hold karta hai?', ['Current value before shifts', 'Array length', 'Minimum index', 'Pivot'], 'Current value before shifts', 'Shifts overwrite locations, so original current value key mein save hoti hai.', 'Core'),
   q('Insertion code j = i - 1 kyun?', ['Sorted prefix ka last index', 'First index always', 'Array end', 'No reason'], 'Sorted prefix ka last index', 'Current key ke left ka prefix already sorted hota hai.', 'Core'),
   q('while j >= 0 and arr[j] > key ke baad?', ['arr[j+1] = key', 'arr[j] = key', 'return j', 'delete key'], 'arr[j+1] = key', 'j last greater item ke just left par aata hai, so insertion slot j+1 hai.', 'Foundation'),
-  q('NAT: [5,2,4] i=1 iteration ke baad?', ['NAT · array'], '[2,5,4]', 'key=2; 5 right shift; then key index 0 par insert.', 'Practice'),
+  q('[5,2,4] insertion sort mein i=1 iteration ke baad?', ['[2,5,4]', '[5,2,4]', '[2,4,5]', '[5,4,2]'], '[2,5,4]', 'key=2; 5 right shift; then key index 0 par insert.', 'Practice'),
   q('Insertion sort auxiliary space?', ['O(1)', 'O(n)', 'O(log n)', 'O(n²)'], 'O(1)', 'key aur j fixed extra variables hain.', 'Core'),
   q('Insertion sort inversions ke relation mein shifts?', ['One shift per inversion', 'Always n shifts', 'No shifts', 'Only one total'], 'One shift per inversion', 'Each out-of-order earlier element key ke right shift hota hai.', 'Practice')
 ])
@@ -80,7 +80,7 @@ const mergeCode = fifty([
   q('Merge function mein i aur j kya track karte hain?', ['Left and right subarray current positions', 'Array length', 'Pivot values', 'Swap count'], 'Left and right subarray current positions', 'Dono sorted halves ka next unmerged candidate track hota hai.', 'Core'),
   q('left[i] <= right[j] par left choose karne se?', ['Stability preserve hoti hai', 'Array reverse hota hai', 'Time O(n²)', 'No result'], 'Stability preserve hoti hai', 'Equal values mein original left-half value first rehti hai.', 'Core'),
   q('Merge loop ke baad remaining left/right values?', ['Append all remaining values', 'Discard', 'Sort again', 'Set to zero'], 'Append all remaining values', 'Ek half exhaust ho jaye to doosra half already sorted hai.', 'Foundation'),
-  q('NAT: merge [1,4,7] and [2,3,8] result?', ['NAT · array'], '[1,2,3,4,7,8]', 'Front candidates compare sequence 1,2,3,4,7, then 8.', 'Practice'),
+  q('Do sorted halves [1,4,7] aur [2,3,8] merge karne par result?', ['[1,2,3,4,7,8]', '[1,4,7,2,3,8]', '[1,2,4,3,7,8]', '[2,3,8,1,4,7]'], '[1,2,3,4,7,8]', 'Front candidates compare sequence 1,2,3,4,7, then 8.', 'Practice'),
   q('Merge sort source code termination base case?', ['len(arr) <= 1', 'len(arr) == n', 'arr[0] == 0', 'Always recurse'], 'len(arr) <= 1', 'Zero/one element already sorted hai.', 'Core'),
   q('Merge sort no input mutation version can return?', ['New sorted list', 'Only boolean', 'Queue', 'Pivot'], 'New sorted list', 'Python slicing/merge approach new lists construct kar sakti hai.', 'Practice')
 ])
@@ -95,11 +95,13 @@ const quickTheory = fifty([
 ])
 
 const quickCode = fifty([
-  q('Lomuto partition last pivot version mein pivot?', ['arr[high]', 'arr[low]', 'arr[mid]', 'None'], 'arr[high]', 'Lecture condition says last element pivot.', 'Core'),
-  q('Partition index i initially?', ['low - 1', 'low', 'high', '0 always'], 'low - 1', 'i last position ko track karta hai where value <= pivot placed hai.', 'Core'),
-  q('arr[j] <= pivot ho to Lomuto partition?', ['i increment and swap arr[i], arr[j]', 'high decrement only', 'return', 'reverse'], 'i increment and swap arr[i], arr[j]', 'Small/equal value left partition mein grow hoti hai.', 'Core'),
-  q('Partition return kya hota hai?', ['Pivot final index', 'Array length', 'Swap count', 'Minimum'], 'Pivot final index', 'Pivot swap after i; resulting i+1 its final sorted position hai.', 'Foundation'),
-  q('GATE 2024 sorted [60,70,80,90,100], last-element-pivot quicksort minimum non-self swaps?', ['NAT · integer'], '0', 'Already sorted input mein every last pivot already correct position par hai; minimum useful swaps zero.', 'Practice', 'PYQ transfer'),
+  q('Tumhare partition(arr, low, high) code mein pivot kaun hai?', ['arr[low]', 'arr[high]', 'arr[mid]', 'None'], 'arr[low]', 'First element pivot select hota hai.', 'Core'),
+  q('First-pivot partition mein p aur q ki initial positions?', ['p=low+1, q=high', 'p=low, q=high-1', 'p=high, q=low', 'p=q=low'], 'p=low+1, q=high', 'p pivot ke next index se aur q last index se start karta hai.', 'Core'),
+  q('p kis value par rukta hai?', ['First value > pivot', 'First value <= pivot', 'Always at high', 'At the pivot'], 'First value > pivot', 'while arr[p] <= pivot p ko right le jaata hai; > milte hi stop.', 'Core'),
+  q('q kis value par rukta hai?', ['First value <= pivot from right', 'First value > pivot from right', 'At high always', 'At p always'], 'First value <= pivot from right', 'while arr[q] > pivot q ko left le jaata hai; <= milte hi stop.', 'Core'),
+  q('arr[p] aur arr[q] swap ke turant baad tumhare code mein kya hota hai?', ['Next inner scans same indices se resume hote hain', 'p++ and q-- immediately', 'Pivot swap immediately', 'Function returns'], 'Next inner scans same indices se resume hote hain', 'Code mein swap ke baad explicit p/q update nahi hai. Next scan swapped values ko dekhkar move karta hai.', 'Core'),
+  q('Partition return kya hota hai?', ['Pivot final index q', 'Array length', 'Swap count', 'Minimum'], 'Pivot final index q', 'Pointers cross hone par arr[low] aur arr[q] swap hote hain; q pivot ka final index hai.', 'Foundation'),
+  q('GATE 2024 transfer: sorted [60,70,80,90,100] par LAST-element-pivot variant mein minimum non-self swaps?', ['0', '1', '4', '10'], '0', 'Yeh alag last-pivot variant hai, 8.6.2 ka first-pivot code nahi. Already sorted input mein useful swaps zero.', 'Practice', 'PYQ transfer · MCQ adaptation'),
   q('Quick sort recursive calls partition index p ke around?', ['low..p-1 and p+1..high', 'low..p and p..high', '0..n always', 'No calls'], 'low..p-1 and p+1..high', 'Pivot p final position par hai, so it is excluded.', 'Core')
 ])
 
@@ -113,11 +115,13 @@ const countingTheory = fifty([
 ])
 
 const countingCode = fifty([
-  q('count[arr[i]] += 1 kya store karta hai?', ['Value frequency', 'Sorted index directly', 'Pivot', 'Recursion depth'], 'Value frequency', 'Every key occurrence ka count bucket increment hota hai.', 'Core'),
+  q('Tumhare code mein count_arr[i] = count_arr[i] + 1 kya store karta hai?', ['Value i ki frequency', 'Sorted index directly', 'Pivot', 'Recursion depth'], 'Value i ki frequency', 'Har baar i input mein mile, uski count bucket ek badhti hai.', 'Core'),
   q('Negative values counting sort mein handle karne ke liye?', ['Offset by minimum value', 'Ignore negatives', 'Use binary search', 'Reverse array'], 'Offset by minimum value', 'Index nonnegative hona chahiye; arr[i]-min_value bucket index bana sakte hain.', 'Core'),
-  q('Cumulative count c[v] kya bata sakta hai?', ['Values <= v ki total count', 'Only v frequency', 'Maximum value', 'Swap count'], 'Values <= v ki total count', 'It gives ending position boundary for v in sorted output.', 'Core'),
-  q('NAT: [2,0,2,1,1,0] sorted counting output?', ['NAT · array'], '[0,0,1,1,2,2]', 'Frequencies 0:2, 1:2, 2:2.', 'Practice'),
-  q('Counting sort output array stable version space?', ['O(n+k)', 'O(1)', 'O(log n)', 'O(n²)'], 'O(n+k)', 'Count array k plus output n use hote hain.', 'Core'),
+  q('Tumhare code ke for i in range(len(count_arr)) mein i kya hai?', ['Value aur count_arr ka index', 'Frequency itself', 'Input position', 'Maximum only'], 'Value aur count_arr ka index', 'Index i original integer value hai; count_arr[i] us value ki frequency hai.', 'Core'),
+  q('result.extend([i] * count_arr[i]) kya karta hai?', ['Value i ko uski frequency jitni baar add', 'Count array ko reverse', 'Only one nested list append', 'Original array mutate'], 'Value i ko uski frequency jitni baar add', 'extend repeated list ke items ko result mein individually jodta hai.', 'Core'),
+  q('[2,0,2,1,1,0] ka counting-sort output?', ['[0,0,1,1,2,2]', '[0,1,2,0,1,2]', '[2,2,1,1,0,0]', '[0,0,1,2,1,2]'], '[0,0,1,1,2,2]', 'Frequencies 0:2, 1:2, 2:2.', 'Practice'),
+  q('Tumhare counting-sort code ka auxiliary space?', ['O(n+k)', 'O(1)', 'O(log n)', 'O(n²)'], 'O(n+k)', 'Count array k plus result n use hote hain.', 'Core'),
+  q('Tumhare exact code ko empty arr=[] dene par?', ['max(arr) par ValueError', '[] return', '[0] return', 'Infinite loop'], 'max(arr) par ValueError', 'Empty array ke liye max defined nahi hai; optional guard add karna padega.', 'Practice'),
   q('Counting sort with max=10^9, n=10 usually?', ['Poor choice', 'Best always', 'O(1)', 'Identical to merge'], 'Poor choice', 'Range k enormous hai compared to data count n.', 'Practice')
 ])
 
