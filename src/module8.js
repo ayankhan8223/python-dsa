@@ -1,6 +1,7 @@
 import './style.css'
 import { module8Topics, module8QuestionCount } from './practice8.js'
 import { quickSortLabMarkup, mountQuickSortLab, quickSortUserCode } from './quickSortLab.js'
+import { sortingRevisionMarkup, sortingComparisonTableMarkup } from './sortingRevision.js'
 
 const lectures = [
   ['8.1', 'Introduction', 'Order, stable aur in-place language'],
@@ -105,7 +106,7 @@ document.querySelector('#app').innerHTML = `
 </div>
 <div class="view" data-panel="pyq"><section class="page-hero searchable" data-title="Sorting PYQ Evidence"><p class="eyebrow"><i></i> Supplied paper evidence</p><h1>Sorting PYQ Lab</h1><p>Supplied GATE DA 2024–2026 papers ke direct sorting questions, clean transcript, verified answer aur trace ke saath.</p><div class="practice-summary"><span><b>${pyqs.length}</b>direct PYQs</span><span><b>2024–26</b>coverage</span><span><b>visible</b>solutions</span></div></section><section class="pyq-list">${pyqMarkup}</section></div>
 <div class="view" data-panel="practice"><section class="page-hero practice-head searchable" data-title="Practice Lab"><p class="eyebrow"><i></i> Lecture-wise GATE drills</p><h1>Module 8 Practice</h1><p>${module8QuestionCount} questions · 15 exact lecture sets · 50 questions in every set.</p><div class="practice-summary"><span><b>15</b>lecture sets</span><span><b>50</b>each</span><span><b>saved</b>attempt progress</span></div></section><section class="practice-controls searchable"><div><label for="practiceTopic">Lecture topic</label><select id="practiceTopic">${topicOptions}</select></div><div><label for="practiceDifficulty">Difficulty</label><select id="practiceDifficulty"><option value="all">All levels</option><option>Foundation</option><option>Core</option><option>Practice</option></select></div><div class="practice-score"><span>Attempted</span><b id="practiceScore">0/0</b></div></section><section class="practice-context" id="practiceContext"></section><section class="question-list" id="questionList"></section></div>
-<div class="view" data-panel="revision"><section class="page-hero revision-head searchable"><p class="eyebrow"><i></i> Last-day recall</p><h1>Module 8 Revision</h1><button id="print">Print sheet</button></section><section class="revision-grid"><article class="rev"><span>01</span><h2>Quadratic sorts</h2><ul><li>Bubble: largest suffix</li><li>Selection: smallest prefix</li><li>Insertion: sorted prefix</li></ul></article><article class="rev"><span>02</span><h2>Divide & conquer</h2><ul><li>Merge: O(n log n), stable</li><li>Quick: pivot final position</li><li>Quick worst O(n²)</li></ul></article><article class="rev"><span>03</span><h2>Counting</h2><ul><li>Integer range k</li><li>O(n+k)</li><li>Range too large = bad</li></ul></article><article class="rev"><span>04</span><h2>Language traps</h2><ul><li>Pass ≠ swap</li><li>Stable ≠ in-place</li><li>Input vs auxiliary space</li></ul></article><article class="rev warning"><span>05</span><h2>Decision rule</h2><ul><li>Nearly sorted → insertion</li><li>Guarantee → merge</li><li>Small range → counting</li></ul></article></section></div>
+<div class="view" data-panel="revision"><section class="page-hero revision-head searchable"><p class="eyebrow"><i></i> GATE DA · 2–3 minute recall</p><h1>Sorting Quick Revision</h1><p>Six algorithms, exact complexity conditions aur paper traps ek jagah.</p><button id="print">Print sheet</button></section>${sortingRevisionMarkup}</div>
 </main></div><button class="menu" id="menu">☰</button><div class="toast">Copied</div>`
 
 const bubbleTheory = document.querySelector('#bubble-theory')
@@ -152,7 +153,13 @@ quickCodeSection.querySelector('.codebox > div span').textContent = 'Python · y
 quickCodeSection.querySelector('.codebox code').textContent = quickSortUserCode
 quickCodeSection.querySelector('.table-wrap').innerHTML = `<table><thead><tr><th>Step</th><th>p</th><th>q</th><th>Array / decision</th></tr></thead><tbody><tr><td>Start; pivot=40</td><td>1 → 55</td><td>7 → 50</td><td>[40,55,20,30,80,25,90,50]</td></tr><tr><td>First scans stop</td><td>1 → 55 &gt; 40</td><td>5 → 25 ≤ 40</td><td>q skips 50 and 90; p &lt; q, so swap 55 and 25</td></tr><tr><td>After swap</td><td>1 → 25</td><td>5 → 55</td><td>[40,25,20,30,80,55,90,50]. No explicit p++ or q--</td></tr><tr><td>Next scans stop</td><td>4 → 80 &gt; 40</td><td>3 → 30 ≤ 40</td><td>p=4, q=3: pointers crossed</td></tr><tr><td>Pivot placement</td><td>—</td><td>3</td><td>Swap 40 and 30 → [30,25,20,40,80,55,90,50]</td></tr></tbody></table>`
 
+const complexitySection = document.querySelector('#complexity')
+complexitySection.querySelector('.table-wrap').outerHTML = sortingComparisonTableMarkup
+complexitySection.querySelector('.table-note').remove()
+
 const tabs = [...document.querySelectorAll('.tab')]
+document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module9.html">M09</a>')
+document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module10.html">M10</a>')
 const panels = [...document.querySelectorAll('.view')]
 const practiceTopic = document.querySelector('#practiceTopic')
 const practiceDifficulty = document.querySelector('#practiceDifficulty')

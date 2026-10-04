@@ -284,6 +284,8 @@ document.querySelector('#themeButton').onclick = () => { document.documentElemen
 if (localStorage.getItem('da-theme') !== 'light') document.documentElement.classList.add('dark')
 if (!document.querySelector('.module-switch a[href="./module7.html"]')) document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module7.html">M07</a>')
 if (!document.querySelector('.module-switch a[href="./module8.html"]')) document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module8.html">M08</a>')
+if (!document.querySelector('.module-switch a[href="./module9.html"]')) document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module9.html">M09</a>')
+if (!document.querySelector('.module-switch a[href="./module10.html"]')) document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module10.html">M10</a>')
 document.querySelector('#searchButton').onclick = () => { document.querySelector('.searchbox').classList.toggle('open'); document.querySelector('#search').focus() }
 document.querySelector('#search').oninput = event => { const query = event.target.value.toLowerCase(); document.querySelectorAll('.view.active .searchable').forEach(item => item.classList.toggle('hidden', query && !item.textContent.toLowerCase().includes(query))) }
 

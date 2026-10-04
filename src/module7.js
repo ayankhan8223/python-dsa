@@ -83,6 +83,8 @@ def exponential_search(arr, key):
 </main></div><button class="menu" id="menu">☰</button><div class="toast">Copied</div>`
 
 const tabs = [...document.querySelectorAll('.tab')]
+document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module9.html">M09</a>')
+document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module10.html">M10</a>')
 const panels = [...document.querySelectorAll('.view')]
 const practiceTopic = document.querySelector('#practiceTopic')
 const practiceDifficulty = document.querySelector('#practiceDifficulty')
