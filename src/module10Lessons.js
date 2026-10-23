@@ -264,11 +264,28 @@ const quadratic = section('10.4.3', 'quadratic', 'Quadratic Probing', 'Offsets 0
   <div class="callout"><b>GATE computation</b><p>Always <code>i=0</code> se start. Har probe par <code>(h+i*i)%m</code> evaluate karo, aur same occupied slot par dobara aa sakte ho—sequence ka full-table coverage assume mat karo. Is expression ko <code>((h+i)*i)%m</code> se confuse mat karo.</p></div>
 `)
 
-const load = section('10.5', 'load', 'Load Factor', 'α = n / m measures occupancy', 'n stored keys, m base slots. Collision risk α ke saath generally badhta hai.', `
-  <div class="hash-equation"><span>Example</span><b>n=4, m=5</b><i>→</i><b>α=4/5=0.8</b></div>
-  ${table(['Scheme','Can α exceed 1?','Why?'],[['Open addressing','No, if each slot holds one key','n≤m; insertion needs free slot'],['Chaining','Yes','One bucket can hold many keys']])}
-  <div class="hash-trace"><span>Uniform hashing assumption · open addressing</span><div><b>α=0.5</b><code>1/(1−α)=2 probe upper bound</code></div><div><b>α=0.8</b><code>1/(1−α)=5 probe upper bound</code></div><div><b>α→1</b><code>Expected unsuccessful search / insert rises sharply</code></div></div>
-  <div class="callout"><b>2024 DA Q21 connection</b><p>Insertion first empty slot dhundta hai, exactly unsuccessful search jaisa probe path. Given bound is at most 1/(1−α) average probes. This is a bound under the paper's uniform-hashing model, not a deterministic guarantee per insertion.</p></div>
+const load = section('10.5', 'load', 'Load Factor', 'Table kitni bhari hai? Pehle keys gino, phir buckets', 'Lecture ka formula aur 0, 0.5, 1, >1 ka meaning ek chhoti table se samjho.', `
+  <div class="hash-story"><b>Load factor ka simple sawaal</b><p>Hash table mein kitni <strong>entries/keys store</strong> ho chuki hain, table ke <strong>total buckets</strong> ke comparison mein? Isi ratio ko load factor kehte hain. Symbol <code>α</code> (alpha) hai. Yeh hash function ka output ya kisi key ka index nahi hai; yeh <em>poori table</em> ki ek measurement hai.</p></div>
+  <div class="hash-equation"><span>Lecture formula · do cheezein ginni hain</span><b>α = n / m</b><i>jahan</i><b>n = stored entries</b><i>aur</i><b>m = total buckets</b></div>
+  <div class="hash-step-list"><p><b>n kaise ginoge?</b> Har stored key-value entry ko <code>1</code> gino. Khali bucket ko <code>0</code>. <b>m kaise ginoge?</b> Table ke numbered boxes gino—chahe khali hon ya bhare. Agar indices <code>0, 1, 2, 3, 4</code> hain, toh <code>m=5</code>; last index 4 hone ka matlab 4 buckets nahi.</p></div>
+  <p class="hash-diagram-caption">Example: 5 buckets wali <strong>empty</strong> table. Abhi <code>n=0</code>, <code>m=5</code>, isliye <code>α=0/5=0</code>.</p>
+  ${buckets(['', '', '', '', ''])}
+  <div class="hash-story"><b>Ab step by step table bharo</b><p>Sirf visual samajhne ke liye maan lo four keys alag-alag slots mein aa gayi hain. Pehli 2 entries ke baad <code>n=2</code> aur <code>α=2/5=0.4</code>. Do aur entries daalne ke baad <code>n=4</code> aur <code>α=4/5=0.8</code>. <strong>Denominator 5 hi rahega</strong>, kyunki table ka size nahi badla.</p></div>
+  ${table(['State','Stored entries n','Total buckets m','Load factor α = n/m'],[['Empty table','0','5','0/5 = 0'],['2 entries stored','2','5','2/5 = 0.4'],['4 entries stored','4','5','4/5 = 0.8'],['5 entries stored','5','5','5/5 = 1']])}
+  <p class="hash-diagram-caption">Four entries ke baad: slots 0–3 mein entries hain; slot 4 abhi empty. <code>α=0.8</code> ka matlab is <em>open-addressing example</em> mein 5 mein se 4 slots occupied hain.</p>
+  ${buckets(['key A', 'key B', 'key C', 'key D', ''], 4)}
+  <div class="hash-foundation"><span>LECTURE INTERPRETATION</span><h3>0, 0.5, 1 aur 1 se zyada ka matlab</h3><p><code>α=0</code>: koi entry nahi—table empty. <code>α=0.5</code>: entries ki count buckets ki aadhi hai; open addressing mein aadhe slots occupied. <code>α=1</code>: entries aur buckets ki count equal; open addressing mein saare slots occupied. <code>α&gt;1</code>: open addressing mein impossible, kyunki ek slot mein ek hi entry rakhi jaati hai; chaining mein possible, kyunki ek bucket ki list mein multiple entries aa sakti hain.</p></div>
+  <div class="hash-step-list"><p><b>Important nuance:</b> <code>α=1</code> ko <em>“completely full”</em> sirf open addressing mein bolo. Chaining mein <code>n=m</code> hone par bhi zaroori nahi ki har bucket mein ek entry ho—kuch buckets khali aur kuch mein 2+ entries ho sakti hain. Chaining ka load factor <strong>entries per bucket ka average</strong> hai, occupied buckets ka percentage nahi.</p></div>
+  ${table(['Method','m=5, n=7 par α','Kya 7 entries store ho sakti hain?'],[['Open addressing','7/5 = 1.4','Nahi; 5 slots mein at most 5 entries (resize kiye bina).'],['Chaining','7/5 = 1.4','Haan; kuch bucket-lists multiple entries rakhengi.']])}
+  <div class="hash-foundation"><span>WHY DO WE NEED LOAD FACTOR?</span><h3>Formula se humein kya decision milta hai?</h3><p>Load factor table ki <strong>crowding</strong> ka quick signal hai. 5 buckets mein 1 entry aur 5 buckets mein 4 entries ka search experience different ho sakta hai. Isi signal se hum collision risk, operation speed aur resize ka timing samajhte hain.</p></div>
+  <div class="hash-step-list"><p><b>1 · Table kitni crowded hai?</b> <code>m=5, n=1</code> par <code>α=0.2</code>; keys ke liye kaafi jagah hai. <code>m=5, n=4</code> par <code>α=0.8</code>; open addressing mein bas ek slot khali bacha. α poori table ka ratio hai, kisi ek bucket ki position nahi.</p><p><b>2 · Collision ki possibility kyun badhti hai?</b> Same limited buckets ke liye zyada keys aati hain, toh do keys same <em>home index</em> maang sakti hain. Example <code>h(k)=k%5</code> par <code>10%5=0</code> aur <code>15%5=0</code>: dono bucket 0 chahte hain. α zyada hone se collisions generally more likely hote hain, lekin α alone exact collisions count ya probability nahi batata.</p><p><b>3 · Speed par kya asar?</b> Open addressing mein occupied slot ke baad next candidate probe karna padta hai. Chaining mein same bucket ki list mein keys compare karni pad sakti hain. Low load par <em>usually</em> kam extra work; high load par <em>usually</em> zyada. Specific search fast bhi ho sakta hai—ye guarantee nahi, average tendency hai.</p></div>
+  <div class="hash-story"><b>4 · Resize kab aur kyun?</b><p>Jab implementation ka chosen load threshold cross hone lage, table ko bigger banaya ja sakta hai. Maan lo <code>n=4, m=5</code>, so <code>α=0.8</code>. Agar table ko <code>m=10</code> buckets ka bana dein, same 4 entries ke liye <code>α=4/10=0.4</code>. Nayi table mein more room milta hai. <strong>Resize ke baad old indices copy nahi karte:</strong> har stored key ka new index dobara calculate karke entry place karte hain; isse <em>rehash</em> kehte hain.</p></div>
+  <div class="hash-equation"><span>Resize ka visual math</span><b>4 keys / 5 buckets = 0.8</b><i>→ resize →</i><b>4 keys / 10 buckets = 0.4</b></div>
+  <div class="hash-step-list"><p><b>Index dobara kyun nikalna hai?</b> Agar example hash rule <code>h(k)=k%m</code> hai, key <code>7</code> ka old index <code>7%5=2</code> tha; resize ke baad new index <code>7%10=7</code> hoga. Sirf entry ko old slot 2 par copy kar diya toh later search new rule se slot 7 dekhega aur key miss ho sakti hai. <b>Threshold note:</b> har hash table ka ek universal resize number nahi hota; question ya implementation jo threshold de, wahi use karo.</p></div>
+  <div class="callout"><b>Ek sentence mein four reasons</b><p>Load factor batata hai table kitni crowded hai → collisions/extra probes ka risk samajh aata hai → average operation speed ka estimate milta hai → zarurat par resize aur rehash kar sakte hain.</p></div>
+  <div class="hash-story"><b>Exam trap: ratio ko exact outcome mat samjho</b><p><code>α=0.8</code> ka matlab <strong>har search exactly 5 probes</strong> nahi, aur <strong>80% collision probability</strong> bhi nahi. Exact probe count key, hash function, collision method aur existing placement par depend karta hai. Neeche ka GATE bound bhi extra assumption ke saath hi use hota hai.</p></div>
+  <div class="hash-trace"><span>GATE extra · uniform hashing assumption + open addressing only</span><div><b>α=0.5</b><code>1/(1−0.5) = 2</code></div><div><b>α=0.8</b><code>1/(1−0.8) = 5</code></div><div><b>α→1</b><code>denominator → 0; bound grows</code></div></div>
+  <div class="callout"><b>2024 DA Q21 connection</b><p>Question ki <em>uniform hashing</em> assumption ke under, open addressing mein unsuccessful search / empty slot dhoondhne wali insertion ke <strong>expected probes ka upper bound</strong> <code>1/(1−α)</code> hai (jab <code>α&lt;1</code>). Example: <code>α=0.8</code> par bound 5. Yeh kisi ek insertion ke liye guaranteed 5 probes nahi. Pehle basic <code>α=n/m</code> samjho; GATE formula uske baad apply karo.</p></div>
 `)
 
 export const firstHalfMarkup = [intro,hashFunction,functionCode,hashTable,collision,chaining,linear,quadratic,load].join('\n')
@@ -279,22 +296,104 @@ const operations = section('10.6', 'operations', 'Common Operations', 'Hashing l
   <div class="danger"><b>GATE trap</b><p>Hash function output same hone se keys equal nahi ho jaati. Final equality test decides match. Open addressing mein delete special care needs tombstone.</p></div>
 `)
 
-const dict = section('10.6.1', 'dict', 'Hashing Operations using Dictionaries', 'Python dict maps unique hashable keys to values', 'Course notebook: insert, lookup, update, delete, membership, iteration.', `
-  ${codebox('Python · lecture operations', ['student = {"name": "John", "age": 18}','student["nationality"] = "Indian"  # insert','student["age"] = 20              # update','age = student.get("age")         # safe lookup','exists = "name" in student       # checks keys','removed = student.pop("age")     # delete + return','for key, value in student.items():','    print(key, value)'].join('\n'))}
-  ${table(['Expression','Meaning','If missing?'],[['d[key]','Read value','KeyError'],['d.get(key, default)','Read or fallback','Returns default'],['key in d','Check key membership','False'],['d.pop(key)','Remove and return','KeyError without default'],['d.setdefault(k, v)','Existing value or insert default','Inserts only if absent']])}
-  <div class="callout"><b>Order note</b><p>Modern Python dict preserves insertion order. Notebook ke <code>freq.items()</code> traversal ka first-seen order isi se aata hai. Hash table ka mathematical model order guarantee nahi karta; Python behavior ko abstract GATE hash table pe blindly transfer mat karo.</p></div>
-  <div class="danger"><b>Key rule</b><p>Mutable list dict key nahi ban sakti; key hashable honi chahiye. Values any type ho sakti hain. <code>"age" in student</code> values nahi, keys check karta hai.</p></div>
+const dictLectureCode = `student = {
+    'name': 'John',
+    'age': 18,
+    'gender': 'male'
+}
+
+# INSERT: a new key is added
+student['nationality'] = 'Indian'
+student.update({'age': 20})
+student.update({'color': 'red'})
+student.setdefault('religion', 'NA')
+
+# SEARCH / READ: these do not change the dictionary
+print(student['name'])             # John
+print(student.get('country'))       # None, no KeyError
+print(student.get('country', 'NA')) # NA
+
+# UPDATE: existing key's value is replaced
+student.update({'age': 21, 'state': 'Tamil Nadu'})
+student['color'] = 'dark red'
+print(student.setdefault('age', 99)) # 21; existing age stays 21
+
+# DELETE
+del student['religion']             # removes key and value
+removed_state = student.pop('state') # returns 'Tamil Nadu'
+last_pair = student.popitem()        # ('color', 'dark red')
+
+# MEMBERSHIP: checks KEYS, not values
+print('name' in student)   # True
+print('fruit' in student)  # False
+
+# ITERATION
+for key in student:
+    print(key)
+
+for key in student:
+    print(key, student[key])
+
+for key, value in student.items():
+    print(key, value)`
+
+const dict = section('10.6.1', 'dict', 'Hashing Operations using Dictionaries', 'Lecture notebook ke saare dict operations, ek state trace mein', 'Pehle key-value state samjho; phir insert, search, update, delete, membership aur iteration dekho.', `
+  <div class="hash-story"><b>Starting dictionary</b><p><code>student</code> mein initially teen entries hain: <code>'name': 'John'</code>, <code>'age': 18</code>, <code>'gender': 'male'</code>. <strong>Key</strong> left side ka naam hai, <strong>value</strong> right side ka data. Same key dobara assign karne se duplicate entry nahi banti; uski value replace hoti hai.</p></div>
+  ${codebox('Lecture sequence · runnable Python', dictLectureCode)}
+  <div class="hash-foundation"><span>INSERT + UPDATE</span><h3>Kaunsa method new key banata hai?</h3><p><code>student['nationality'] = 'Indian'</code> new key insert karta hai. <code>student.update({'age': 20})</code> existing age ko 18 se 20 karta hai; <code>student.update({'color': 'red'})</code> new key add karta hai. Baad mein <code>update({'age': 21, 'state': 'Tamil Nadu'})</code> age ko 20 se 21 karta hai aur new state add karta hai. Isliye <code>update()</code> sirf “existing value update” nahi—new keys bhi insert kar sakta hai.</p></div>
+  <div class="hash-step-list"><p><b><code>setdefault(key, default)</code>:</b> key absent ho toh default store karke return karta hai. <code>setdefault('religion', 'NA')</code> religion add karega. Key already present ho toh existing value return karega aur change <em>nahi</em> karega: <code>setdefault('age', 99)</code> ka result 21 hai, age 99 nahi banta.</p><p><b>Direct assignment:</b> <code>student['color'] = 'dark red'</code> se pehle <code>color</code> ki value <code>'red'</code> thi; ab <code>'dark red'</code> ho gayi. Key count same rehta hai.</p></div>
+  ${table(['Lecture step','Key par effect','Important state'],[["student['nationality'] = 'Indian'",'New key added','nationality → Indian'],["student.update({'age': 20})",'Existing value replaced','age: 18 → 20'],["student.update({'color': 'red'})",'New key added','color → red'],["student.setdefault('religion', 'NA')",'Absent key added','religion → NA'],["student.update({'age': 21, 'state': 'Tamil Nadu'})",'age replaced; state added','age: 20 → 21; state → Tamil Nadu'],["student['color'] = 'dark red'",'Existing value replaced','color → dark red'],["student.setdefault('age', 99)",'No change; returns 21','age stays 21']])}
+  <div class="hash-foundation"><span>SEARCH / READ</span><h3>Key missing ho toh kya hota hai?</h3><p><code>student['name']</code> existing value <code>'John'</code> deta hai. Lecture mein <code>student['country']</code> commented out hai: agar run karoge aur key absent hai, <code>KeyError</code> aayega. <code>student.get('country')</code> safe read hai—<code>None</code> deta hai; <code>student.get('country', 'NA')</code> <code>'NA'</code> deta hai. <code>get()</code> missing key ko dictionary mein insert <em>nahi</em> karta.</p></div>
+  <div class="hash-foundation"><span>DELETE</span><h3>del, pop aur popitem alag kaise hain?</h3><p><code>del student['religion']</code> named key hata deta hai, lekin removed value return nahi karta. <code>student.pop('state')</code> state hata kar uski old value <code>'Tamil Nadu'</code> return karta hai. <code>student.popitem()</code> last-inserted remaining key-value pair ko remove <em>aur return</em> karta hai: is exact sequence mein <code>('color', 'dark red')</code>. Existing key <code>color</code> ki value update hui thi, par uska insertion position nahi badla.</p></div>
+  ${table(['Expression','Result / meaning','Missing-key case'],[["d[key]",'Value read','KeyError'],["d.get(key)",'Value, else None','No error'],["d.get(key, fallback)",'Value, else fallback','No error'],["d.update({...})",'Existing keys replace; new keys insert','N/A'],["d.setdefault(key, default)",'Existing value, or insert and return default','Inserts default'],["del d[key]",'Named entry removed; no returned value','KeyError'],["d.pop(key)",'Named entry removed and old value returned','KeyError without default'],["d.popitem()",'Last inserted pair removed and returned','KeyError if empty'],["key in d",'Checks whether key exists','False'],["d.items()",'View of (key, value) pairs','Empty view']])}
+  <div class="hash-story"><b>Membership aur loops ko manually padho</b><p>Deletions ke baad keys <code>name, age, gender, nationality</code> bachi hain. <code>'name' in student</code> isliye <code>True</code> hai; <code>'fruit' in student</code> <code>False</code>. <code>for key in student</code> sirf keys deta hai. <code>student[key]</code> se us key ki value padh sakte ho. <code>for key, value in student.items()</code> dono ek saath deta hai.</p></div>
+  <div class="callout"><b>Order note · Python vs abstract hash table</b><p>Modern Python dict insertion order preserve karta hai; isliye is exact code mein <code>popitem()</code> color pair remove karta hai aur loops remaining keys ko insertion order mein dikhate hain. GATE ke abstract hash-table question mein order assume mat karo jab tak question usse specify na kare.</p></div>
+  <div class="danger"><b>Two common traps</b><p><code>'John' in student</code> values search nahi karta—<code>in</code> keys check karta hai. Dict key hashable honi chahiye; mutable list key nahi ban sakti, lekin value list bhi ho sakti hai.</p></div>
 `)
 
-const set = section('10.6.2', 'set', 'Hashing Operations using Sets', 'Python set stores distinct hashable elements', 'Value itself key hai; separate mapped value nahi.', `
-  ${codebox('Python · lecture operations', ['seen = {"John", 21, "country"}','seen.add("city")           # insert','exists = "John" in seen  # membership','seen.remove("country")   # delete; error if absent','seen.discard("missing")  # delete if present','for value in seen:','    print(value)'].join('\n'))}
+const setLectureCode = `s = {'John', 21, 'country', 100, 22.5}
+
+# INSERT
+s.add('city')
+
+# SEARCH / MEMBERSHIP
+print('John' in s)  # True
+print(55 in s)      # False
+
+# DELETE A KNOWN ITEM: do this before arbitrary pop()
+s.remove('country')
+
+# pop() returns and removes ONE ARBITRARY remaining item
+first_removed = s.pop()
+second_removed = s.pop()
+print(first_removed, second_removed)  # exact items may vary
+
+# ITERATION: order is not guaranteed
+for x in s:
+    print(x)`
+
+const set = section('10.6.2', 'set', 'Hashing Operations using Sets', 'Lecture ke add, membership, remove, pop aur iteration', 'Set mein unique items hote hain; dict ki tarah separate key → value pairs nahi.', `
+  <div class="hash-story"><b>Starting set ko pehle dekho</b><p>Lecture ka <code>s = {'John', 21, 'country', 100, 22.5}</code> five <strong>distinct items</strong> rakhta hai. Strings, integers aur float ek set mein saath reh sakte hain, kyunki ye hashable hain. Set mein <code>'John': 21</code> jaisi key-value mapping nahi hoti: item hi membership key ki tarah kaam karta hai. Display order par bharosa mat karo.</p></div>
+  ${codebox('Lecture operations · safe runnable order', setLectureCode)}
+  <div class="hash-foundation"><span>INSERT</span><h3><code>add()</code> kya karta hai?</h3><p><code>s.add('city')</code> new item add karta hai. Count 5 se 6 ho jaati hai. Agar dobara <code>s.add('city')</code> karo toh duplicate nahi banega; count 6 hi rahegi. Set ka core rule hai <strong>unique items only</strong>.</p></div>
   <div class="hash-equation"><span>Duplicates collapse</span><b>{3, 3, 5}</b><i>→</i><b>{3, 5}</b></div>
-  ${table(['Operation','Meaning','Trap'],[['add(x)','Insert x','Duplicate does not create another item'],['x in s','Membership','Average O(1)'],['remove(x)','Delete x','KeyError if missing'],['discard(x)','Delete if present','No error if missing'],['pop()','Remove arbitrary element','Not FIFO or LIFO promise']])}
-  <div class="danger"><b>GATE trap</b><p>Set unordered abstraction hai; iteration/pop order par answer depend mat karo unless problem explicitly defines implementation/order.</p></div>
+  <div class="hash-foundation"><span>SEARCH / MEMBERSHIP</span><h3><code>in</code> ka answer Boolean hai</h3><p><code>'John' in s</code> → <code>True</code>, kyunki item present hai. <code>55 in s</code> → <code>False</code>, kyunki 55 present nahi. Ye test set ko change nahi karta. Dict ke <code>key in d</code> ki tarah, yahan membership fast lookup ke liye useful hai; set mein separate value retrieve nahi hoti.</p></div>
+  <div class="hash-foundation"><span>DELETION</span><h3><code>remove(x)</code> aur <code>pop()</code> ko mix mat karo</h3><p><code>s.remove('country')</code> <em>exactly country</em> ko hataata hai. Agar item absent ho toh <code>KeyError</code>. <code>s.pop()</code> kisi <em>arbitrary</em> item ko remove karke wahi item return karta hai—ye <code>remove('country')</code> ka substitute nahi. Lecture mein <code>pop()</code> twice dikhaya gaya hai; first aur second removed item ka fixed answer assume mat karo.</p></div>
+  ${table(['Step','Definitely kya pata hai?','Set size'],[['Starting set','5 distinct items','5'],["s.add('city')",'city present','6'],["'John' in s; 55 in s",'True; False—no change','6'],["s.remove('country')",'country absent','5'],['first pop()','One arbitrary item removed and returned','4'],['second pop()','Another arbitrary item removed and returned','3'],['for x in s','Remaining 3 items printed; order unspecified','3']])}
+  <div class="danger"><b>Lecture order ka subtle bug</b><p>Notebook mein <code>s.pop()</code> do baar <em>pehle</em> aur <code>s.remove('country')</code> baad mein hai. Agar kisi <code>pop()</code> ne country hi hata diya, later <code>remove('country')</code> <code>KeyError</code> dega. Isliye runnable example mein known item ko pehle remove kiya hai. Agar uncertain ho, <code>if 'country' in s: s.remove('country')</code> check kar sakte ho.</p></div>
+  <div class="hash-foundation"><span>ITERATION</span><h3><code>for x in s</code> ka meaning</h3><p>Har loop round mein <code>x</code> kisi remaining item ko reference karega; <code>print(x)</code> us item ko dikhayega. Kaun sa item pehle aayega, set guarantee nahi karta. Lecture ke <code>pop()</code> results aur printed order machine/run ke hisaab se different ho sakte hain.</p></div>
+  ${table(['Operation','Exact meaning','Absent / empty case'],[['s.add(x)','Unique item x insert','N/A'],['x in s','Item present? True/False','False'],['s.remove(x)','Specified item x delete','KeyError'],['s.pop()','Arbitrary item remove + return','KeyError if empty'],['for x in s','Each remaining item visit','No iterations if empty'],['s.discard(x)','Optional safe delete; lecture code mein nahi','No error if absent']])}
+  <div class="callout"><b>GATE trap</b><p><code>dict.popitem()</code> modern Python mein last inserted pair hataata hai, lekin <code>set.pop()</code> arbitrary item hataata hai. Dono ko LIFO/FIFO queue operation ki tarah trace mat karo. Set ko abstract exam question mein unordered hi treat karo unless order explicitly specified ho.</p></div>
 `)
 
-const complexity = section('10.7', 'complexity', 'Complexity Analysis', 'Average O(1) is conditional, worst O(n) is possible', 'Good hash distribution and controlled load factor matter.', `
-  ${table(['Method','Insert avg','Search avg','Worst','Extra storage'],[['Chaining','O(1)','O(1)','O(n)','O(m+n)'],['Linear probing','O(1) at low α','O(1) at low α','O(n)','O(m)'],['Quadratic probing','O(1) at low α','O(1) at low α','O(n) / sequence failure','O(m)'],['Python dict/set','Expected O(1)','Expected O(1)','Can degrade','O(n)']])}
+const complexity = section('10.7', 'complexity', 'Complexity Analysis', 'Ek complete table: operation, dict, set, average aur worst', 'n = stored items; average/expected O(1) ke liye good hashing aur controlled load factor maana hai.', `
+  <div class="hash-foundation"><span>LECTURE · COMPLETE COMPARISON</span><h3>Ek row mein capability aur time dono dekho</h3><p><strong>Dict</strong> key → value store karta hai; <strong>set</strong> sirf unique items. Neeche O(1) <em>average/expected</em> hai, every input ki guarantee nahi. Worst column collision-heavy case ya costly resize ko dhyan mein rakhta hai.</p></div>
+  ${table(['Operation','Dictionary','Set','Average time','Worst time'],[['Insert','✓ <code>d[k] = v</code>','✓ <code>s.add(x)</code>','O(1)','O(n)'],['Search','✓ <code>d.get(k)</code> se value','✓ <code>x in s</code> se presence','O(1)','O(n)'],['Delete','✓ <code>del d[k]</code> / <code>d.pop(k)</code>','✓ <code>s.remove(x)</code> / <code>s.discard(x)</code>','O(1)','O(n)'],['Update stored value','✓ <code>d[k] = new_value</code>','✕ Set mein separate mapped value nahi','O(1) · dict only','O(n) · dict only'],['Membership','✓ <code>k in d</code> checks keys','✓ <code>x in s</code> checks items','O(1)','O(n)'],['Iteration','✓ <code>for k in d</code> / <code>d.items()</code>','✓ <code>for x in s</code>','O(n)','O(n)']])}
+  <div class="hash-step-list"><p><b>Update ✕ ka meaning:</b> set mein existing key ki <em>value</em> replace nahi hoti, kyunki set key → value pairs rakhta hi nahi. Python ka <code>s.update(iterable)</code> method phir bhi hota hai: woh multiple items <em>add</em> karta hai. Us bulk operation ka cost <code>r</code> input items ke liye expected O(r) hai.</p><p><b>Search aur membership alag kyun dikh rahe hain?</b> Lecture dono names use karta hai. Dict search stored <em>value</em> la sakta hai; membership sirf key present hai ya nahi batati hai. Set mein separate mapped value nahi, isliye uska search aur membership practically same <code>x in s</code> test hai.</p><p><b>Iteration O(n) kyun?</b> Sabhi n items visit karne hain. Python implementation sparse table mein empty slots bhi scan kar sakti hai; exam mein agar table capacity <code>m</code> explicitly di ho, iteration cost ke liye capacity ka effect bhi check karo.</p></div>
+  <div class="hash-story"><b>Hash-table implementation ka link</b><p>Chaining, linear probing aur quadratic probing mein basic lookup/insert average O(1) ho sakta hai jab keys achchhe se distribute hon aur load controlled ho. Collisions par chain scan ya extra probes lagte hain; worst O(n) tak ja sakta hai. Quadratic probing ki probe sequence har empty slot tak pahunch hi jaaye, yeh separately guaranteed nahi.</p></div>
+  <div class="hash-foundation"><span>HASHING METHODS · SIDE BY SIDE</span><h3>Collision aane par entry kahan jaati hai?</h3><p><code>h</code> key ka home index hai, <code>i=0,1,2…</code> probe number hai, aur <code>m</code> total buckets. Teenon rows mein same hash function use ho sakta hai; <strong>collision handle karne ka rule</strong> alag hai.</p></div>
+  ${table(['Hashing type','Collision par kya karte hain?','Next location / formula','α &gt; 1?','Average / worst lookup','Table space','GATE trap'],[['Chaining','Home bucket ki list mein entry add; search mein us list ke keys compare','Home = h; same bucket ki chain scan','Possible','Expected O(1) / O(n)','O(m+n)','Same bucket ka matlab same key nahi'],['Linear probing','Occupied slot ke baad next slot check','(h+i) % m; i=0,1,2…','Impossible without resize','Expected O(1) at controlled α / O(n)','O(m)','i=0 se start; primary clustering possible'],['Quadratic probing','Occupied slot ke baad squared offset try','(h+i²) % m; i=0,1,2…','Impossible without resize','Expected O(1) when suitable conditions hold / O(n) or insertion failure','O(m)','Free slot hone par bhi probe sequence us tak na pahunche']])}
+  <div class="callout"><b>Mini example · same home h=3, m=7</b><p>Linear probing candidates <code>3, 4, 5, 6…</code>; quadratic probing candidates <code>3, 4, 0, 5…</code>. Chaining mein next slot search nahi hota—entries bucket 3 ki list mein hi rehti hain. Dono probing methods mein <code>i=0</code> home slot check hai.</p></div>
   <div class="callout"><b>Cost of hashing a long string</b><p>Key length L ko characters se hash karna O(L). So complete lookup can be O(L) even when bucket access expected O(1). Unit-cost hash-table analysis usually treats hashing a key as O(1) or fixed-size key.</p></div>
   <div class="danger"><b>Do not mix</b><p>m=number of slots, n=number of stored keys, L=key length. α=n/m. Resizing/rehashing may make one insertion O(n), while amortized expected insertion remains O(1) under standard assumptions.</p></div>
 `)

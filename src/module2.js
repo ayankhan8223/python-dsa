@@ -1,4 +1,5 @@
 import './style.css'
+import { applyNotePointers } from './notePointers.js'
 import { module2Topics, module2QuestionCount } from './practice2.js'
 
 const pyqs = [
@@ -159,6 +160,7 @@ for right in range(k, len(A)):
   </main>
 </div><button class="menu" id="menu">☰</button><div class="toast">Copied</div>`
 
+applyNotePointers()
 const tabs=[...document.querySelectorAll('.tab')],panels=[...document.querySelectorAll('[data-panel]')],toc=document.querySelector('#toc'),sidebar=document.querySelector('.sidebar')
 function buildToc(view){const sections=[...document.querySelector(`[data-panel="${view}"]`).querySelectorAll('[data-title]')];toc.innerHTML=sections.map((s,i)=>{if(!s.id)s.id=`${view}-${i}`;return `<a href="#${s.id}"><i>${String(i+1).padStart(2,'0')}</i>${s.dataset.title}</a>`}).join('')}
 function clearSearch(){document.querySelector('#search').value='';document.querySelectorAll('.searchable,.pyq-card').forEach(x=>x.classList.remove('hidden'));document.querySelector('#searchResult').textContent='Search current view'}
@@ -171,6 +173,8 @@ if(!document.querySelector('.module-switch a[href="./module7.html"]'))document.q
 if(!document.querySelector('.module-switch a[href="./module8.html"]'))document.querySelector('.module-switch').insertAdjacentHTML('beforeend','<a href="./module8.html">M08</a>')
 if(!document.querySelector('.module-switch a[href="./module9.html"]'))document.querySelector('.module-switch').insertAdjacentHTML('beforeend','<a href="./module9.html">M09</a>')
 if(!document.querySelector('.module-switch a[href="./module10.html"]'))document.querySelector('.module-switch').insertAdjacentHTML('beforeend','<a href="./module10.html">M10</a>')
+if(!document.querySelector('.module-switch a[href="./module12.html"]'))document.querySelector('.module-switch').insertAdjacentHTML('beforeend','<a href="./module12.html">M12</a>')
+if(!document.querySelector('.module-switch a[href="./module13.html"]'))document.querySelector('.module-switch').insertAdjacentHTML('beforeend','<a href="./module13.html">M13</a>')
 document.querySelector('#searchButton').onclick=()=>{document.querySelector('.searchbox').classList.toggle('open');document.querySelector('#search').focus()}
 document.querySelector('#search').oninput=e=>{const term=e.target.value.toLowerCase().trim(),items=[...document.querySelector('.view.active').querySelectorAll('.searchable,.pyq-card')];let n=0;items.forEach(x=>{const hit=!term||x.textContent.toLowerCase().includes(term);x.classList.toggle('hidden',!hit);if(hit)n++});document.querySelector('#searchResult').textContent=term?`${n} matching blocks`:'Search current view'}
 document.querySelectorAll('.codebox button').forEach(b=>b.onclick=async()=>{await navigator.clipboard.writeText(b.closest('.codebox').querySelector('code').innerText);const t=document.querySelector('.toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1000)})

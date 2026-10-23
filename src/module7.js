@@ -1,4 +1,5 @@
 import './style.css'
+import { applyNotePointers } from './notePointers.js'
 import { module7Topics, module7QuestionCount } from './practice7.js'
 
 const lectures = [
@@ -82,9 +83,12 @@ def exponential_search(arr, key):
 <div class="view" data-panel="revision"><section class="page-hero revision-head searchable"><p class="eyebrow"><i></i> Last-day recall</p><h1>Module 7 Revision</h1><button id="print">Print sheet</button></section><section class="revision-grid"><article class="rev"><span>01</span><h2>Linear</h2><ul><li>Unsorted okay</li><li>O(1) best</li><li>O(n) worst</li></ul></article><article class="rev"><span>02</span><h2>Binary</h2><ul><li>Sorted array</li><li>low/high/mid</li><li>O(log n)</li></ul></article><article class="rev"><span>03</span><h2>Bounds</h2><ul><li>low ≤ high</li><li>mid + 1</li><li>mid − 1</li></ul></article><article class="rev"><span>04</span><h2>Exponential</h2><ul><li>1,2,4…</li><li>then binary</li><li>O(log i)</li></ul></article><article class="rev warning"><span>05</span><h2>Traps</h2><ul><li>sorted linked list</li><li>exact comparisons</li><li>array limits</li></ul></article></section></div>
 </main></div><button class="menu" id="menu">☰</button><div class="toast">Copied</div>`
 
+applyNotePointers()
 const tabs = [...document.querySelectorAll('.tab')]
 document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module9.html">M09</a>')
 document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module10.html">M10</a>')
+document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module12.html">M12</a>')
+document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module13.html">M13</a>')
 const panels = [...document.querySelectorAll('.view')]
 const practiceTopic = document.querySelector('#practiceTopic')
 const practiceDifficulty = document.querySelector('#practiceDifficulty')

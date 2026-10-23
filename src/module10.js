@@ -1,4 +1,5 @@
 import './style.css'
+import { applyNotePointers } from './notePointers.js'
 import { module10Topics, module10QuestionCount } from './practice10.js'
 import { lectureData, lessonMarkup, mentalModelMarkup, codebox } from './module10Lessons.js'
 const esc = value => String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;')
@@ -48,6 +49,9 @@ ${lessonMarkup}
 <div class="view" data-panel="revision"><section class="page-hero revision-head searchable" data-title="Hashing revision"><p class="eyebrow"><i></i> GATE DA · quick recall</p><h1>Hashing Quick Revision</h1><p>Hash, bucket, collision, probing, load factor, complexity ek jagah.</p><button id="print">Print sheet</button></section>${revision}</div>
 </main></div><button class="menu" id="menu">☰</button><div class="toast">Copied</div>`
 
+document.querySelector('.module-switch').insertAdjacentHTML('beforeend','<a href="./module12.html">M12</a>')
+document.querySelector('.module-switch').insertAdjacentHTML('beforeend','<a href="./module13.html">M13</a>')
+applyNotePointers()
 const tabs=[...document.querySelectorAll('.tab')]
 const panels=[...document.querySelectorAll('.view')]
 const practiceTopic=document.querySelector('#practiceTopic')

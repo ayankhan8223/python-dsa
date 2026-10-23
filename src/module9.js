@@ -1,4 +1,5 @@
 import './style.css'
+import { applyNotePointers } from './notePointers.js'
 import { module9Topics, module9QuestionCount } from './practice9.js'
 import { lectureData, mentalModelMarkup, lessonMarkup, codebox } from './module9Lessons.js'
 
@@ -50,8 +51,11 @@ ${lessonMarkup}
 <div class="view" data-panel="revision"><section class="page-hero revision-head searchable" data-title="Recursion revision"><p class="eyebrow"><i></i> GATE DA · quick recall</p><h1>Recursion Quick Revision</h1><p>Base case, call order, return order, time aur stack space ek jagah.</p><button id="print">Print sheet</button></section>${revisionMarkup}</div>
 </main></div><button class="menu" id="menu">☰</button><div class="toast">Copied</div>`
 
+applyNotePointers()
 const tabs = [...document.querySelectorAll('.tab')]
 document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module10.html">M10</a>')
+document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module12.html">M12</a>')
+document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module13.html">M13</a>')
 const panels = [...document.querySelectorAll('.view')]
 const practiceTopic = document.querySelector('#practiceTopic')
 const practiceDifficulty = document.querySelector('#practiceDifficulty')

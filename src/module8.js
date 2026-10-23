@@ -1,4 +1,5 @@
 import './style.css'
+import { applyNotePointers } from './notePointers.js'
 import { module8Topics, module8QuestionCount } from './practice8.js'
 import { quickSortLabMarkup, mountQuickSortLab, quickSortUserCode } from './quickSortLab.js'
 import { sortingRevisionMarkup, sortingComparisonTableMarkup } from './sortingRevision.js'
@@ -157,9 +158,12 @@ const complexitySection = document.querySelector('#complexity')
 complexitySection.querySelector('.table-wrap').outerHTML = sortingComparisonTableMarkup
 complexitySection.querySelector('.table-note').remove()
 
+applyNotePointers()
 const tabs = [...document.querySelectorAll('.tab')]
 document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module9.html">M09</a>')
 document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module10.html">M10</a>')
+document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module12.html">M12</a>')
+document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module13.html">M13</a>')
 const panels = [...document.querySelectorAll('.view')]
 const practiceTopic = document.querySelector('#practiceTopic')
 const practiceDifficulty = document.querySelector('#practiceDifficulty')

@@ -1,4 +1,5 @@
 import './style.css'
+import { applyNotePointers } from './notePointers.js'
 import { module5Topics, module5QuestionCount } from './practice5.js'
 
 const lectures = [
@@ -240,6 +241,7 @@ show(3)</code></pre></div><div class="zero-title"><span>BEFORE FIRST RETURN</spa
 <div class="view" data-panel="revision"><section class="page-hero revision-head searchable" data-title="Revision sheet"><p class="eyebrow"><i></i> Last-day recall</p><h1>Module 5 Revision</h1><p>LIFO, implementations, complexity aur applications.</p><button id="print">Print sheet</button></section><section class="revision-grid"><article class="rev"><span>01</span><h2>Core</h2><ul><li>Insertion/deletion at TOP</li><li>LIFO</li><li>peek state unchanged</li><li>empty pop underflow</li></ul></article><article class="rev"><span>02</span><h2>Python list</h2><ul><li>right end TOP</li><li>append push</li><li>pop pop</li><li>[-1] peek</li></ul></article><article class="rev"><span>03</span><h2>deque</h2><ul><li>one endpoint consistently</li><li>append/pop O(1)</li><li>empty check</li></ul></article><article class="rev"><span>04</span><h2>Linked stack</h2><ul><li>self.top first node</li><li>new.next = old top</li><li>top = top.next on pop</li></ul></article><article class="rev"><span>05</span><h2>Applications</h2><ul><li>reverse string</li><li>parentheses</li><li>undo</li><li>recursion/DFS</li></ul></article><article class="rev warning"><span>06</span><h2>Traps</h2><ul><li>peek ≠ pop</li><li>TOP endpoint</li><li>list front O(n)</li><li>leftover openings invalid</li></ul></article></section></div>
 </main></div><button class="menu" id="menu">☰</button><div class="toast">Copied</div>`
 
+applyNotePointers()
 const tabs = [...document.querySelectorAll('.tab')]
 const panels = [...document.querySelectorAll('[data-panel]')]
 const toc = document.querySelector('#toc')
@@ -286,6 +288,8 @@ if (!document.querySelector('.module-switch a[href="./module7.html"]')) document
 if (!document.querySelector('.module-switch a[href="./module8.html"]')) document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module8.html">M08</a>')
 if (!document.querySelector('.module-switch a[href="./module9.html"]')) document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module9.html">M09</a>')
 if (!document.querySelector('.module-switch a[href="./module10.html"]')) document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module10.html">M10</a>')
+if (!document.querySelector('.module-switch a[href="./module12.html"]')) document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module12.html">M12</a>')
+if (!document.querySelector('.module-switch a[href="./module13.html"]')) document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module13.html">M13</a>')
 document.querySelector('#searchButton').onclick = () => { document.querySelector('.searchbox').classList.toggle('open'); document.querySelector('#search').focus() }
 document.querySelector('#search').oninput = event => { const query = event.target.value.toLowerCase(); document.querySelectorAll('.view.active .searchable').forEach(item => item.classList.toggle('hidden', query && !item.textContent.toLowerCase().includes(query))) }
 

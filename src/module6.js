@@ -1,4 +1,5 @@
 import './style.css'
+import { applyNotePointers } from './notePointers.js'
 import { module6Topics, module6QuestionCount } from './practice6.js'
 
 const lectures = [
@@ -196,6 +197,7 @@ counter.serve_next()         # B leaves</code></pre></div><div class="table-wrap
 <div class="view" data-panel="revision"><section class="page-hero revision-head searchable" data-title="Revision sheet"><p class="eyebrow"><i></i> Last-day recall</p><h1>Module 6 Revision</h1><p>FIFO, implementations, complexity and queue applications.</p><button id="print">Print sheet</button></section><section class="revision-grid"><article class="rev"><span>01</span><h2>Core</h2><ul><li>FIFO</li><li>enqueue at REAR</li><li>dequeue at FRONT</li><li>front does not remove</li></ul></article><article class="rev"><span>02</span><h2>List</h2><ul><li>append rear</li><li>pop(0) front</li><li>dequeue O(n)</li><li>front [0]</li></ul></article><article class="rev"><span>03</span><h2>deque</h2><ul><li>append rear</li><li>popleft front</li><li>endpoint O(1)</li><li>guard empty</li></ul></article><article class="rev"><span>04</span><h2>Linked queue</h2><ul><li>head = FRONT</li><li>tail = REAR</li><li>empty: both None</li><li>both ops O(1)</li></ul></article><article class="rev"><span>05</span><h2>Applications</h2><ul><li>BFS</li><li>ticket counter</li><li>two stacks</li><li>reverse first k</li></ul></article><article class="rev warning"><span>06</span><h2>Traps</h2><ul><li>front ≠ dequeue</li><li>FIFO ≠ priority</li><li>list pop(0) O(n)</li><li>last dequeue resets tail</li></ul></article></section></div>
 </main></div><button class="menu" id="menu">☰</button><div class="toast">Copied</div>`
 
+applyNotePointers()
 const tabs = [...document.querySelectorAll('.tab')]
 const panels = [...document.querySelectorAll('[data-panel]')]
 const toc = document.querySelector('#toc')
@@ -249,3 +251,5 @@ document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a hre
 document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module8.html">M08</a>')
 document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module9.html">M09</a>')
 document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module10.html">M10</a>')
+document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module12.html">M12</a>')
+document.querySelector('.module-switch').insertAdjacentHTML('beforeend', '<a href="./module13.html">M13</a>')

@@ -1,4 +1,5 @@
 import './style.css'
+import { applyNotePointers } from './notePointers.js'
 import { module4Topics, module4QuestionCount } from './practice4.js'
 
 const pyqs=[
@@ -1183,6 +1184,9 @@ lectureList.querySelector('[data-lecture="4.9"]')?.closest('label')?.insertAdjac
 const moduleLinks=document.querySelector('.module-switch');if(moduleLinks&&!moduleLinks.querySelector('a[href="./module5.html"]'))moduleLinks.insertAdjacentHTML('beforeend','<a href="./module5.html">M05</a>');if(moduleLinks&&!moduleLinks.querySelector('a[href="./module6.html"]'))moduleLinks.insertAdjacentHTML('beforeend','<a href="./module6.html">M06</a>');if(moduleLinks&&!moduleLinks.querySelector('a[href="./module7.html"]'))moduleLinks.insertAdjacentHTML('beforeend','<a href="./module7.html">M07</a>');if(moduleLinks&&!moduleLinks.querySelector('a[href="./module8.html"]'))moduleLinks.insertAdjacentHTML('beforeend','<a href="./module8.html">M08</a>')
 if(moduleLinks&&!moduleLinks.querySelector('a[href="./module9.html"]'))moduleLinks.insertAdjacentHTML('beforeend','<a href="./module9.html">M09</a>')
 if(moduleLinks&&!moduleLinks.querySelector('a[href="./module10.html"]'))moduleLinks.insertAdjacentHTML('beforeend','<a href="./module10.html">M10</a>')
+if(moduleLinks&&!moduleLinks.querySelector('a[href="./module12.html"]'))moduleLinks.insertAdjacentHTML('beforeend','<a href="./module12.html">M12</a>')
+if(moduleLinks&&!moduleLinks.querySelector('a[href="./module13.html"]'))moduleLinks.insertAdjacentHTML('beforeend','<a href="./module13.html">M13</a>')
+applyNotePointers()
 const tabs=[...document.querySelectorAll('.tab')],panels=[...document.querySelectorAll('[data-panel]')],toc=document.querySelector('#toc'),sidebar=document.querySelector('.sidebar')
 function buildToc(view){const sections=[...document.querySelector(`[data-panel="${view}"]`).querySelectorAll('[data-title]')];toc.innerHTML=sections.map((s,i)=>{if(!s.id)s.id=`${view}-${i}`;return `<a href="#${s.id}"><i>${String(i+1).padStart(2,'0')}</i>${s.dataset.title}</a>`}).join('')}
 function clearSearch(){document.querySelector('#search').value='';document.querySelectorAll('.searchable,.pyq-card').forEach(x=>x.classList.remove('hidden'));document.querySelector('#searchResult').textContent='Search current view'}
