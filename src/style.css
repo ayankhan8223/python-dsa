@@ -928,6 +928,53 @@ th { font-size: 12px; }
 .graph-lab-stage{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(210px,1fr);gap:16px;align-items:center;margin-top:14px;padding:12px;background:var(--card);border:1px solid var(--line);border-radius:12px}
 .graph-lab-facts{min-width:0}.graph-lab-facts p{margin:9px 0;padding:10px;background:var(--green-pale);border-radius:8px}.graph-lab-facts b{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em}.graph-lab-facts span{display:block;margin-top:5px;color:var(--ink);font:600 13px 'DM Mono',monospace;overflow-wrap:anywhere}
 .graph-lab-status{margin-top:12px;color:var(--green-dark);font-size:14px;line-height:1.6}
+.bellman-flow-callout{margin:22px 0;padding:20px 24px;border:1px solid var(--line);border-left:5px solid var(--orange);border-radius:12px;background:var(--green-pale)}
+.bellman-flow-callout h3{margin:0 0 12px;color:var(--green-dark)}
+.bellman-flow-callout ol{margin:0;padding-left:22px;display:grid;gap:9px;line-height:1.65}
+.bellman-flow-callout li::marker{color:var(--orange);font-weight:800}
+.bellman-change{padding:2px 6px;border-radius:5px;background:var(--green-pale);color:var(--green-dark)}
+.bellman-speed-label{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:12px;font-weight:700}
+.bellman-speed-label select{padding:8px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px}
+.bellman-simulator-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:15px}
+.bellman-panel{min-width:0;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.bellman-panel>strong{display:block;margin-bottom:10px;color:var(--green-dark);font-size:12px}
+.bellman-code-panel{grid-column:1/-1;grid-row:1}
+#bellmanGraph svg,#dijkstraGraph svg{display:block;width:100%;height:auto}
+.algorithm-simulator .graph-node.is-current circle{fill:#2563eb;stroke:#1d4ed8}
+.algorithm-simulator .graph-node.is-current text{fill:#fff}
+.algorithm-simulator .graph-node.is-updated circle{fill:var(--green);stroke:var(--green)}
+.algorithm-simulator .graph-node.is-updated text{fill:#fff}
+.bellman-simulator .graph-edges line.is-active{stroke:var(--orange);stroke-width:4.5}
+.bellman-simulator #bellmanArrow path{fill:var(--muted)}
+.bellman-simulator #bellmanArrowActive path{fill:var(--orange)}
+.bellman-simulator .graph-node.is-current circle{fill:#2563eb;stroke:#1d4ed8}
+.bellman-simulator .graph-node.is-current text{fill:#fff}
+.bellman-simulator .graph-node.is-updated circle{fill:var(--green);stroke:var(--green)}
+.bellman-simulator .graph-node.is-updated text{fill:#fff}
+.bellman-edge-state{margin-top:10px;color:var(--muted);font:700 11px 'DM Mono',monospace}
+.bellman-code-panel pre{max-height:520px;overflow:auto;margin:0;padding:6px 0;background:color-mix(in srgb,var(--paper) 60%,var(--card));border:1px solid var(--line);border-radius:8px;font-size:12px;line-height:1.6}
+.bellman-code-line{display:flex;min-width:max-content;padding:0 10px;border-left:3px solid transparent}
+.bellman-code-line.is-active{border-color:var(--orange);background:var(--green-pale);font-weight:700}
+.bellman-line-number{flex:none;width:28px;color:var(--muted);user-select:none}
+.bellman-variables{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-bottom:16px}
+.bellman-variables>div{min-width:0;padding:8px;background:var(--green-pale);border-radius:7px}
+.bellman-variables b,.bellman-variables span{display:block;overflow-wrap:anywhere}
+.bellman-variables b{color:var(--muted);font-size:10px}
+.bellman-variables span{margin-top:4px;font:700 12px 'DM Mono',monospace}
+.bellman-distance-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+.bellman-distance-grid>div{padding:7px 3px;border:1px solid var(--line);border-radius:7px;text-align:center}
+.bellman-distance-grid>div.is-updated{border-color:var(--green);background:var(--green-pale)}
+.bellman-distance-grid b,.bellman-distance-grid span{display:block;font:700 12px 'DM Mono',monospace}
+.bellman-distance-grid span{margin-top:3px;color:var(--green-dark)}
+.bellman-distance-grid small{display:block;margin-top:3px;color:var(--muted);font-size:9px}
+.bellman-update-status{min-height:42px;margin-top:10px;padding:9px;border-radius:7px;background:var(--paper);color:var(--muted);font:700 11px/1.5 'DM Mono',monospace}
+.bellman-update-status.is-success{background:var(--green-pale);color:var(--green-dark)}
+.bellman-update-status.is-warning{background:var(--orange-pale);color:var(--red)}
+.bellman-revision{margin:22px 0;padding:20px;border:1px solid var(--line);border-radius:12px;background:var(--green-pale)}
+.bellman-revision h3{margin:0 0 12px;color:var(--green-dark)}
+.bellman-revision ol{display:grid;gap:5px;margin:0;padding-left:22px;line-height:1.6}
+.bellman-revision p{margin:12px 0 0;line-height:1.6}
+@media(max-width:650px){.bellman-flow-callout{padding:16px}.bellman-simulator-grid{grid-template-columns:1fr}.bellman-code-panel{grid-column:auto;grid-row:auto}.bellman-variables{grid-template-columns:repeat(2,minmax(0,1fr))}.bellman-code-panel pre{max-height:360px}.algorithm-simulator .graph-lab-controls span{width:100%;margin-left:0}}
 .dfs-flow-stage{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(190px,1fr);gap:20px;align-items:center;margin-top:14px;padding:14px;background:var(--card);border:1px solid var(--line);border-radius:12px}
 .dfs-flow-stage svg{display:block;width:100%;height:auto;max-width:650px}
 .dfs-flow-stage strong{display:block;margin:10px 0 6px;color:var(--muted);font-size:12px}
@@ -940,16 +987,71 @@ th { font-size: 12px; }
 .dfs-flow-neighbour.is-checking{color:var(--ink);background:var(--green-pale);border-radius:6px}
 .dfs-flow-neighbour span{font-size:11px;text-align:right}
 .dfs-flow-values{color:var(--ink);font:600 13px 'DM Mono',monospace;overflow-wrap:anywhere}
-.dfs-flow .graph-edges line.is-active{stroke:var(--orange);stroke-width:5}
-.dfs-flow .graph-node.is-finished circle{fill:var(--card);stroke:var(--muted)}
-.dfs-flow .graph-node.is-finished text{fill:var(--muted)}
+.dfs-flow .graph-edges line.is-active,.bfs-flow .graph-edges line.is-active{stroke:var(--orange);stroke-width:5}
+.dfs-flow .graph-node.is-finished circle,.bfs-flow .graph-node.is-finished circle{fill:var(--card);stroke:var(--muted)}
+.dfs-flow .graph-node.is-finished text,.bfs-flow .graph-node.is-finished text{fill:var(--muted)}
+.bfs-flow-queue{display:flex;flex-wrap:wrap;gap:6px;min-height:34px;align-items:center}
+.bfs-flow-item{display:flex;align-items:center;gap:4px;padding:5px 8px;border:1px solid var(--line);border-radius:7px;color:var(--ink);background:var(--green-pale)}
+.bfs-flow-item.is-front{border-color:var(--orange)}
+.bfs-flow-item small{color:var(--muted);font-size:11px}
+.choice-flow-stage{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(210px,1fr);gap:16px;align-items:center;margin-top:14px;padding:14px;background:var(--card);border:1px solid var(--line);border-radius:12px}
+.choice-flow-stage svg{display:block;width:100%;height:auto;max-width:650px}
+.choice-flow-facts{display:grid;gap:7px;min-width:0}
+.choice-flow-facts>div{padding:8px 10px;background:var(--green-pale);border-radius:7px}
+.choice-flow-facts strong{display:block;color:var(--muted);font-size:11px}
+.choice-flow-facts span{display:block;margin-top:3px;color:var(--ink);font:600 12px/1.5 'DM Mono',monospace;overflow-wrap:anywhere}
+.choice-flow .graph-edges line.is-active{stroke:var(--orange);stroke-width:5}
+.choice-flow .graph-node.is-active circle{fill:var(--green-pale);stroke:var(--green)}
+.choice-flow .graph-node.is-finished circle{fill:var(--card);stroke:var(--muted)}
+.choice-flow .graph-node.is-finished text{fill:var(--muted)}
+.choice-flow marker path{fill:var(--muted)}
+.dijkstra-flow-stage{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(240px,1fr);gap:18px;align-items:center;margin-top:14px;padding:14px;background:var(--card);border:1px solid var(--line);border-radius:12px}
+.dijkstra-flow-stage svg{display:block;width:100%;height:auto;max-width:650px}
+.dijkstra-flow-side{min-width:0}
+.dijkstra-flow-side>strong{display:block;color:var(--green-dark);font-size:14px}
+.dijkstra-active-line{display:block;margin-top:8px;padding:7px 9px;border-left:3px solid var(--orange);border-radius:5px;background:var(--green-pale);color:var(--ink);font:600 11px/1.5 'DM Mono',monospace;overflow-wrap:anywhere}
+.dijkstra-calculation{min-height:42px;margin:9px 0;padding:10px;background:var(--green-pale);border-radius:8px;color:var(--ink);font:700 12px/1.5 'DM Mono',monospace;overflow-wrap:anywhere}
+.dijkstra-distance-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.dijkstra-distance-grid>div{padding:6px 2px;text-align:center;border:1px solid var(--line);border-radius:7px}
+.dijkstra-distance-grid>div.is-current{border-color:var(--orange);background:var(--green-pale)}
+.dijkstra-distance-grid>div.is-updated{border-color:var(--orange);background:var(--green-pale);box-shadow:inset 0 0 0 2px var(--orange)}
+.dijkstra-distance-grid>div.is-settled{background:var(--green-pale)}
+.dijkstra-distance-grid b,.dijkstra-distance-grid span,.dijkstra-distance-grid small{display:block}
+.dijkstra-distance-grid b{color:var(--muted);font-size:11px}.dijkstra-distance-grid span{color:var(--ink);font:700 18px 'DM Mono',monospace}.dijkstra-distance-grid small{color:var(--muted);font-size:9px}
+.dijkstra-trace-meta{display:grid;gap:3px;margin-top:11px;color:var(--ink);font:600 12px/1.5 'DM Mono',monospace;overflow-wrap:anywhere}
+.dijkstra-trace-meta b{margin-top:6px;color:var(--muted);font:700 11px 'DM Sans',sans-serif}
+.dijkstra-flow .graph-edges line.is-active{stroke:var(--orange);stroke-width:5}
+.dijkstra-flow .graph-node.is-settled circle{fill:var(--green-pale);stroke:var(--green)}
+.dijkstra-flow .graph-node.is-updated circle{fill:var(--green-pale);stroke:var(--orange);stroke-width:4}
+.dijkstra-flow marker path{fill:var(--orange)}
+.algorithm-simulator.dijkstra-flow .graph-node.is-current circle{fill:#2563eb;stroke:#1d4ed8}
+.algorithm-simulator.dijkstra-flow .graph-node.is-current text{fill:#fff}
+.algorithm-simulator.dijkstra-flow .graph-node.is-updated circle{fill:var(--green);stroke:var(--green)}
+.algorithm-simulator.dijkstra-flow .graph-node.is-updated text{fill:#fff}
+.dijkstra-flow-callout{margin:18px 0 24px;padding:18px 20px;border:1px solid var(--green);border-left:5px solid var(--orange);border-radius:12px;background:var(--green-pale)}
+.dijkstra-flow-callout>p{margin:0 0 12px;color:var(--ink);line-height:1.6}
+.dijkstra-flow-list{margin:0;padding-left:1.5em;line-height:1.65}
+.dijkstra-flow-list li{margin:8px 0;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
+.dijkstra-flow-list li strong{color:var(--green-dark)}
+.dijkstra-flow-list li em{font-style:normal;font-weight:700;color:var(--green-dark)}
+.dijkstra-flow-list li::marker{color:var(--orange);font-weight:700}
+@media(prefers-reduced-motion:no-preference){
+  .bfs-flow .graph-edges line.is-active{animation:bfs-edge-focus .6s ease-out}
+  .bfs-flow .graph-node.is-current circle{animation:bfs-node-focus .6s ease-out}
+  .choice-flow .graph-edges line.is-active{animation:bfs-edge-focus .6s ease-out}
+  .choice-flow .graph-node.is-current circle{animation:bfs-node-focus .6s ease-out}
+  .dijkstra-flow .graph-edges line.is-active{animation:bfs-edge-focus .6s ease-out}
+  .dijkstra-flow .graph-node.is-current circle{animation:bfs-node-focus .6s ease-out}
+}
+@keyframes bfs-edge-focus{from{opacity:.35;stroke-width:2}to{opacity:1;stroke-width:5}}
+@keyframes bfs-node-focus{from{opacity:.55}to{opacity:1}}
 .graph-check{margin-top:16px;padding:14px 16px;border:1px solid var(--line);border-radius:9px;background:var(--green-pale)}
 .graph-check summary{cursor:pointer;font-weight:700;color:var(--green-dark)}.graph-check p{margin:10px 0 0}
 .graph-pyq-link{display:inline-block;margin-top:8px;color:var(--green);font-weight:700}
 .graph-pyq-solution{margin-top:16px;padding:15px 17px;background:var(--green-pale);border:1px solid var(--line);border-radius:9px}.graph-pyq-solution b{color:var(--green-dark)}.graph-pyq-solution p{margin:8px 0 0;line-height:1.65}
 .graph-lesson-nav{display:flex;justify-content:space-between;gap:18px;margin-top:24px;padding-top:18px;border-top:1px solid var(--line);font-size:12px}.graph-lesson-nav a{max-width:47%;color:var(--green);font-weight:700}.graph-lesson-nav a:last-child{text-align:right}.graph-lesson-nav span{color:var(--muted)}
 .lecture-list a{color:inherit;text-decoration:none}
-@media(max-width:760px){.graph-type-grid{grid-template-columns:1fr}.graph-lab-head{display:block}.graph-lab-stage,.dfs-flow-stage{grid-template-columns:1fr}.graph-lab-controls span{margin-left:0}}
+@media(max-width:760px){.graph-type-grid{grid-template-columns:1fr}.graph-lab-head{display:block}.graph-lab-stage,.dfs-flow-stage,.choice-flow-stage,.dijkstra-flow-stage{grid-template-columns:1fr}.graph-lab-controls span{margin-left:0}}
 .bst-trace{margin:24px 0;padding:18px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
 .bst-trace-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:16px}
 .bst-trace-head span,.bst-checkpoints>strong{color:var(--orange);font:700 11px 'DM Mono',monospace;letter-spacing:.08em}

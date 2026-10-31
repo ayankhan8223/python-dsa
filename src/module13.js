@@ -2,6 +2,8 @@ import './style.css'
 import { applyNotePointers } from './notePointers.js'
 import { lectureData, lessonMarkup, revisionMarkup } from './module13Lessons.js'
 import { module13Topics, module13QuestionCount } from './practice13.js'
+import { bellmanCode, bellmanGraph, buildBellmanFrames } from './bellmanFordDemo.js'
+import { dijkstraCode, dijkstraGraph, buildDijkstraFrames } from './dijkstraDemo.js'
 
 const esc = value => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;')
 const route = number => number === 1 ? './index.html' : `./module${number}.html`
@@ -188,5 +190,258 @@ if(dfsFlowRoot){
     timer=setInterval(()=>{step++;draw();if(step===dfsFlowFrames.length-1)stop()},2000)
   })
   document.addEventListener('visibilitychange',()=>{if(document.hidden)stop()})
+  draw()
+}
+
+const bfsFlowFrames=(()=>{
+  const frames=[],queue=['A'],visited=['A'],processed=[],distance={A:0},outcomes={}
+  const capture=(kind,message,current=null,edge=null,checking=null)=>frames.push({kind,message,current,edge,checking,queue:[...queue],visited:[...visited],processed:[...processed],distance:{...distance},outcomes:Object.fromEntries(Object.entries(outcomes).map(([v,checks])=>[v,[...checks]]))})
+  capture('ready','Start: A ko visited mark karke queue mein rakha. Distance A=0. Ab queue ke front se pop karenge.')
+  while(queue.length){
+    const node=queue.shift()
+    outcomes[node]=Array(dfsNeighbours[node].length).fill('next')
+    capture('dequeue',`${node} queue ke front se nikla. Ab ${node} ke neighbours order mein check karo. Queue mein bache nodes apni turn ka wait karenge.`,node)
+    dfsNeighbours[node].forEach((neighbour,index)=>{
+      const edge=node+neighbour
+      if(visited.includes(neighbour)){
+        outcomes[node][index]='skipped'
+        capture('skip',`${node}→${neighbour} check: ${neighbour} pehle hi visited/enqueued hai. Skip karo; queue mein duplicate mat dalo.`,node,edge,index)
+      }else{
+        visited.push(neighbour)
+        distance[neighbour]=distance[node]+1
+        queue.push(neighbour)
+        outcomes[node][index]='enqueued'
+        capture('enqueue',`${node}→${neighbour} check: naya node mila. ${neighbour} ko abhi visited mark karo; distance ${distance[node]}+1=${distance[neighbour]} set karke queue ke rear mein add karo.`,node,edge,index)
+      }
+    })
+    processed.push(node)
+    capture('processed',`${node} ke saare ${dfsNeighbours[node].length} neighbours check ho gaye. ${node} done; ab queue ke front par ${queue[0]||'koi node nahi'} hai.`,node)
+  }
+  capture('complete','Queue empty hai. BFS complete: A, B, C, D, E process hue.')
+  return frames
+})()
+const bfsFlowRoot=document.querySelector('#bfsFlow')
+if(bfsFlowRoot){
+  let step=0,timer=null
+  const stop=()=>{if(timer){clearInterval(timer);timer=null}document.querySelector('#bfsFlowPlay').textContent='▶ Play'}
+  const draw=()=>{
+    const frame=bfsFlowFrames[step]
+    const edgeMarkup=lines.map(([a,b])=>{const [x1,y1]=pos[a], [x2,y2]=pos[b],dx=x2-x1,dy=y2-y1,n=Math.hypot(dx,dy);return `<line class="${frame.edge===a+b||frame.edge===b+a?'is-active':''}" x1="${x1+dx/n*27}" y1="${y1+dy/n*27}" x2="${x2-dx/n*27}" y2="${y2-dy/n*27}"/>`}).join('')
+    const nodeMarkup=Object.entries(pos).map(([v,[x,y]])=>`<g class="graph-node ${v===frame.current?'is-current':frame.processed.includes(v)?'is-finished':frame.visited.includes(v)?'is-visited':''}"><circle cx="${x}" cy="${y}" r="25"/><text x="${x}" y="${y+1}" text-anchor="middle" dominant-baseline="central">${v}</text></g>`).join('')
+    document.querySelector('#bfsFlowGraph').innerHTML=`<svg viewBox="0 0 580 275" role="img" aria-label="BFS step ${step+1}: ${frame.message}"><g class="graph-edges">${edgeMarkup}</g>${nodeMarkup}</svg>`
+    document.querySelector('#bfsFlowCurrent').textContent=frame.current||'—'
+    document.querySelector('#bfsFlowQueue').innerHTML=frame.queue.length?frame.queue.map((v,i)=>`<span class="bfs-flow-item ${i===0?'is-front':''}"><b>${v}</b><small>level ${frame.distance[v]}</small></span>`).join(''):'<span>empty</span>'
+    document.querySelector('#bfsFlowNeighbourTitle').textContent=frame.current?`${frame.current} · neighbour checks`:'Current node ke neighbours'
+    document.querySelector('#bfsFlowNeighbours').innerHTML=frame.current?dfsNeighbours[frame.current].map((v,i)=>{
+      const outcome=frame.outcomes[frame.current][i]
+      const active=frame.checking===i
+      const label=active?(frame.kind==='skip'?'visited → skip':'mark + enqueue'):outcome==='skipped'?'skip ✓':outcome==='enqueued'?'enqueued ✓':'next'
+      return `<div class="dfs-flow-neighbour ${active?'is-checking':''}"><code>${v}</code><span>${label}</span></div>`
+    }).join(''):'<span>—</span>'
+    document.querySelector('#bfsFlowVisited').textContent=frame.visited.join(' → ')
+    document.querySelector('#bfsFlowProcessed').textContent=frame.processed.join(' → ')||'—'
+    document.querySelector('#bfsFlowDistance').textContent=Object.entries(frame.distance).map(([v,d])=>`${v}=${d}`).join(' · ')
+    document.querySelector('#bfsFlowStatus').textContent=frame.message
+    document.querySelector('#bfsFlowCount').textContent=`Step ${step+1} / ${bfsFlowFrames.length}`
+    document.querySelector('#bfsFlowPrev').disabled=step===0
+    document.querySelector('#bfsFlowNext').disabled=step===bfsFlowFrames.length-1
+  }
+  document.querySelector('#bfsFlowPrev').addEventListener('click',()=>{stop();step=Math.max(0,step-1);draw()})
+  document.querySelector('#bfsFlowNext').addEventListener('click',()=>{stop();step=Math.min(bfsFlowFrames.length-1,step+1);draw()})
+  document.querySelector('#bfsFlowPlay').addEventListener('click',()=>{
+    if(timer){stop();return}
+    if(step===bfsFlowFrames.length-1)step=0
+    draw()
+    document.querySelector('#bfsFlowPlay').textContent='Ⅱ Pause'
+    timer=setInterval(()=>{step++;draw();if(step===bfsFlowFrames.length-1)stop()},2000)
+  })
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)stop()})
+  draw()
+}
+
+const choiceConfigs={
+  shortest:{
+    question:'A se T reachable? Minimum unweighted edges kitne?',algorithm:'Reachability: DFS/BFS · Minimum edges: BFS',directed:false,
+    nodes:{A:[75,125],B:[185,55],C:[315,55],D:[185,205],T:[455,125]},edges:[['A','B'],['B','C'],['C','T'],['A','D'],['D','T']],
+    frames:[
+      {current:'A',active:['A'],seen:['A'],frontier:'DFS stack: A',answer:'Reachability search starts',message:'DFS pehle A→B branch lega. Abhi shortest path ka koi guarantee nahi.'},
+      {current:'B',edge:'AB',active:['A','B'],seen:['A','B'],frontier:'DFS stack: A → B',answer:'T abhi nahi mila',message:'A ke neighbours mein B pehle hai; DFS B par gaya.'},
+      {current:'C',edge:'BC',active:['A','B','C'],seen:['A','B','C'],frontier:'DFS stack: A → B → C',answer:'T abhi nahi mila',message:'DFS ek hi branch mein aur deep ja raha hai.'},
+      {current:'T',edge:'CT',active:['A','B','C','T'],seen:['A','B','C','T'],frontier:'DFS stack: A → B → C → T',answer:'Reachable: YES · found path = 3 edges',message:'DFS ne T find kiya. “Reachable?” ka answer yes hai; 3 edges minimum hone ka proof nahi.'},
+      {current:'A',active:[],seen:['A'],frontier:'BFS queue: [A]',answer:'BFS distance[A] = 0',message:'Ab minimum edges ke liye BFS reset karke A ko queue mein rakho.'},
+      {current:'A',active:['B','D'],seen:['A','B','D'],frontier:'BFS queue: [B, D]',answer:'Level 1: B, D',message:'A pop hua; B aur D dono 1 edge door hain, dono enqueue hue.'},
+      {current:'B',edge:'BC',active:['D','C'],seen:['A','B','D','C'],frontier:'BFS queue: [D, C]',answer:'C distance 2; T abhi unseen',message:'B pop hua; C ko level 2 par enqueue kiya. D pehle queue mein tha, so D next hai.'},
+      {current:'D',edge:'DT',active:['C','T'],seen:['A','B','D','C','T'],frontier:'BFS queue: [C, T]',answer:'T distance 2 · path A → D → T',message:'D pop hua aur T first time level 2 par mila. Minimum = 2 edges, DFS ke first path se chhota.'}
+    ]
+  },
+  components:{
+    question:'Undirected graph mein kitne connected components?',algorithm:'DFS/BFS + all-vertices outer loop',directed:false,
+    nodes:{A:[85,80],B:[205,80],C:[315,80],D:[435,80],E:[260,205]},edges:[['A','B'],['C','D']],
+    frames:[
+      {current:'A',active:['A'],seen:['A'],frontier:'Outer loop start: A',answer:'Component 1 started',message:'A unvisited tha. DFS(A) se first component start.'},
+      {current:'B',edge:'AB',active:['A','B'],seen:['A','B'],frontier:'DFS stack: A → B',answer:'Component 1 = {A, B}',message:'B A ka neighbour hai. B ke baad aur unvisited neighbour nahi; search returns.'},
+      {current:'C',active:['C'],seen:['A','B','C'],frontier:'Outer loop start: C',answer:'Component 2 started',message:'Outer loop B skip karta hai, C unvisited milta hai. New search start.'},
+      {current:'D',edge:'CD',active:['C','D'],seen:['A','B','C','D'],frontier:'DFS stack: C → D',answer:'Component 2 = {C, D}',message:'C se D reach hota hai; A/B se C/D tak koi path nahi.'},
+      {current:'E',active:['E'],seen:['A','B','C','D','E'],frontier:'Outer loop start: E',answer:'Component 3 = {E}',message:'E isolated hai, phir bhi vertex hai; apna single-node component banata hai.'},
+      {current:null,active:[],seen:['A','B','C','D','E'],frontier:'All vertices checked',answer:'3 components: {A,B}, {C,D}, {E}',message:'Sirf DFS(A) se answer 1 nahi hota. Outer loop complete graph cover karta hai.'}
+    ]
+  },
+  cycle:{
+    question:'Directed graph mein cycle hai? Visited edge ka kya role?',algorithm:'DFS with active gray / finished black states',directed:true,
+    nodes:{A:[85,125],B:[215,55],C:[215,205],D:[420,125]},edges:[['A','B'],['B','D'],['A','C'],['C','D'],['C','A']],
+    frames:[
+      {current:'A',active:['A'],seen:['A'],frontier:'Gray stack: A',answer:'No cycle found yet',message:'A gray: DFS call active hai. White nodes abhi unvisited hain.'},
+      {current:'B',edge:'AB',active:['A','B'],seen:['A','B'],frontier:'Gray stack: A → B',answer:'No cycle found yet',message:'A→B tree edge; B gray ho gaya.'},
+      {current:'D',edge:'BD',active:['A','B','D'],seen:['A','B','D'],frontier:'Gray stack: A → B → D',answer:'No cycle found yet',message:'B→D tree edge. D ka outgoing edge nahi.'},
+      {current:'B',active:['A','B'],seen:['A','B','D'],finished:['D'],frontier:'Gray A,B · Black D',answer:'D finished; no cycle',message:'D black: uski call return ho gayi. B bhi finish hoga.'},
+      {current:'C',edge:'AC',active:['A','C'],seen:['A','B','C','D'],finished:['B','D'],frontier:'Gray A,C · Black B,D',answer:'No cycle found yet',message:'A ka next neighbour C hai. B aur D black hain.'},
+      {current:'C',edge:'CD',active:['A','C'],seen:['A','B','C','D'],finished:['B','D'],frontier:'Gray A,C · Black B,D',answer:'C→D points to BLACK; no cycle proof',message:'D visited hai, lekin finished black hai. C→D se cycle conclude mat karo.'},
+      {current:'C',edge:'CA',active:['A','C'],seen:['A','B','C','D'],finished:['B','D'],frontier:'Gray A,C · Black B,D',answer:'C→A points to GRAY → directed cycle',message:'A abhi active ancestor hai. C→A back edge gives directed cycle A→C→A.'}
+    ]
+  },
+  topo:{
+    question:'Dependencies ko valid order mein kaise likhen?',algorithm:'Kahn indegree-zero queue (DAG only)',directed:true,
+    nodes:{A:[85,125],B:[225,55],C:[225,205],D:[435,125]},edges:[['A','B'],['A','C'],['B','D'],['C','D']],
+    frames:[
+      {current:null,active:['A'],seen:[],frontier:'Zero-indegree queue: [A]',answer:'Indegree A=0, B=1, C=1, D=2',message:'Sirf A ka indegree 0 hai. A hi pehle output mein aa sakta hai.'},
+      {current:'A',active:['B','C'],seen:['A'],frontier:'Queue: [B, C]',answer:'Output: A',message:'A pop; A→B aur A→C remove; B,C ka indegree 0. Dono queue mein.'},
+      {current:'B',edge:'BD',active:['C'],seen:['A','B'],frontier:'Queue: [C]',answer:'Output: A, B · D indegree 1',message:'B pop; B→D remove. D ka ek incoming C→D abhi bacha hai.'},
+      {current:'C',edge:'CD',active:['D'],seen:['A','B','C'],frontier:'Queue: [D]',answer:'Output: A, B, C · D indegree 0',message:'C pop; C→D remove. Ab D ko queue mein add karo.'},
+      {current:'D',active:[],seen:['A','B','C','D'],frontier:'Queue: []',answer:'Valid topo order: A, B, C, D',message:'All 4 vertices output mein aaye: DAG. B aur C ka order swap bhi valid hai.'}
+    ]
+  }
+}
+const choiceFlowRoot=document.querySelector('#choiceFlow')
+if(choiceFlowRoot){
+  let mode='shortest',step=0,timer=null
+  const stop=()=>{if(timer){clearInterval(timer);timer=null}document.querySelector('#choicePlay').textContent='▶ Play'}
+  const draw=()=>{
+    const config=choiceConfigs[mode],frame=config.frames[step]
+    const markerId=`choiceArrow-${mode}`
+    const edgeMarkup=config.edges.map(([a,b])=>{
+      const [x1,y1]=config.nodes[a],[x2,y2]=config.nodes[b],dx=x2-x1,dy=y2-y1,n=Math.hypot(dx,dy),ux=dx/n,uy=dy/n
+      return `<line class="${frame.edge===a+b?'is-active':''}" x1="${x1+ux*27}" y1="${y1+uy*27}" x2="${x2-ux*(config.directed?36:27)}" y2="${y2-uy*(config.directed?36:27)}" ${config.directed?`marker-end="url(#${markerId})"`:''}/>`
+    }).join('')
+    const nodes=Object.entries(config.nodes).map(([v,[x,y]])=>`<g class="graph-node ${v===frame.current?'is-current':frame.active.includes(v)?'is-active':(frame.finished||[]).includes(v)?'is-finished':frame.seen.includes(v)?'is-visited':''}"><circle cx="${x}" cy="${y}" r="25"/><text x="${x}" y="${y+1}" text-anchor="middle" dominant-baseline="central">${v}</text></g>`).join('')
+    document.querySelector('#choiceGraph').innerHTML=`<svg viewBox="0 0 520 260" role="img" aria-label="${config.question} Step ${step+1}: ${frame.message}"><defs><marker id="${markerId}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z"/></marker></defs><g class="graph-edges">${edgeMarkup}</g>${nodes}</svg>`
+    document.querySelector('#choiceQuestion').textContent=config.question
+    document.querySelector('#choiceAlgorithm').textContent=config.algorithm
+    document.querySelector('#choiceFrontier').textContent=frame.frontier
+    document.querySelector('#choiceSeen').textContent=mode==='cycle'?`Gray: ${frame.active.join(', ')||'—'} · Black: ${(frame.finished||[]).join(', ')||'—'}`:frame.seen.join(' → ')||'—'
+    document.querySelector('#choiceAnswer').textContent=frame.answer
+    document.querySelector('#choiceStatus').textContent=frame.message
+    document.querySelector('#choiceCount').textContent=`Step ${step+1} / ${config.frames.length}`
+    document.querySelector('#choicePrev').disabled=step===0
+    document.querySelector('#choiceNext').disabled=step===config.frames.length-1
+  }
+  document.querySelector('#choiceMode').addEventListener('change',event=>{stop();mode=event.target.value;step=0;draw()})
+  document.querySelector('#choicePrev').addEventListener('click',()=>{stop();step=Math.max(0,step-1);draw()})
+  document.querySelector('#choiceNext').addEventListener('click',()=>{stop();step=Math.min(choiceConfigs[mode].frames.length-1,step+1);draw()})
+  document.querySelector('#choicePlay').addEventListener('click',()=>{
+    if(timer){stop();return}
+    if(step===choiceConfigs[mode].frames.length-1)step=0
+    draw()
+    document.querySelector('#choicePlay').textContent='Ⅱ Pause'
+    timer=setInterval(()=>{step++;draw();if(step===choiceConfigs[mode].frames.length-1)stop()},2100)
+  })
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)stop()})
+  draw()
+}
+
+const dijkstraNodes={A:[70,145],B:[260,65],C:[260,225],D:[520,145]}
+const dijkstraDisplayEdges=[['A','B',4],['A','C',2],['B','C',1],['B','D',5],['C','D',8]]
+const dijkstraRoot=document.querySelector('#dijkstraFlow')
+if(dijkstraRoot){
+  const frames=buildDijkstraFrames(),vertices=Object.keys(dijkstraGraph)
+  const codePanel=document.querySelector('#dijkstraCodeTrace')
+  codePanel.innerHTML=dijkstraCode.split('\n').map((line,index)=>`<span class="bellman-code-line" data-line="${index+1}"><span class="bellman-line-number">${index+1}</span><code>${esc(line)||' '}</code></span>`).join('')
+  let step=0,timer=null
+  const show=value=>value===undefined?'—':value===Infinity?'∞':String(value)
+  const pause=()=>{if(timer){clearInterval(timer);timer=null}document.querySelector('#dijkstraPlay').textContent='▶ Play'}
+  const draw=()=>{
+    const frame=frames[step],active=frame.edge?.join('')
+    const edges=dijkstraDisplayEdges.map(([a,b,edgeWeight])=>{
+      const selected=active===a+b||active===b+a,from=selected?frame.edge[0]:a,to=selected?frame.edge[1]:b
+      const [x1,y1]=dijkstraNodes[from],[x2,y2]=dijkstraNodes[to],dx=x2-x1,dy=y2-y1,n=Math.hypot(dx,dy),ux=dx/n,uy=dy/n
+      const [ax,ay]=dijkstraNodes[a],[bx,by]=dijkstraNodes[b],labelLength=Math.hypot(bx-ax,by-ay)
+      return `<line class="${selected?'is-active':''}" x1="${x1+ux*28}" y1="${y1+uy*28}" x2="${x2-ux*(selected?36:28)}" y2="${y2-uy*(selected?36:28)}" ${selected?'marker-end="url(#dijkstraFlowArrow)"':''}/><text class="graph-weight" x="${(ax+bx)/2+(by-ay)/labelLength*18}" y="${(ay+by)/2-(bx-ax)/labelLength*18}" text-anchor="middle">${edgeWeight}</text>`
+    }).join('')
+    const nodes=Object.entries(dijkstraNodes).map(([vertex,[x,y]])=>`<g class="graph-node ${vertex===frame.updated?'is-updated':vertex===frame.current?'is-current':frame.visited.includes(vertex)?'is-settled':frame.dist[vertex]!==undefined&&frame.dist[vertex]!==Infinity?'is-visited':''}"><circle cx="${x}" cy="${y}" r="25"/><text x="${x}" y="${y+1}" text-anchor="middle" dominant-baseline="central">${vertex}</text></g>`).join('')
+    document.querySelector('#dijkstraGraph').innerHTML=`<svg viewBox="0 0 600 290" role="img" aria-label="Dijkstra step ${step+1}: ${frame.message}"><defs><marker id="dijkstraFlowArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z"/></marker></defs><g class="graph-edges">${edges}</g>${nodes}</svg>`
+    document.querySelector('#dijkstraEdge').textContent=frame.edge?`Checking ${frame.edge[0]} → ${frame.edge[1]} · weight ${frame.weight}`:'No active edge'
+    document.querySelector('#dijkstraRound').textContent=frame.i===null?'—':`i=${frame.i} · round ${frame.i+1}/${vertices.length}`
+    document.querySelector('#dijkstraScan').textContent=frame.node||'—'
+    document.querySelector('#dijkstraCurrent').textContent=frame.current||'—'
+    document.querySelector('#dijkstraNeighbor').textContent=frame.neighbor||'—'
+    document.querySelector('#dijkstraWeight').textContent=frame.weight===null?'—':String(frame.weight)
+    document.querySelector('#dijkstraCandidate').textContent=frame.newDist===null?'—':String(frame.newDist)
+    document.querySelector('#dijkstraDistances').innerHTML=vertices.map(vertex=>`<div class="${vertex===frame.updated?'is-updated':''}"><b>${vertex}</b><span>${show(frame.dist[vertex])}</span><small>${frame.visited.includes(vertex)?'FINAL':'tentative'}</small></div>`).join('')
+    document.querySelector('#dijkstraSettled').textContent=frame.visited.join(' → ')||'none yet'
+    const change=document.querySelector('#dijkstraCalculation')
+    change.className=`bellman-update-status ${frame.updated?'is-success':''}`
+    change.textContent=frame.updated?`dist[${frame.updated}]: ${show(frame.previous[frame.updated])} → ${show(frame.dist[frame.updated])}`:frame.kind==='compare'||frame.kind==='compareMin'?frame.message:'No distance update on this step'
+    document.querySelector('#dijkstraStatus').textContent=frame.message
+    document.querySelector('#dijkstraCount').textContent=`Step ${step+1} / ${frames.length}`
+    document.querySelector('#dijkstraPrev').disabled=step===0
+    document.querySelector('#dijkstraNext').disabled=step===frames.length-1
+    codePanel.querySelectorAll('.bellman-code-line.is-active').forEach(line=>{line.classList.remove('is-active');line.removeAttribute('aria-current')})
+    const line=codePanel.querySelector(`[data-line="${frame.line}"]`)
+    if(line){line.classList.add('is-active');line.setAttribute('aria-current','step');codePanel.scrollTop=Math.max(0,line.offsetTop-codePanel.offsetTop-codePanel.clientHeight/2)}
+  }
+  const next=()=>{if(step<frames.length-1){step++;draw()}else pause()}
+  const start=()=>{if(step===frames.length-1)step=0;draw();document.querySelector('#dijkstraPlay').textContent='Ⅱ Pause';timer=setInterval(next,Number(document.querySelector('#dijkstraSpeed').value))}
+  document.querySelector('#dijkstraPrev').addEventListener('click',()=>{pause();step=Math.max(0,step-1);draw()})
+  document.querySelector('#dijkstraNext').addEventListener('click',()=>{pause();next()})
+  document.querySelector('#dijkstraRestart').addEventListener('click',()=>{pause();step=0;draw()})
+  document.querySelector('#dijkstraPlay').addEventListener('click',()=>{if(timer)pause();else start()})
+  document.querySelector('#dijkstraSpeed').addEventListener('change',()=>{if(timer){pause();start()}})
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)pause()})
+  draw()
+}
+
+const bellmanRoot=document.querySelector('#bellmanSimulator')
+if(bellmanRoot){
+  const frames=buildBellmanFrames(),vertices=Object.keys(bellmanGraph)
+  const coords={A:[55,165],B:[175,55],C:[305,165],D:[425,55]}
+  const codePanel=document.querySelector('#bellmanCodeTrace')
+  codePanel.innerHTML=bellmanCode.split('\n').map((line,index)=>`<span class="bellman-code-line" data-line="${index+1}"><span class="bellman-line-number">${index+1}</span><code>${esc(line)||' '}</code></span>`).join('')
+  let step=0,timer=null
+  const show=value=>value===undefined?'—':value===Infinity?'∞':String(value)
+  const pause=()=>{if(timer){clearInterval(timer);timer=null}document.querySelector('#bellmanPlay').textContent='▶ Play'}
+  const draw=()=>{
+    const frame=frames[step],active=frame.edge?.join('')
+    const edges=Object.entries(bellmanGraph).flatMap(([from,neighbours])=>neighbours.map(([to,weight])=>{
+      const [x1,y1]=coords[from],[x2,y2]=coords[to],dx=x2-x1,dy=y2-y1,length=Math.hypot(dx,dy),ux=dx/length,uy=dy/length
+      const selected=active===from+to
+      return `<line class="${selected?'is-active':''}" x1="${x1+ux*27}" y1="${y1+uy*27}" x2="${x2-ux*36}" y2="${y2-uy*36}" marker-end="url(#${selected?'bellmanArrowActive':'bellmanArrow'})"/><text class="graph-weight" x="${(x1+x2)/2+uy*16}" y="${(y1+y2)/2-ux*16}" text-anchor="middle">${weight}</text>`
+    })).join('')
+    const nodes=vertices.map(vertex=>{const [x,y]=coords[vertex];return `<g class="graph-node ${vertex===frame.updated?'is-updated':vertex===frame.current?'is-current':''}"><circle cx="${x}" cy="${y}" r="23"/><text x="${x}" y="${y+1}" text-anchor="middle" dominant-baseline="central">${vertex}</text></g>`}).join('')
+    document.querySelector('#bellmanGraph').innerHTML=`<svg viewBox="0 0 480 225" role="img" aria-label="Bellman-Ford step ${step+1}: ${frame.message}"><defs><marker id="bellmanArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z"/></marker><marker id="bellmanArrowActive" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z"/></marker></defs><g class="graph-edges">${edges}</g>${nodes}</svg>`
+    document.querySelector('#bellmanEdge').textContent=frame.edge?`Checking ${frame.edge[0]} → ${frame.edge[1]} · weight ${frame.weight}`:'No active edge'
+    document.querySelector('#bellmanPass').textContent=frame.kind.startsWith('cycle')?'extra cycle pass':frame.i===null?'—':`i=${frame.i} · pass ${frame.i+1}/${vertices.length-1}`
+    document.querySelector('#bellmanCurrent').textContent=frame.current||'—'
+    document.querySelector('#bellmanNeighbor').textContent=frame.neighbor||'—'
+    document.querySelector('#bellmanWeight').textContent=frame.weight===null?'—':String(frame.weight)
+    document.querySelector('#bellmanCandidate').textContent=frame.newDist===null?'—':String(frame.newDist)
+    document.querySelector('#bellmanDistances').innerHTML=vertices.map(vertex=>`<div class="${vertex===frame.updated?'is-updated':''}"><b>${vertex}</b><span>${show(frame.dist[vertex])}</span></div>`).join('')
+    const change=document.querySelector('#bellmanChange')
+    change.className=`bellman-update-status ${frame.kind==='cycleWarning'?'is-warning':frame.updated?'is-success':''}`
+    change.textContent=frame.kind==='cycleWarning'?'Reachable negative cycle detected':frame.updated?`dist[${frame.updated}]: ${show(frame.previous[frame.updated])} → ${show(frame.dist[frame.updated])}`:frame.kind==='compare'||frame.kind==='cycleCompare'?frame.message:'No distance update on this step'
+    document.querySelector('#bellmanCaption').textContent=frame.message
+    document.querySelector('#bellmanCount').textContent=`Step ${step+1} / ${frames.length}`
+    document.querySelector('#bellmanPrev').disabled=step===0
+    document.querySelector('#bellmanNext').disabled=step===frames.length-1
+    codePanel.querySelectorAll('.bellman-code-line.is-active').forEach(line=>{line.classList.remove('is-active');line.removeAttribute('aria-current')})
+    const line=codePanel.querySelector(`[data-line="${frame.line}"]`)
+    if(line){line.classList.add('is-active');line.setAttribute('aria-current','step');codePanel.scrollTop=Math.max(0,line.offsetTop-codePanel.offsetTop-codePanel.clientHeight/2)}
+  }
+  const next=()=>{if(step<frames.length-1){step++;draw()}else pause()}
+  const start=()=>{if(step===frames.length-1)step=0;draw();document.querySelector('#bellmanPlay').textContent='Ⅱ Pause';timer=setInterval(next,Number(document.querySelector('#bellmanSpeed').value))}
+  document.querySelector('#bellmanPrev').addEventListener('click',()=>{pause();step=Math.max(0,step-1);draw()})
+  document.querySelector('#bellmanNext').addEventListener('click',()=>{pause();next()})
+  document.querySelector('#bellmanRestart').addEventListener('click',()=>{pause();step=0;draw()})
+  document.querySelector('#bellmanPlay').addEventListener('click',()=>{if(timer)pause();else start()})
+  document.querySelector('#bellmanSpeed').addEventListener('change',()=>{if(timer){pause();start()}})
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)pause()})
   draw()
 }
